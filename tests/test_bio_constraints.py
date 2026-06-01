@@ -30,8 +30,9 @@ def test_no_activation_is_linear_and_can_exceed_limit():
 
 def test_hill_reduces_torque_when_velocity_same_direction():
     s = _state(1, 1); tau, vlim = _limits(1, 1)
-    action = torch.full((1, 1), 5.0)          # positive activation
-    # same-direction velocity (positive) -> torque reduced; opposing -> increased
+    action = torch.full((1, 1), 5.0)
+    # Both calls start from cold (zero) activation; one EMA step gives a positive alpha.
+    # Direction is what matters: same-sign velocity reduces torque, opposing increases it.
     out_same, _ = apply_bio(action, torch.full((1, 1), 15.0), tau, vlim, 0.005, _state(1, 1), CFG)
     out_opp,  _ = apply_bio(action, torch.full((1, 1), -15.0), tau, vlim, 0.005, _state(1, 1), CFG)
     assert out_same.item() < out_opp.item()
@@ -63,3 +64,6 @@ def test_activation_soft_bounds_torque_for_slow_joint():
     for _ in range(20):
         out, s = apply_bio(action, torch.zeros(1, 4), tau, vlim, 0.005, s, CFG)
     assert torch.all(out.abs() <= 23.5 + 1e-3)
+    # opposing (eccentric) velocity: Hill factor ~2 at vel_limit -> torque can exceed tau_limit
+    out_opp, _ = apply_bio(action, torch.full((1, 4), -30.0), tau, vlim, 0.005, s, CFG)
+    assert torch.all(out_opp.abs() > 23.5)

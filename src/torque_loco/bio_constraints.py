@@ -8,6 +8,8 @@ Faithful to SATA (arXiv:2502.12674, Eqs 1-4) and the legged_gym reference:
   fatigue:     zeta_t = (zeta_{t-1} + |tau|*dt) * beta
 Flags mirror SATA's control cfg; the migration runs all-on (reference).
 """
+from __future__ import annotations
+
 from dataclasses import dataclass
 import torch
 
@@ -22,13 +24,21 @@ class BioCfg:
     motor_fatigue: bool = True
 
 
-@dataclass
+@dataclass(frozen=True)
 class BioState:
     activation: torch.Tensor      # (E, J) EMA activation sign, in (-1, 1) when activation on
     fatigue: torch.Tensor         # (E, J) leaky-integrator fatigue >= 0
 
 
-def apply_bio(action, joint_vel, torque_limit, vel_limit, dt, state, cfg):
+def apply_bio(
+    action: torch.Tensor,
+    joint_vel: torch.Tensor,
+    torque_limit: torch.Tensor,
+    vel_limit: torch.Tensor,
+    dt: float,
+    state: BioState,
+    cfg: BioCfg,
+) -> tuple[torch.Tensor, BioState]:
     """Map a raw policy action to applied joint torque + updated bio state.
 
     Args (all (E, J) tensors unless noted):
@@ -41,6 +51,9 @@ def apply_bio(action, joint_vel, torque_limit, vel_limit, dt, state, cfg):
         cfg: BioCfg.
     Returns:
         (torque, new_state). torque is (E, J) applied joint torque (NOT hard-clipped).
+        With activation on, tanh bounds |alpha| < 1; but the Hill term can AMPLIFY torque
+        up to ~2x tau_limit for opposing joint velocity (eccentric contraction). The final
+        sim safety net is the actuator's effort_limit, not this function.
     """
     a_s = action * cfg.kappa_scale
     if cfg.activation_process:
