@@ -52,19 +52,8 @@ parser.add_argument(
     default="Isaac-Velocity-Flat-Go2-Sata-Play-v0",
     help="Gymnasium task ID to evaluate.",
 )
-parser.add_argument(
-    "--load_run",
-    type=str,
-    default=None,
-    help="Run folder name under logs/rsl_rl/<experiment_name>/ to load from.",
-)
-parser.add_argument(
-    "--checkpoint",
-    type=str,
-    default=None,
-    help="Checkpoint file path or name (e.g. model_1000.pt). "
-         "Passed to rsl_rl cli_args; if omitted the latest checkpoint is used.",
-)
+# NOTE: --load_run and --checkpoint are provided by cli_args.add_rsl_rl_args() below
+# (defining them here too caused an argparse conflict). Do not re-add them.
 parser.add_argument(
     "--num_envs",
     type=int,
