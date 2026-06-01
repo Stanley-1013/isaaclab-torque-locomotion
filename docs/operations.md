@@ -52,15 +52,14 @@ Logs land in `~/workspace/IsaacLab/logs/rsl_rl/<task>/<date-time>/`.
   (pure-torch, no Isaac Sim needed).
 
 ## Current status (2026-06-02)
-- **Tier-0 gate IN PROGRESS:** stock `Isaac-Velocity-Flat-Unitree-Go2-v0`
-  smoke-train (64 envs, 5 iters) launched on GPU 0; correct python confirmed,
-  Isaac Sim booting (first launch is slow — shader compile + Go2 USD pull).
-  Not yet confirmed training. Log: `~/workspace/go2_smoke.log`.
+- **Tier-0 gate PASSED ✅** — stock `Isaac-Velocity-Flat-Unitree-Go2-v0`
+  smoke-train ran headless on GPU 0 (64 envs, 5 iters): rsl_rl printed
+  `Learning iteration 2/5…4/5` with updating Mean reward, exit code 0. First
+  Isaac Sim launch took ~2 min (shader compile + Go2 USD pull); subsequent
+  launches are faster. **Phase 0 fully cleared — Isaac Lab works on this box.**
 
 ## Next steps (resume here)
-1. Confirm Tier-0: `grep "Learning iteration" ~/workspace/go2_smoke.log`. If it
-   trains, Phase 0 is fully cleared.
-2. **Task 1.2** — Go2 effort-control env cfg. FIRST verify the installed 5.1 API:
+1. **Task 1.2** — Go2 effort-control env cfg. FIRST verify the installed 5.1 API:
    the real env-cfg class name, the `actions` term type, and the Go2 actuator
    group key (the plan guesses `"base_legs"`):
    ```bash
