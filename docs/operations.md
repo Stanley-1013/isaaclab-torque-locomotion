@@ -191,11 +191,66 @@ formulation (faithful reproduction, but fatigue becomes a reward term not an act
 which muddies the "actuator envelope" framing and needs obs to carry torque+fatigue).
 Decide with the user before implementing the BioActuator.
 
+> **SUPERSEDED 2026-06-02:** scope pivoted to FULL faithful SATA (incl. growth curriculum).
+> The Task-1.3 no-bio baseline above was abandoned (misaligned with SATA — stock IsaacLab
+> rewards/linear scale); those seeds were killed. The bio formulation question was resolved
+> by the user: realign fully to SATA. See the spec/plan below. Branch: `feat/sata-faithful-migration`.
+
+## Faithful SATA migration — execution log (2026-06-02, branch feat/sata-faithful-migration)
+
+Spec `docs/superpowers/specs/2026-06-02-sata-faithful-migration-design.md`; plan
+`docs/superpowers/plans/2026-06-02-sata-faithful-migration.md`. Subagent-driven execution.
+
+**Phase A (sim-free TDD, `sata` env) — DONE.** 19 tests pass.
+- `bio_constraints.py` rewritten: `apply_bio` = tanh-EMA activation (γ=0.6) + Hill + fatigue
+  leaky-integrator (β=0.9); frozen `BioState`. (replaces the old capacity-clip model)
+- `growth.py`: Gompertz `gompertz(step)` (k=3e-5, x0=24000) + torque/freq schedules.
+- `metrics.py`: + SATA-aligned reducers `sata_peak_torque / sata_energy_per_step / sata_mean_jerk`
+  (first-diff jerk, matching the reproduction's `eval_under_conditions.py`).
+
+**Phase B (Isaac Lab integration) — DONE + smoke-passed + reviewed.**
+- `bio_actuator.py` `BioActuator(IdealPDActuator)`: tanh-EMA+Hill+fatigue, front-leg torque
+  ceiling grows 7.05→23.5 via `env._G` (rear constant 23.5), per-joint vel limit (hip/thigh
+  30.1, calf 20.07), no hard clip (envelope = tanh). Init-time fatigue seeds from `U(0,0.2·G(0))`.
+- `sata_mdp.py`: obs `applied_torque`+`motor_fatigue`; 9 SATA rewards (G-modulated Table II:
+  forward-target blend, moving_y/yaw ×G, base_height ×(1+G)); G-scaled push event.
+- `go2_sata_env.py` `Go2SataEnv(ManagerBasedRLEnv)`: **step() override** mirrors stock
+  `ManagerBasedRLEnv.step()` (lines 153-241) with the fixed decimation loop replaced by SATA's
+  variable-frequency accumulator (`while accum*freq<1`, freq=100→200 via G); `env._G` set each
+  step. Cfg: BioActuator, SATA obs(60)/rewards/commands(fixed ranges)/DR/defaults (base z=0.10,
+  thigh 1.45, calf -2.5), 200 Hz physics. Task `Isaac-Velocity-Flat-Go2-Sata-v0` (+Play).
+
+### Three bugs the smoke-train caught (platform-migration findings — keep these)
+1. **Double dt-scaling.** Isaac Lab `RewardManager.compute` already does `func*weight*dt`
+   (`reward_manager.py:150`). Our cfg weights were `scale*dt` → rewards dt²-scaled (~1e-4,
+   "Mean reward -0.00"). Fix: weights = **raw SATA scales** (10,5,-5,…); the manager applies dt.
+2. **base_contact termination kills the prone start.** Robot starts prone (z=0.10); the stock
+   `base_contact` (illegal trunk contact) terminated at ~11 steps. SATA terminates on flip-over /
+   joint-limit, NOT base contact (paper §IV-B). Fix: drop `base_contact`, add `bad_orientation`
+   (limit_angle 1.4).
+3. **joint_pos_out_of_limit uses SOFT (0.9-scaled) limits.** SATA's folded start (calf -2.5)
+   sits at the soft-limit edge → instant joint_limit termination (~2 steps). Isaac Lab's term
+   tests soft limits, not hard. Fix: drop the joint-limit termination; rely on the
+   `soft_dof_pos_limits` REWARD penalty (-5) + flip-over. (platform diff vs SATA's hard-limit reset)
+
+**Smoke result (post-fix, 30 iters, 1024 envs, GPU 1):** exit 0, no NaN; episode length climbs
+10→590 (learns to survive from prone), all `time_out`/`bad_orientation 0`; reward breakdown sane
+(track_x +1.82, base_height +0.16; net negative dominated by joint_acc −1.32 early — expected,
+G still ~0.15). 22k steps/s. Logs `results/sata_smoke{,2,3}.log`.
+
+## Task C1 — 8-seed reference training (IN PROGRESS, launched 2026-06-02 ~04:13)
+`Isaac-Velocity-Flat-Go2-Sata-v0`, 4096 envs, **3000 iters, 8 seeds** (user: ≥8 for mean±std
+matching SATA's 8-seed 104±16). GPU 0 busy (other tenant) → GPUs 1/2/3 only:
+GPU1 seeds 1,4,7 ; GPU2 2,5,8 ; GPU3 3,6 (sequential via `dispatch_seeds.sh`, `MAX_ITER=3000`).
+Logs `results/go2_sata_s<N>.log`, dispatcher `results/dispatch_sata_gpu<G>.log`.
+
 ## Next steps (resume here)
-1. **Finish Task 1.3** — when seeds complete, render a `play.py` clip (use
-   `...-Go2-Torque-Play-v0`), confirm walking, record final mean rewards across seeds.
-2. **Task 2.2 decision** — reconcile bio formulation vs SATA (see above), then implement.
-3. Continue plan tasks 2.3 → 3.2 (Tier 2: BioActuator + envelope comparison).
+1. **Finish C1** — wait for 8 seeds; record final mean±std reward; render a
+   `...-Go2-Sata-Play-v0` clip; confirm walking + velocity tracking.
+2. **Task C2** — `scripts/eval_metrics.py` rollout dump → `scripts/plot_envelope.py`; compare
+   peak τ / energy / jerk to ground truth (reference peak τ≈22.5 inside 23.5/45 envelope). Record
+   the cross-engine envelope table. Anti-over-claim: reward not comparable cross-engine; envelope is.
+3. Final code review → `finishing-a-development-branch` (merge `feat/sata-faithful-migration`→main).
 
 ## Task B3 — Go2SataEnv (variable-freq step override) + full SATA env cfg
 
