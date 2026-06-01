@@ -196,3 +196,46 @@ Decide with the user before implementing the BioActuator.
    `...-Go2-Torque-Play-v0`), confirm walking, record final mean rewards across seeds.
 2. **Task 2.2 decision** — reconcile bio formulation vs SATA (see above), then implement.
 3. Continue plan tasks 2.3 → 3.2 (Tier 2: BioActuator + envelope comparison).
+
+## Task B3 — Go2SataEnv (variable-freq step override) + full SATA env cfg
+
+Created `src/torque_loco/go2_sata_env.py`.
+
+**step() source mirrored:** `Go2SataEnv._stepped` reproduces the body of
+`isaaclab.envs.manager_based_rl_env.ManagerBasedRLEnv.step`
+(IsaacLab `source/isaaclab/isaaclab/envs/manager_based_rl_env.py`, lines 153-240) verbatim,
+with the SINGLE change `for _ in range(self.cfg.decimation):` -> `for _ in range(n_sub):`.
+All `recorder_manager` calls, `_sim_step_counter` increment, render gating, counter increments,
+termination/reward/reset/command/interval-event flow and the 5-tuple return are preserved.
+Constructor mirrors `ManagerBasedRLEnv.__init__(self, cfg, render_mode=None, **kwargs)`
+(same file line 65); `common_step_counter` is initialised to 0 there and incremented once per
+`step()` after the physics loop (line 202) — `step()` reads it BEFORE incrementing, so the
+Gompertz scalar uses the pre-increment count.
+
+**Render gating choice:** kept stock `self._sim_step_counter % self.cfg.sim.render_interval == 0`.
+With `decimation=1` / `render_interval=4` it renders every 4th physics step regardless of how
+many sub-steps a given control step ran, which is correct; under headless training `is_rendering`
+is False so the whole branch is skipped.
+
+**API verified against installed source (no fixes needed beyond skeleton):**
+- `UnitreeGo2FlatEnvCfg`: `.../config/go2/flat_env_cfg.py` (inherits `rough_env_cfg.py`,
+  inherits `velocity_env_cfg.py::LocomotionVelocityRoughEnvCfg`).
+- `mdp.JointEffortActionCfg`: defined `isaaclab/envs/mdp/actions/actions_cfg.py:95`, re-exported
+  via `actions/__init__.py` -> `isaaclab.envs.mdp`.
+- `ObservationTermCfg.scale`: `isaaclab/managers/manager_term_cfg.py:176` (field exists).
+- obs terms `base_lin_vel/base_ang_vel/joint_pos/joint_vel/actions/height_scan`: all present in
+  `velocity_env_cfg.py::ObservationsCfg.PolicyCfg`.
+- actuator key `base_legs`: `isaaclab_assets/robots/unitree.py:170` (DCMotorCfg). Replaced with
+  BioActuatorCfg(joint_names_expr=[".*"]) — Go2 only has the 12 leg joints so `.*` is equivalent
+  to the stock `.*_hip/_thigh/_calf` exprs.
+- events `push_robot` (interval) + `add_base_mass` (startup): present in
+  `velocity_env_cfg.py::EventCfg`. NOTE: go2 `rough_env_cfg.py:34` already sets
+  `push_robot = None`; we re-create it as the growth-scaled push. `add_base_mass` mass range
+  overridden (-1,5).
+- `num_rerenders_on_reset`, `self.extras`, `recorder_manager`, `step_dt`, `physics_dt`: all
+  confirmed in `manager_based_env.py` / cfg.
+
+**Reward clearing:** `for name in list(vars(R)): setattr(R, name, None)` — `@configclass`
+instances expose terms as instance attrs, so this drops all stock terms before adding SATA terms.
+
+py_compile: PASS. Runtime smoke = Task B4.
