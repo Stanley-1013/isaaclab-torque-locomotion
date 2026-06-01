@@ -863,8 +863,10 @@ cd ~/workspace/isaaclab-torque-locomotion
 nohup setsid scripts/dispatch_seeds.sh <gpu> Isaac-Velocity-Flat-Go2-Sata-v0 go2_sata <seed...> \
   </dev/null > results/dispatch_sata_gpu<gpu>.log 2>&1 & disown
 ```
-Use 3000 max_iterations (SATA) — set `MAX_ITER=3000` env var for the dispatcher. Seeds resource-gated
-(floor 1–2; target 3–4), per `docs/specs/2026-06-01-design.md` §4.6.
+Use 3000 max_iterations (SATA) — set `MAX_ITER=3000` env var for the dispatcher. **Seed count:
+≥8 seeds (user directive 2026-06-02)** — matches SATA's 8-seed ground-truth reference (104±16), so
+the cross-engine reproducibility claim carries mean±std. Distribute across the ~3 idle GPUs via the
+dispatcher (≈3 seeds/GPU sequentially); time is not a constraint. Report mean±std final reward.
 
 - [ ] **Step 2: Confirm it walks**
 
