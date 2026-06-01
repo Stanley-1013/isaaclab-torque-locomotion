@@ -32,7 +32,7 @@ PHYSICS_DT = 1.0 / PHYSICS_HZ      # 0.005
 class Go2SataEnv(ManagerBasedRLEnv):
     def __init__(self, cfg, render_mode=None, **kwargs):
         super().__init__(cfg, render_mode=render_mode, **kwargs)
-        self._G = 1.0
+        self._G = gompertz(0)   # G at t=0 (not full capacity) until step() updates it
         act = self.scene["robot"].actuators["base_legs"]
         if hasattr(act, "set_runtime"):
             act.set_runtime(PHYSICS_DT, self)
@@ -126,6 +126,10 @@ class Go2SataEnvCfg(UnitreeGo2FlatEnvCfg):
     def __post_init__(self):
         super().__post_init__()
         self.sim.dt = PHYSICS_DT
+        # decimation=1 -> step_dt = physics_dt = 0.005s regardless of the variable n_sub set in
+        # Go2SataEnv.step(). Intentional: at cold start (n_sub=2, 100Hz control) each env step
+        # covers 0.010s of physics but rewards/events use step_dt=0.005s, halving reward scale
+        # early — consistent with SATA's growth-based cold-start stabilization.
         self.decimation = 1
         self.sim.render_interval = 4
         self.episode_length_s = 10.0

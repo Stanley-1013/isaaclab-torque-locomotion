@@ -14,7 +14,7 @@ from isaaclab.utils import configclass
 from isaaclab.utils.types import ArticulationActions
 
 from .bio_constraints import apply_bio, BioState, BioCfg
-from .growth import torque_limit_scale
+from .growth import torque_limit_scale, gompertz
 
 
 class BioActuator(IdealPDActuator):
@@ -49,7 +49,10 @@ class BioActuator(IdealPDActuator):
         if env_ids is None:
             env_ids = slice(None)
         self.activation[env_ids] = 0.0
-        g = float(getattr(self._env, "_G", 1.0)) if self._env is not None else 1.0
+        # Fallback to G(0) (not 1.0) for the init-time reset that runs during Articulation
+        # construction before set_runtime() wires env._G — so the first fatigue seed matches
+        # the early-training growth level, not full capacity.
+        g = float(getattr(self._env, "_G", gompertz(0))) if self._env is not None else gompertz(0)
         hi = 0.2 * g
         if self._biocfg.motor_fatigue and hi > 0.0:
             self.motor_fatigue[env_ids] = torch.rand_like(self.motor_fatigue[env_ids]) * hi
