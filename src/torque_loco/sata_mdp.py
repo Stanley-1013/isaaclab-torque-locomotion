@@ -1,0 +1,90 @@
+# src/torque_loco/sata_mdp.py
+"""Custom SATA manager terms: observations (torque, fatigue), the 9 SATA reward terms
+(growth-modulated via env._G), and the G-scaled push event.
+phi(x) = exp(-4|x|) (SATA Gaussian-shaped tracking kernel; == exp(-|x|/0.25))."""
+import torch
+from isaaclab.assets import Articulation
+from isaaclab.managers import SceneEntityCfg
+
+
+def _phi(x):
+    return torch.exp(-4.0 * x.abs())
+
+def _G(env):
+    return float(getattr(env, "_G", 1.0))
+
+def _actuator(env, name="base_legs"):
+    return env.scene["robot"].actuators[name]
+
+# ---- observations ----
+def applied_torque(env, asset_cfg=SceneEntityCfg("robot")):
+    asset: Articulation = env.scene[asset_cfg.name]
+    return asset.data.applied_torque[:, asset_cfg.joint_ids]
+
+def motor_fatigue(env, asset_cfg=SceneEntityCfg("robot")):
+    return _actuator(env).motor_fatigue
+
+# ---- reward terms (return (num_envs,)) ----
+def track_x(env, command_name="base_velocity", asset_cfg=SceneEntityCfg("robot")):
+    asset = env.scene[asset_cfg.name]
+    vx = asset.data.root_lin_vel_b[:, 0]
+    cmd = env.command_manager.get_command(command_name)
+    g = _G(env)
+    rng = env.command_manager.get_term(command_name).cfg.ranges.lin_vel_x
+    mid = 0.5 * (rng[0] + rng[1])
+    return _phi(vx - mid) * (1.0 - g) + _phi(vx - cmd[:, 0]) * (1.0 + g)
+
+def track_y(env, command_name="base_velocity", asset_cfg=SceneEntityCfg("robot")):
+    asset = env.scene[asset_cfg.name]
+    cmd = env.command_manager.get_command(command_name)
+    return _phi(asset.data.root_lin_vel_b[:, 1] - cmd[:, 1]) * _G(env)
+
+def track_yaw(env, command_name="base_velocity", asset_cfg=SceneEntityCfg("robot")):
+    asset = env.scene[asset_cfg.name]
+    cmd = env.command_manager.get_command(command_name)
+    return _phi(asset.data.root_ang_vel_b[:, 2] - cmd[:, 2]) * _G(env)
+
+def base_height(env, target_height=0.3, asset_cfg=SceneEntityCfg("robot")):
+    asset = env.scene[asset_cfg.name]
+    g = _G(env)
+    h = torch.clamp(asset.data.root_pos_w[:, 2], max=target_height)
+    gx = asset.data.projected_gravity_b[:, 0]
+    head_up = torch.maximum(gx, -torch.clamp(0.2 * (1.5 - 2.0 * g) * torch.ones_like(gx), max=0.0))
+    return h * (1.0 + g) - head_up
+
+def roll_penalty(env, asset_cfg=SceneEntityCfg("robot")):
+    return env.scene[asset_cfg.name].data.projected_gravity_b[:, 1].abs()
+
+def lin_vel_z(env, asset_cfg=SceneEntityCfg("robot")):
+    return env.scene[asset_cfg.name].data.root_lin_vel_b[:, 2] ** 2
+
+def soft_dof_pos_limits(env, asset_cfg=SceneEntityCfg("robot")):
+    asset = env.scene[asset_cfg.name]
+    q = asset.data.joint_pos
+    lo = asset.data.soft_joint_pos_limits[..., 0]
+    hi = asset.data.soft_joint_pos_limits[..., 1]
+    out = -(q - lo).clamp(max=0.0) + (q - hi).clamp(min=0.0)
+    return out.sum(dim=1)
+
+def fatigue_penalty(env, kappa_scale=5.0, asset_cfg=SceneEntityCfg("robot")):
+    asset = env.scene[asset_cfg.name]
+    fatigue = _actuator(env).motor_fatigue
+    action_scaled = (asset.data.joint_effort_target * kappa_scale).abs()
+    return (fatigue * action_scaled).sum(dim=1)
+
+def joint_acc_l2(env, asset_cfg=SceneEntityCfg("robot")):
+    return (env.scene[asset_cfg.name].data.joint_acc ** 2).sum(dim=1)
+
+# ---- events ----
+def push_scaled_by_growth(env, env_ids, velocity_range, asset_cfg=SceneEntityCfg("robot")):
+    """Push by setting base velocity, magnitude scaled by env._G (SATA max_push_vel*general_scale)."""
+    asset: Articulation = env.scene[asset_cfg.name]
+    g = _G(env)
+    vel = torch.zeros((len(env_ids), 6), device=env.device)
+    for i, key in enumerate(["x", "y", "z", "roll", "pitch", "yaw"]):
+        if key in velocity_range:
+            lo, hi = velocity_range[key]
+            vel[:, i] = (torch.rand(len(env_ids), device=env.device) * (hi - lo) + lo) * g
+    root = asset.data.root_state_w[env_ids].clone()
+    root[:, 7:13] += vel
+    asset.write_root_velocity_to_sim(root[:, 7:13], env_ids=env_ids)
