@@ -92,7 +92,57 @@ and replace the `"base_legs"` actuator with an effort-passthrough
 For Task 2.2 the `BioActuator` may subclass `IdealPDActuator` (clean passthrough) **or** `DCMotor`
 (keeps the realistic torque-speed saturation as part of the envelope) — decide then.
 
+## Task 1.2 — Go2 effort-control env cfg — DONE 2026-06-02
+
+Implemented and smoke-tested. Files (in this repo):
+- `src/torque_loco/go2_torque_env_cfg.py` — `Go2TorqueEnvCfg(UnitreeGo2FlatEnvCfg)`:
+  `__post_init__` sets `self.actions.joint_pos = None` and adds
+  `self.actions.joint_effort = mdp.JointEffortActionCfg(joint_names=[".*"], scale=23.5)`,
+  then replaces the `"base_legs"` actuator with a zero-gain
+  `IdealPDActuatorCfg(stiffness=0, damping=0, effort_limit=23.5, velocity_limit=30.0)`.
+  Also a `Go2TorqueEnvCfg_PLAY` variant (50 envs, no corruption/pushes) for eval/render.
+- `src/torque_loco/__register__.py` — registers `Isaac-Velocity-Flat-Go2-Torque-v0`
+  (+ `-Play-v0`), reusing the stock `UnitreeGo2FlatPPORunnerCfg`.
+- `scripts/train_go2.py` — launcher (see mechanism below).
+
+### Two corrections to the plan (keep these)
+1. **Use STRING entry points in `gym.register`, not class objects.** The plan passed
+   `Go2TorqueEnvCfg` directly, but importing the cfg eagerly pulls in `isaaclab → pxr`,
+   which is only importable *after* the Omniverse app launches. String entry points
+   (`"torque_loco.go2_torque_env_cfg:Go2TorqueEnvCfg"`) defer that import to `gym.make`.
+2. **Task discovery needs a register-then-delegate launcher (the "working mechanism").**
+   Isaac Lab's `train.py` resolves the task cfg via a hydra decorator at *module import*,
+   and the gym registry is process-global. So `scripts/train_go2.py`: adds `src/` to
+   `sys.path` → `import torque_loco.__register__` (pure `gym.register`, no pxr, safe
+   pre-launch) → `runpy.run_path(<IsaacLab>/scripts/.../rsl_rl/train.py, "__main__")`
+   (its dir prepended so `import cli_args` resolves). CLI args flow through `sys.argv`.
+   IsaacLab left unmodified. Override clone path with `ISAACLAB_PATH` env var if needed.
+
+   Run preamble (GPU 0, all 4 idle at the time):
+   ```bash
+   source ~/miniconda3/etc/profile.d/conda.sh && conda activate isaaclab
+   export OMNI_KIT_ACCEPT_EULA=YES CMAKE_POLICY_VERSION_MINIMUM=3.5
+   cd ~/workspace/IsaacLab
+   CUDA_VISIBLE_DEVICES=0 ./isaaclab.sh -p \
+     ~/workspace/isaaclab-torque-locomotion/scripts/train_go2.py \
+     --task Isaac-Velocity-Flat-Go2-Torque-v0 --headless --num_envs 1024 --max_iterations 10
+   ```
+
+### API confirmations (vs the pre-work guesses)
+- `ActionManager._prepare_terms` iterates `self.cfg.__dict__.items()` and `continue`s on
+  `None` → nulling `joint_pos` drops it, a dynamically-added `joint_effort` is picked up. ✓
+- No reward term references the position action specifically; `action_rate_l2` /
+  `dof_torques_l2` operate on the 12-dim action / applied torque generically. ✓
+
+### Smoke result (Step 4) ✅
+1024 envs, 10 iters, GPU 0, **exit 0**. Mean reward finite throughout (-2.8 → -3.6 …
+ending ~-2.9, **no NaN, no explosion**); `error_vel_xy` even drifted down 0.018→0.024.
+`scale=23.5` is stable — no need to halve. Log: `results/go2_torque_smoke.log`.
+(Reward is negative because an untrained pure-torque policy falls — expected; the gate
+is "finite, no shape errors", which passed.)
+
 ## Next steps (resume here)
-1. **Task 1.2** — implement `src/torque_loco/go2_torque_env_cfg.py` + `__register__.py` using the
-   verified values above (plan Task 1.2, but with the corrected `config.go2` import path).
-2. Continue plan tasks 1.3 → 2.2 → 2.3 → 3.2 (Tier 1 then Tier 2).
+1. **Task 1.3** — full training run(s) to walking (`--num_envs 4096 --max_iterations 1500`,
+   detached), render a `play.py` clip to confirm forward locomotion, record final mean
+   reward. Note: cross-engine reward magnitudes vs SATA are NOT comparable (anti-over-claim).
+2. Continue plan tasks 2.2 → 2.3 → 3.2 (Tier 2: BioActuator + envelope comparison).
