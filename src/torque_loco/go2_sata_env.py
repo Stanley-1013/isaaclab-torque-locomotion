@@ -165,9 +165,14 @@ class Go2SataEnvCfg(UnitreeGo2FlatEnvCfg):
         R.joint_limits = RewardTermCfg(func=sata_mdp.soft_dof_pos_limits, weight=-5.0)
         R.fatigue = RewardTermCfg(func=sata_mdp.fatigue_penalty, weight=-0.05)
         R.joint_acc = RewardTermCfg(func=sata_mdp.joint_acc_l2, weight=-1e-6)
+        # SATA terminations = flip-over (primary) + time_out (inherited). NOT base contact
+        # (robot starts prone at z=0.10). joint_pos_out_of_limit is intentionally NOT used:
+        # it tests the 0.9-scaled SOFT limits, and SATA's folded start (calf -2.5) sits at that
+        # soft-limit edge -> it would fire instantly. The soft_dof_pos_limits REWARD penalty
+        # (weight -5) supplies the joint-limit gradient instead (platform-difference vs SATA's
+        # hard-limit reset).
         self.terminations.base_contact = None
         self.terminations.bad_orientation = DoneTerm(func=mdp.bad_orientation, params={"limit_angle": 1.4})
-        self.terminations.joint_limit = DoneTerm(func=mdp.joint_pos_out_of_limit, params={"asset_cfg": SceneEntityCfg("robot")})
         E = self.events
         E.push_robot = EventTermCfg(
             func=sata_mdp.push_scaled_by_growth, mode="interval", interval_range_s=(4.0, 4.0),
