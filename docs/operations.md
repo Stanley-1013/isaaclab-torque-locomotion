@@ -58,13 +58,41 @@ Logs land in `~/workspace/IsaacLab/logs/rsl_rl/<task>/<date-time>/`.
   Isaac Sim launch took ~2 min (shader compile + Go2 USD pull); subsequent
   launches are faster. **Phase 0 fully cleared — Isaac Lab works on this box.**
 
+## Verified API (Task 1.2 pre-work) — DONE 2026-06-02
+
+Read from the installed source. **Corrections to the plan's guesses:**
+
+| Plan guessed | Reality |
+|---|---|
+| module `...config.unitree_go2` | **`...config.go2`** (dir is `go2`, not `unitree_go2`) ✗ |
+| env-cfg class `UnitreeGo2FlatEnvCfg` | ✅ correct |
+| actuator group key `"base_legs"` | ✅ correct |
+| actuator class `IdealPDActuator` | actually **`DCMotorCfg`** (subclasses `IdealPDActuatorCfg`, so subclassing still works) |
+
+Concrete values:
+- **Env cfg:** `isaaclab_tasks.manager_based.locomotion.velocity.config.go2.flat_env_cfg:UnitreeGo2FlatEnvCfg`
+  (parent `rough_env_cfg.py:UnitreeGo2RoughEnvCfg` ← `velocity_env_cfg.LocomotionVelocityRoughEnvCfg`).
+- **Action term:** `self.actions.joint_pos` (a `JointPositionActionCfg`); rough cfg sets `joint_pos.scale = 0.25`.
+- **Effort action class:** `mdp.JointEffortActionCfg` (`import isaaclab.envs.mdp as mdp`), in
+  `isaaclab/envs/mdp/actions/actions_cfg.py`.
+- **Stock actuator** (group `"base_legs"`, in `isaaclab_assets/robots/unitree.py:UNITREE_GO2_CFG`):
+  `DCMotorCfg(joint_names_expr=[".*_hip_joint",".*_thigh_joint",".*_calf_joint"], effort_limit=23.5,
+  saturation_effort=23.5, velocity_limit=30.0, stiffness=25.0, damping=0.5)`.
+  **Note: stock effort_limit 23.5 N·m == SATA's sim torque clip 23.5** — nice alignment for the
+  cross-engine reproducibility story.
+- **Actuator cfgs in `isaaclab.actuators`:** `ImplicitActuatorCfg`, `IdealPDActuatorCfg`,
+  `DCMotorCfg(IdealPDActuatorCfg)`.
+- **rsl_rl runner entry point:** `...config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2FlatPPORunnerCfg`.
+
+**Implication for Task 1.2 (effort control):** subclass `UnitreeGo2FlatEnvCfg`; in `__post_init__`
+after `super()`, set `self.actions.joint_pos = None`, add
+`self.actions.joint_effort = mdp.JointEffortActionCfg(asset_name="robot", joint_names=[".*"], scale=23.5)`,
+and replace the `"base_legs"` actuator with an effort-passthrough
+`IdealPDActuatorCfg(stiffness=0.0, damping=0.0, effort_limit=23.5, velocity_limit=30.0)`.
+For Task 2.2 the `BioActuator` may subclass `IdealPDActuator` (clean passthrough) **or** `DCMotor`
+(keeps the realistic torque-speed saturation as part of the envelope) — decide then.
+
 ## Next steps (resume here)
-1. **Task 1.2** — Go2 effort-control env cfg. FIRST verify the installed 5.1 API:
-   the real env-cfg class name, the `actions` term type, and the Go2 actuator
-   group key (the plan guesses `"base_legs"`):
-   ```bash
-   python -c "import isaaclab_tasks.manager_based.locomotion.velocity.config.unitree_go2 as m; print(m.__file__)"
-   ```
-   Then implement `src/torque_loco/go2_torque_env_cfg.py` + `__register__.py` per
-   the plan (`docs/plans/2026-06-01-implementation-plan.md`, Task 1.2).
-3. Continue plan tasks 1.3 → 2.2 → 2.3 → 3.2 (Tier 1 then Tier 2).
+1. **Task 1.2** — implement `src/torque_loco/go2_torque_env_cfg.py` + `__register__.py` using the
+   verified values above (plan Task 1.2, but with the corrected `config.go2` import path).
+2. Continue plan tasks 1.3 → 2.2 → 2.3 → 3.2 (Tier 1 then Tier 2).
