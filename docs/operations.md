@@ -141,8 +141,58 @@ ending ~-2.9, **no NaN, no explosion**); `error_vel_xy` even drifted down 0.018�
 (Reward is negative because an untrained pure-torque policy falls — expected; the gate
 is "finite, no shape errors", which passed.)
 
+## Task 1.3 — overnight multi-seed baseline (IN PROGRESS, launched 2026-06-02 ~02:00)
+
+Running 8 seeds of the no-bio torque baseline (`Isaac-Velocity-Flat-Go2-Torque-v0`,
+4096 envs, 1500 iters) across all 4 idle A6000s, mirroring SATA's multi-seed rigor
+(SATA used 3, later 8). Seed 1 launched standalone on GPU 0; `scripts/dispatch_seeds.sh`
+runs the rest sequentially per GPU, waiting for each GPU to free before starting:
+- GPU 0: seed 1 (standalone) → 5 ; GPU 1: 2 → 6 ; GPU 2: 3 → 7 ; GPU 3: 4 → 8.
+- Per-seed logs `results/go2_torque_s<N>.log`; dispatcher logs `results/dispatch_gpu<G>.log`.
+- Dispatcher is idempotent (skips a seed whose log shows completion) and reusable for
+  the bio variant later: `dispatch_seeds.sh <gpu> <task_id> <log_prefix> <seed...>`.
+- Early health (seed 1): reward -3.0 → -0.66 by iter ~150, no NaN. Walking-quality
+  check + `play.py` clip still TODO once a seed finishes.
+- **Anti-over-claim:** cross-engine reward magnitudes vs SATA are NOT comparable
+  (different terms/engine); validation is qualitative (does it walk + track command).
+
+## SATA ground truth (read from sibling repos 2026-06-02) — RECONCILE BEFORE Task 2
+
+Read `~/workspace/SATA` (original) + `~/workspace/bio-inspired-adaptive-locomotion`
+(reproduction). **Our `bio_constraints.py` is a plausible but DIFFERENT formulation
+from SATA's actual mechanism — must decide whether to realign for faithful Tier-2.**
+
+SATA's real `go2_torque` (`SATA/legged_gym/.../go2/go2_torque/go2_torque.py`):
+- **control_type `'TG'`** (torque + growth curriculum), `action_scale=5`, `decimation=1`
+  (200 Hz, sim dt 0.005). No PD in torque mode.
+- **Activation low-pass on the SIGN, not the torque:** `act = (tanh(τ/τlim) - act)*0.6 + act`
+  (α=0.6). i.e. it filters `tanh(τ/limit)`, then torque = `act * τlim`.
+- **Hill model** force-velocity shaping: `τ = act * τlim * (1 - sign(act)*ω/ω_max)`.
+- **Fatigue = accumulator used as a REWARD PENALTY, not a hard clip:**
+  `motor_fatigue += |τ|*dt; motor_fatigue *= 0.9`; reward term
+  `_reward_motor_fatigue = Σ(motor_fatigue * |τ_action|)`, weight **-0.05**. ← our
+  version instead CLIPS torque by a capacity in (0,1]; SATA never clips via fatigue.
+- **Torque clip 23.5 N·m** (`go2_torque.py:315`); real Go2 peak **45 N·m** (`plot_phase3.py`).
+- **Obs = 60** = lin_vel*2 + ang_vel*0.25 + proj_grav + (dof_pos-default)*1 + dof_vel*0.05
+  + cmd*[2,2,0.25] + **torques (raw) + motor_fatigue (raw)**. (Adds torque+fatigue to obs.)
+- Reward scales: forward 10, head_height 5, moving_y 5, moving_yaw 5, soft_dof_pos_limits
+  -5, motor_fatigue -0.05, dof_acc -1e-6, roll -5, lin_vel_z -5. (No action-rate term —
+  smoothness comes from the activation filter.)
+
+Phase-3 headline (reproduction `results/phase3-bio-claims.../README.md`), what Tier-2
+must reproduce qualitatively: reference peak τ 22.5±0.3; **no_activation → 42.5±4.4**
+(jerk collapses); **no_fatigue → energy 1.69 (2.5×), jerk 26,998 (35×)**. Phase-1
+reference reward **104±16 (8 seeds)** / 114±6 (3 seeds). Core claim: bio = **feasibility
+envelope, not a reward device** (see [[feedback-research-rigor]]).
+
+**Open decision for Task 2.2:** keep our clean hard-clip capacity model (simpler, sim-free
+testable, "envelope" reading is literal) OR realign to SATA's penalty+Hill+sign-filter
+formulation (faithful reproduction, but fatigue becomes a reward term not an actuator clip,
+which muddies the "actuator envelope" framing and needs obs to carry torque+fatigue).
+Decide with the user before implementing the BioActuator.
+
 ## Next steps (resume here)
-1. **Task 1.3** — full training run(s) to walking (`--num_envs 4096 --max_iterations 1500`,
-   detached), render a `play.py` clip to confirm forward locomotion, record final mean
-   reward. Note: cross-engine reward magnitudes vs SATA are NOT comparable (anti-over-claim).
-2. Continue plan tasks 2.2 → 2.3 → 3.2 (Tier 2: BioActuator + envelope comparison).
+1. **Finish Task 1.3** — when seeds complete, render a `play.py` clip (use
+   `...-Go2-Torque-Play-v0`), confirm walking, record final mean rewards across seeds.
+2. **Task 2.2 decision** — reconcile bio formulation vs SATA (see above), then implement.
+3. Continue plan tasks 2.3 → 3.2 (Tier 2: BioActuator + envelope comparison).
