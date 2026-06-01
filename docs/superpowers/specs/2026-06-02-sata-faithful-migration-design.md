@@ -153,8 +153,15 @@ Command ranges **fixed**, resampled every 5 s: vx[-0.5,1.5], vy[-0.5,0.5], yaw[-
 (Growth on commands is in the `forward` reward, §3.5 — not a range curriculum.)
 Domain randomization: base mass +≤5 kg; friction ∈[0.5,1.25]; COM shift x∈[−0.2,0.2], y/z∈[−0.1,0.1];
 **10 % probability to hold last action/observation** (the `loss_rate`); **push velocity scales with G(t)**.
-Reset: SATA repositions the robot **lying flat with random initial fatigue** — replicate via an event
-that randomizes initial fatigue (and consider the prone init) to match the generalization init.
+Reset (FULL reproduction — user-required; values read from SATA `go2_torque.py:137-171`, *not* the
+paper's looser "lying flat" prose):
+- **dof_pos** = `default_dof_pos × U(0.95, 1.05)` (default is a folded crouch: hip ±0.1, thigh 1.45,
+  calf −2.5 — this *is* SATA's "lying flat" low pose), **dof_vel = 0**, **activation_sign (EMA) = 0**.
+- **motor_fatigue init** = `U(0, 0.2·G(t))` per joint (random initial fatigue, scaled by growth →
+  ~0 early, grows with training); 0 if noise disabled.
+- **base** = config `base_init_state` (upright orientation) + env origin + xy jitter `U(−1,1) m`.
+Implemented as: a reset-mode event term for dof jitter + base pose + xy jitter, and the BioActuator's
+`reset(env_ids)` seeding `fatigue ~ U(0, 0.2·env._G)` and `act_prev=0` (instead of plain zeros).
 
 ### 3.7 Control / training constants
 `sim.dt=0.005` (200 Hz physics); control 100→200 Hz via §3.1 (at deployment 200 Hz, τ=23.5 full);
