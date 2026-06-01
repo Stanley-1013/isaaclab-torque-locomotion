@@ -244,6 +244,16 @@ matching SATA's 8-seed 104±16). GPU 0 busy (other tenant) → GPUs 1/2/3 only:
 GPU1 seeds 1,4,7 ; GPU2 2,5,8 ; GPU3 3,6 (sequential via `dispatch_seeds.sh`, `MAX_ITER=3000`).
 Logs `results/go2_sata_s<N>.log`, dispatcher `results/dispatch_sata_gpu<G>.log`.
 
+**Concurrency race found (keep this gotcha):** Isaac Lab names each run dir by
+`datetime.now().strftime("%Y-%m-%d_%H-%M-%S")` (timestamp-to-the-second). When two
+concurrently-launched seeds initialize rsl_rl in the SAME wall-clock second, they pick the
+same dir and the loser dies with `FileExistsError: .../<ts>/git/IsaacLab.diff`. Seed 6 hit this
+(exit 1) at 05:34:41. **Fix:** `dispatch_seeds.sh` now passes `--run_name <prefix>_s<seed>`
+(train.py appends it → `<ts>_<run_name>`, unique per seed). Seed 6 re-run on GPU3 with the fix.
+Self-healing: any seed that loses the race is re-run solo (no concurrent init → no collision).
+First-batch result: seeds 1,2,3 done (final reward 75 / 24 / 71 — seed 2 a laggard, expected;
+reward NOT comparable cross-engine, envelope metrics are the claim).
+
 ## Next steps (resume here)
 1. **Finish C1** — wait for 8 seeds; record final mean±std reward; render a
    `...-Go2-Sata-Play-v0` clip; confirm walking + velocity tracking.
