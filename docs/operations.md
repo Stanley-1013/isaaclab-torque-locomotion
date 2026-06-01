@@ -251,8 +251,23 @@ same dir and the loser dies with `FileExistsError: .../<ts>/git/IsaacLab.diff`. 
 (exit 1) at 05:34:41. **Fix:** `dispatch_seeds.sh` now passes `--run_name <prefix>_s<seed>`
 (train.py appends it → `<ts>_<run_name>`, unique per seed). Seed 6 re-run on GPU3 with the fix.
 Self-healing: any seed that loses the race is re-run solo (no concurrent init → no collision).
-First-batch result: seeds 1,2,3 done (final reward 75 / 24 / 71 — seed 2 a laggard, expected;
+First-batch result: seeds 1,2,3 trained (final reward 75 / 24 / 71 — seed 2 a laggard, expected;
 reward NOT comparable cross-engine, envelope metrics are the claim).
+
+**WORSE than one crash — silent checkpoint corruption (keep this):** seeds **1,2,3** launched
+simultaneously (04:13:10) ALL initialized at the same second and got the SAME run dir
+`2026-06-02_04-14-08` (logs confirm all three print that dir). They did NOT crash — they wrote
+checkpoints into the SAME directory, last-writer-wins, so that dir holds only ONE usable final
+policy, not three. (The later collisions of seeds 6 and 8 instead crashed on `git/IsaacLab.diff`.)
+So a same-second race can either crash a seed OR silently merge checkpoints. **Recovery:** void
+`04-14-08`; re-run seeds 1,2,3 with the `--run_name`-fixed dispatcher (distinct dirs). Old per-seed
+reward logs preserved as `results/go2_sata_s{1,2,3}.corrupt.log`. Clean 8-seed set = re-run
+{1,2,3} + {4,5,6,7,8} (each a distinct `<ts>[_go2_sata_sN]` dir). Lesson: always pass a unique
+`--run_name` for ANY concurrent rsl_rl launches — the timestamp dir name is not collision-safe.
+
+**eval_metrics.py bug (fixed):** it redefined `--load_run`/`--checkpoint` AND called
+`cli_args.add_rsl_rl_args` → argparse conflict. Removed the dupes; select a checkpoint via
+`--load_run <dir>` (latest model_*.pt auto-picked); `--checkpoint` expects a full path. (28e9bf1)
 
 ## Next steps (resume here)
 1. **Finish C1** — wait for 8 seeds; record final mean±std reward; render a
