@@ -15,7 +15,7 @@ remains correct under a variable sub-step count and is skipped entirely under he
 """
 import isaaclab.envs.mdp as mdp
 from isaaclab.envs import ManagerBasedRLEnv
-from isaaclab.managers import EventTermCfg, ObservationTermCfg, RewardTermCfg, SceneEntityCfg
+from isaaclab.managers import EventTermCfg, ObservationTermCfg, RewardTermCfg, SceneEntityCfg, TerminationTermCfg as DoneTerm
 from isaaclab.utils import configclass
 from isaaclab_tasks.manager_based.locomotion.velocity.config.go2.flat_env_cfg import (
     UnitreeGo2FlatEnvCfg,
@@ -156,16 +156,18 @@ class Go2SataEnvCfg(UnitreeGo2FlatEnvCfg):
         R = self.rewards
         for name in list(vars(R)):
             setattr(R, name, None)
-        DT = PHYSICS_DT
-        R.track_x = RewardTermCfg(func=sata_mdp.track_x, weight=10.0 * DT)
-        R.track_y = RewardTermCfg(func=sata_mdp.track_y, weight=5.0 * DT)
-        R.track_yaw = RewardTermCfg(func=sata_mdp.track_yaw, weight=5.0 * DT)
-        R.base_height = RewardTermCfg(func=sata_mdp.base_height, weight=5.0 * DT)
-        R.roll = RewardTermCfg(func=sata_mdp.roll_penalty, weight=-5.0 * DT)
-        R.lin_vel_z = RewardTermCfg(func=sata_mdp.lin_vel_z, weight=-5.0 * DT)
-        R.joint_limits = RewardTermCfg(func=sata_mdp.soft_dof_pos_limits, weight=-5.0 * DT)
-        R.fatigue = RewardTermCfg(func=sata_mdp.fatigue_penalty, weight=-0.05 * DT)
-        R.joint_acc = RewardTermCfg(func=sata_mdp.joint_acc_l2, weight=-1e-6 * DT)
+        R.track_x = RewardTermCfg(func=sata_mdp.track_x, weight=10.0)
+        R.track_y = RewardTermCfg(func=sata_mdp.track_y, weight=5.0)
+        R.track_yaw = RewardTermCfg(func=sata_mdp.track_yaw, weight=5.0)
+        R.base_height = RewardTermCfg(func=sata_mdp.base_height, weight=5.0)
+        R.roll = RewardTermCfg(func=sata_mdp.roll_penalty, weight=-5.0)
+        R.lin_vel_z = RewardTermCfg(func=sata_mdp.lin_vel_z, weight=-5.0)
+        R.joint_limits = RewardTermCfg(func=sata_mdp.soft_dof_pos_limits, weight=-5.0)
+        R.fatigue = RewardTermCfg(func=sata_mdp.fatigue_penalty, weight=-0.05)
+        R.joint_acc = RewardTermCfg(func=sata_mdp.joint_acc_l2, weight=-1e-6)
+        self.terminations.base_contact = None
+        self.terminations.bad_orientation = DoneTerm(func=mdp.bad_orientation, params={"limit_angle": 1.4})
+        self.terminations.joint_limit = DoneTerm(func=mdp.joint_pos_out_of_limit, params={"asset_cfg": SceneEntityCfg("robot")})
         E = self.events
         E.push_robot = EventTermCfg(
             func=sata_mdp.push_scaled_by_growth, mode="interval", interval_range_s=(4.0, 4.0),
