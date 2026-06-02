@@ -5,3 +5,8 @@ outputs/
 *.usd
 *.usdc
 .vscode/
+
+# generated eval/training artifacts (regenerable; summary+plots are kept)
+results/metrics_sata_s*.csv
+results/*.log
+results/go2_torque_s*.log

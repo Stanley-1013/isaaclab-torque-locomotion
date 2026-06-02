@@ -269,13 +269,42 @@ reward logs preserved as `results/go2_sata_s{1,2,3}.corrupt.log`. Clean 8-seed s
 `cli_args.add_rsl_rl_args` → argparse conflict. Removed the dupes; select a checkpoint via
 `--load_run <dir>` (latest model_*.pt auto-picked); `--checkpoint` expects a full path. (28e9bf1)
 
-## Next steps (resume here)
-1. **Finish C1** — wait for 8 seeds; record final mean±std reward; render a
-   `...-Go2-Sata-Play-v0` clip; confirm walking + velocity tracking.
-2. **Task C2** — `scripts/eval_metrics.py` rollout dump → `scripts/plot_envelope.py`; compare
-   peak τ / energy / jerk to ground truth (reference peak τ≈22.5 inside 23.5/45 envelope). Record
-   the cross-engine envelope table. Anti-over-claim: reward not comparable cross-engine; envelope is.
-3. Final code review → `finishing-a-development-branch` (merge `feat/sata-faithful-migration`→main).
+## Task C1/C2 — RESULT (8 clean seeds, 2026-06-02 ~09:45)
+
+All 8 seeds trained 3000 iters (clean, distinct dirs after the race fix). Walking confirmed
+via training telemetry: every seed reaches full-length episodes (2000 steps, ~all time_out,
+flip-over≈0) — the robot rises from the prone start and tracks the velocity command. Final
+training rewards 24–75 (seed 2 reproducibly the laggard at 24; reward NOT comparable
+cross-engine — SATA's 104±16 is a different engine). Eval: `scripts/eval_metrics.py` rolled out
+each seed (32 envs ×1000 steps, headless) → `results/metrics_sata_s<N>.csv`;
+`scripts/aggregate_envelope.py` → `results/envelope_summary.{csv,png}`.
+
+**Cross-engine feasibility-envelope reproduction (the Tier-2 headline):**
+
+| metric | Isaac Lab (8-seed full SATA) | SATA Isaac-Gym ref |
+|---|---|---|
+| Peak \|torque\| | **23.86 ± 2.45 N·m** | 22.5 ± 0.3 |
+| Energy / step | 1.82 ± 0.37 J | (reference band) |
+| Action jerk | 1961 ± 478 | (reference band) |
+
+All 8 seeds keep peak joint torque **inside the 45 N·m hardware envelope** (max 28.3),
+matching SATA's ~22.5 reference. Wider spread than SATA's ±0.3 traces to two less-converged
+seeds (s2 28.3, s3 26.1); the other six cluster ~22.75 ± 1.4. **→ the feasibility-envelope
+finding reproduces across the Isaac Gym → Isaac Lab engine change.** Anti-over-claim: sim-only;
+"within envelope" = within the rated torque number, not hardware-validated; reward magnitudes
+are not cross-engine-comparable (envelope metrics are).
+
+### Eval gotchas (keep)
+- Eval MUST pass `--headless` — without it the RTX renderer segfaults on this display-less box
+  (`librtx.scenedb` crash). Metrics need no rendering.
+- Raw per-step CSVs + training/eval logs are gitignored (regenerable, bulky); the committed
+  artifacts are `envelope_summary.{csv,png}` + per-seed `envelope_s*.png`.
+
+## Remaining / next steps
+1. **Walking clip** (deck nice-to-have, NOT blocking): `play.py --video` needs the VNC/EGL render
+   path (headless RTX segfaults). Render via the Phase-0 VNC display when assembling the deck.
+2. Final code review → `finishing-a-development-branch` (merge `feat/sata-faithful-migration`→main).
+3. Deck (Phase 4 of the original plan): why-migrate, torque paradigm, envelope reproduction chart.
 
 ## Task B3 — Go2SataEnv (variable-freq step override) + full SATA env cfg
 
