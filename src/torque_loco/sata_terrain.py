@@ -111,6 +111,10 @@ SATA_TERRAINS_CFG = TerrainGeneratorCfg(
     vertical_scale=0.005,
     slope_threshold=0.75,
     curriculum=False,
+    # SATA's randomized_terrain (curriculum=False) draws difficulty from the discrete set
+    # {0.5, 0.75, 0.9} (terrain.py:88). Isaac Lab samples difficulty uniformly in this range
+    # instead of [0,1), matching SATA's slope-magnitude distribution (mean ~0.072 rad, not ~0.05).
+    difficulty_range=(0.5, 0.9),
     use_cache=False,
     sub_terrains={
         "smooth_slope": terrain_gen.HfPyramidSlopedTerrainCfg(

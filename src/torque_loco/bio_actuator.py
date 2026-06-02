@@ -7,7 +7,6 @@ per-env/joint activation + fatigue buffers, reset on env reset. Reads the growth
 owning env (env._G) so the torque ceiling grows during training; rear legs stay at the max.
 The envelope is enforced by tanh (not a hard clip) -> _clip_effort is NOT called.
 """
-import re
 import torch
 from isaaclab.actuators import IdealPDActuator, IdealPDActuatorCfg
 from isaaclab.utils import configclass
@@ -34,10 +33,6 @@ class BioActuator(IdealPDActuator):
         for k, name in enumerate(self.joint_names):
             if "calf" in name:
                 self._vel_limit[:, k] = cfg.vel_limit_calf
-        self._front_mask = torch.tensor(
-            [bool(re.match(r"^F[LR]_", n)) for n in self.joint_names],
-            device=self._device,
-        )
         self._dt = None
         self._env = None
 
@@ -60,11 +55,14 @@ class BioActuator(IdealPDActuator):
             self.motor_fatigue[env_ids] = 0.0
 
     def _current_torque_limit(self):
+        # SATA (go2_torque.py:315,223-224): torque_limits = ones*23.5 for ALL joints, scaled by
+        # current_torque_limit_scale (0.3->1.0 via Gompertz) -> every joint grows 7.05->23.5. The
+        # `r_leg_scaled` rear knob is start=max=1.0 (a no-op), so REAR legs grow identically to
+        # front, NOT held constant. (Earlier code pinned rear at tau_end=23.5 -> rear over-powered
+        # early; that was a misreading of the disabled rear knob.)
         g = float(getattr(self._env, "_G", 1.0)) if self._env is not None else 1.0
-        front = torque_limit_scale(g, self.cfg.tau_start, self.cfg.tau_end)
-        tl = torch.full_like(self.activation, self.cfg.tau_end)
-        tl[:, self._front_mask] = front
-        return tl
+        scaled = torque_limit_scale(g, self.cfg.tau_start, self.cfg.tau_end)
+        return torch.full_like(self.activation, scaled)
 
     def compute(self, control_action: ArticulationActions, joint_pos, joint_vel):
         action = control_action.joint_efforts

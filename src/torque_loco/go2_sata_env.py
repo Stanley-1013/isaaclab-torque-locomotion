@@ -39,19 +39,26 @@ class Go2SataEnv(ManagerBasedRLEnv):
         # Deployment override: SATA restores FULL capacity (G=1) at deployment/eval
         # (paper IV-B). Training uses the Gompertz schedule (growth_deploy_scale=None).
         self._deploy_G = getattr(cfg, "growth_deploy_scale", None)
+        # SATA's growth counter `step_count` increments once per PHYSICS SUBSTEP (it lives in
+        # _update_growth_scale, called inside the substep loop), NOT per env.step. Since n_sub=2
+        # for the entire growth phase (n_sub drops to 1 only at G=1/200Hz), SATA's curriculum
+        # advances 2x faster (in env-steps) than a per-env-step counter would. Track substeps.
+        self._growth_step = 0
         self._G = self._deploy_G if self._deploy_G is not None else gompertz(0)
         act = self.scene["robot"].actuators["base_legs"]
         if hasattr(act, "set_runtime"):
             act.set_runtime(PHYSICS_DT, self)
 
     def step(self, action):
-        self._G = self._deploy_G if self._deploy_G is not None else gompertz(self.common_step_counter)
+        self._G = self._deploy_G if self._deploy_G is not None else gompertz(self._growth_step)
         freq = control_freq(self._G)              # 100 -> 200 Hz
         accum, n_sub = 0.0, 0
         while accum * freq < 1.0:
             n_sub += 1
             accum += PHYSICS_DT
         n_sub = max(1, n_sub)
+        if self._deploy_G is None:
+            self._growth_step += n_sub            # SATA: step_count += 1 per substep
         return self._stepped(action, n_sub)
 
     def _stepped(self, action, n_sub):
@@ -84,15 +91,21 @@ class Go2SataEnv(ManagerBasedRLEnv):
             self.scene.update(dt=self.physics_dt)
 
         # post-step:
+        # SATA runs post_physics_step (counters, reward, termination) once per physics substep, so
+        # at cold start (n_sub=2) episode length and reward accumulate over 2 substeps. We compute
+        # once per env.step but scale by the substep count: reward/command/event dt = n_sub*dt
+        # (== summing n_sub substeps, since state barely changes over n_sub*0.005s) and episode
+        # length advances by n_sub (so the 10s episode horizon matches SATA in sim time).
+        eff_dt = n_sub * PHYSICS_DT
         # -- update env counters (used for curriculum generation)
-        self.episode_length_buf += 1  # step in current episode (per env)
+        self.episode_length_buf += n_sub  # advance by substeps (SATA episode clock is per-substep)
         self.common_step_counter += 1  # total step (common for all envs)
         # -- check terminations
         self.reset_buf = self.termination_manager.compute()
         self.reset_terminated = self.termination_manager.terminated
         self.reset_time_outs = self.termination_manager.time_outs
         # -- reward computation
-        self.reward_buf = self.reward_manager.compute(dt=self.step_dt)
+        self.reward_buf = self.reward_manager.compute(dt=eff_dt)
 
         if len(self.recorder_manager.active_terms) > 0:
             # update observations for recording if needed
@@ -116,10 +129,10 @@ class Go2SataEnv(ManagerBasedRLEnv):
             self.recorder_manager.record_post_reset(reset_env_ids)
 
         # -- update command
-        self.command_manager.compute(dt=self.step_dt)
+        self.command_manager.compute(dt=eff_dt)
         # -- step interval events
         if "interval" in self.event_manager.available_modes:
-            self.event_manager.apply(mode="interval", dt=self.step_dt)
+            self.event_manager.apply(mode="interval", dt=eff_dt)
         # -- compute observations
         # note: done after reset to get the correct observations for reset envs
         self.obs_buf = self.observation_manager.compute(update_history=True)
@@ -157,6 +170,12 @@ def _apply_sata_bio(self):
     cr = self.commands.base_velocity.ranges
     cr.lin_vel_x = (-0.5, 1.5); cr.lin_vel_y = (-0.5, 0.5); cr.ang_vel_z = (-1.5, 1.5)
     self.commands.base_velocity.resampling_time_range = (5.0, 5.0)
+    # SATA samples ang_vel_yaw directly (heading_command=False) and has no standing-still envs.
+    self.commands.base_velocity.heading_command = False
+    self.commands.base_velocity.rel_standing_envs = 0.0
+    # SATA scales command ranges by the growth scalar G during resampling (lin_vel_x narrows to
+    # its midpoint early, vy/yaw -> 0 early, opening up as G grows). Swap in the growth command.
+    self.commands.base_velocity.class_type = sata_mdp.GrowthVelocityCommand
     p = self.observations.policy
     p.base_lin_vel.scale = 2.0; p.base_ang_vel.scale = 0.25
     p.joint_pos.scale = 1.0; p.joint_vel.scale = 0.05
@@ -186,22 +205,39 @@ def _apply_sata_bio(self):
     R.joint_limits = RewardTermCfg(func=sata_mdp.soft_dof_pos_limits, weight=-5.0)
     R.fatigue = RewardTermCfg(func=sata_mdp.fatigue_penalty, weight=-0.05)
     R.joint_acc = RewardTermCfg(func=sata_mdp.joint_acc_l2, weight=-1e-6)
-    # SATA terminations = flip-over (primary) + time_out (inherited). NOT base contact
-    # (robot starts prone at z=0.10). joint_pos_out_of_limit is intentionally NOT used:
-    # it tests the 0.9-scaled SOFT limits, and SATA's folded start (calf -2.5) sits at that
-    # soft-limit edge -> it would fire instantly. The soft_dof_pos_limits REWARD penalty
-    # (weight -5) supplies the joint-limit gradient instead (platform-difference vs SATA's
-    # hard-limit reset).
+    # SATA check_termination = flip-over (proj_grav_z>0) + HARD joint-limit ±0.05 + time_out.
+    # base_contact is dropped (SATA's torque env overrides check_termination and never tests
+    # contact; robot also starts prone). bad_orientation(1.4 rad) ≈ SATA's flip test. The
+    # hard-limit termination uses SATA's go2_torque.urdf limits, so the folded calf start does NOT
+    # fire (it's inside the hard range) — unlike the 0.9-soft-limit check we previously dropped.
     self.terminations.base_contact = None
     self.terminations.bad_orientation = DoneTerm(func=mdp.bad_orientation, params={"limit_angle": 1.4})
+    self.terminations.joint_hard_limit = DoneTerm(func=sata_mdp.joint_pos_hard_limit)
     E = self.events
     E.push_robot = EventTermCfg(
         func=sata_mdp.push_scaled_by_growth, mode="interval", interval_range_s=(4.0, 4.0),
         params={"velocity_range": {"x": (-1.5, 1.5), "y": (-1.5, 1.5),
                                    "roll": (-1.0, 1.0), "pitch": (-1.0, 1.0), "yaw": (-1.0, 1.0)}},
     )
+    # SATA domain_rand: friction U[0.5,1.25]; added base mass U[-1,5] + COM shift x±0.2,y/z±0.1;
+    # reset dof = default*U(0.95,1.05); reset base shifted ±1 m in xy (no yaw/vel randomization).
+    if hasattr(E, "physics_material") and E.physics_material is not None:
+        E.physics_material.params["static_friction_range"] = (0.5, 1.25)
+        E.physics_material.params["dynamic_friction_range"] = (0.5, 1.25)
     if hasattr(E, "add_base_mass") and E.add_base_mass is not None:
         E.add_base_mass.params["mass_distribution_params"] = (-1.0, 5.0)
+    # re-create base_com (the rough cfg sets it to None): SATA shifts base COM x±0.2, y/z±0.1.
+    E.base_com = EventTermCfg(
+        func=mdp.randomize_rigid_body_com, mode="startup",
+        params={"asset_cfg": SceneEntityCfg("robot", body_names="base"),
+                "com_range": {"x": (-0.2, 0.2), "y": (-0.1, 0.1), "z": (-0.1, 0.1)}},
+    )
+    if hasattr(E, "reset_robot_joints") and E.reset_robot_joints is not None:
+        E.reset_robot_joints.params["position_range"] = (0.95, 1.05)
+        E.reset_robot_joints.params["velocity_range"] = (0.0, 0.0)
+    if hasattr(E, "reset_base") and E.reset_base is not None:
+        E.reset_base.params["pose_range"] = {"x": (-1.0, 1.0), "y": (-1.0, 1.0)}
+        E.reset_base.params["velocity_range"] = {k: (0.0, 0.0) for k in ("x", "y", "z", "roll", "pitch", "yaw")}
 
 
 @configclass
