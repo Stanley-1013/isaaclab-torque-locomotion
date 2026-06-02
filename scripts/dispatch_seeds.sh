@@ -42,9 +42,13 @@ for s in $SEEDS; do
   fi
   wait_gpu_free "$GPU"
   echo "[gpu$GPU] >>> seed $s starting $(date) -> $LOG"
+  # --run_name "${PREFIX}_s${s}" makes the rsl_rl log dir "<timestamp>_<run_name>" UNIQUE per
+  # seed, avoiding the FileExistsError race when two concurrently-launched seeds initialize in
+  # the same wall-clock second (Isaac Lab names run dirs by timestamp-to-the-second).
   CUDA_VISIBLE_DEVICES="$GPU" ./isaaclab.sh -p \
     "$REPO/scripts/train_go2.py" \
     --task "$TASK" --headless --num_envs "$NUM_ENVS" --max_iterations "$MAX_ITER" --seed "$s" \
+    --run_name "${PREFIX}_s${s}" \
     < /dev/null > "$LOG" 2>&1
   echo "[gpu$GPU] <<< seed $s exit=$? $(date)"
 done

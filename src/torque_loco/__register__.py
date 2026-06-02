@@ -35,3 +35,25 @@ gym.register(
         "rsl_rl_cfg_entry_point": _RSL_RL_PPO,
     },
 )
+
+# --- Full faithful SATA task (custom env class with variable-frequency step) ---
+# entry_point is the custom env class itself (not ManagerBasedRLEnv); gym.make instantiates it.
+gym.register(
+    id="Isaac-Velocity-Flat-Go2-Sata-v0",
+    entry_point="torque_loco.go2_sata_env:Go2SataEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "torque_loco.go2_sata_env:Go2SataEnvCfg",
+        "rsl_rl_cfg_entry_point": _RSL_RL_PPO,
+    },
+)
+
+gym.register(
+    id="Isaac-Velocity-Flat-Go2-Sata-Play-v0",
+    entry_point="torque_loco.go2_sata_env:Go2SataEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "torque_loco.go2_sata_env:Go2SataEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": _RSL_RL_PPO,
+    },
+)

@@ -191,8 +191,160 @@ formulation (faithful reproduction, but fatigue becomes a reward term not an act
 which muddies the "actuator envelope" framing and needs obs to carry torque+fatigue).
 Decide with the user before implementing the BioActuator.
 
-## Next steps (resume here)
-1. **Finish Task 1.3** — when seeds complete, render a `play.py` clip (use
-   `...-Go2-Torque-Play-v0`), confirm walking, record final mean rewards across seeds.
-2. **Task 2.2 decision** — reconcile bio formulation vs SATA (see above), then implement.
-3. Continue plan tasks 2.3 → 3.2 (Tier 2: BioActuator + envelope comparison).
+> **SUPERSEDED 2026-06-02:** scope pivoted to FULL faithful SATA (incl. growth curriculum).
+> The Task-1.3 no-bio baseline above was abandoned (misaligned with SATA — stock IsaacLab
+> rewards/linear scale); those seeds were killed. The bio formulation question was resolved
+> by the user: realign fully to SATA. See the spec/plan below. Branch: `feat/sata-faithful-migration`.
+
+## Faithful SATA migration — execution log (2026-06-02, branch feat/sata-faithful-migration)
+
+Spec `docs/superpowers/specs/2026-06-02-sata-faithful-migration-design.md`; plan
+`docs/superpowers/plans/2026-06-02-sata-faithful-migration.md`. Subagent-driven execution.
+
+**Phase A (sim-free TDD, `sata` env) — DONE.** 19 tests pass.
+- `bio_constraints.py` rewritten: `apply_bio` = tanh-EMA activation (γ=0.6) + Hill + fatigue
+  leaky-integrator (β=0.9); frozen `BioState`. (replaces the old capacity-clip model)
+- `growth.py`: Gompertz `gompertz(step)` (k=3e-5, x0=24000) + torque/freq schedules.
+- `metrics.py`: + SATA-aligned reducers `sata_peak_torque / sata_energy_per_step / sata_mean_jerk`
+  (first-diff jerk, matching the reproduction's `eval_under_conditions.py`).
+
+**Phase B (Isaac Lab integration) — DONE + smoke-passed + reviewed.**
+- `bio_actuator.py` `BioActuator(IdealPDActuator)`: tanh-EMA+Hill+fatigue, front-leg torque
+  ceiling grows 7.05→23.5 via `env._G` (rear constant 23.5), per-joint vel limit (hip/thigh
+  30.1, calf 20.07), no hard clip (envelope = tanh). Init-time fatigue seeds from `U(0,0.2·G(0))`.
+- `sata_mdp.py`: obs `applied_torque`+`motor_fatigue`; 9 SATA rewards (G-modulated Table II:
+  forward-target blend, moving_y/yaw ×G, base_height ×(1+G)); G-scaled push event.
+- `go2_sata_env.py` `Go2SataEnv(ManagerBasedRLEnv)`: **step() override** mirrors stock
+  `ManagerBasedRLEnv.step()` (lines 153-241) with the fixed decimation loop replaced by SATA's
+  variable-frequency accumulator (`while accum*freq<1`, freq=100→200 via G); `env._G` set each
+  step. Cfg: BioActuator, SATA obs(60)/rewards/commands(fixed ranges)/DR/defaults (base z=0.10,
+  thigh 1.45, calf -2.5), 200 Hz physics. Task `Isaac-Velocity-Flat-Go2-Sata-v0` (+Play).
+
+### Three bugs the smoke-train caught (platform-migration findings — keep these)
+1. **Double dt-scaling.** Isaac Lab `RewardManager.compute` already does `func*weight*dt`
+   (`reward_manager.py:150`). Our cfg weights were `scale*dt` → rewards dt²-scaled (~1e-4,
+   "Mean reward -0.00"). Fix: weights = **raw SATA scales** (10,5,-5,…); the manager applies dt.
+2. **base_contact termination kills the prone start.** Robot starts prone (z=0.10); the stock
+   `base_contact` (illegal trunk contact) terminated at ~11 steps. SATA terminates on flip-over /
+   joint-limit, NOT base contact (paper §IV-B). Fix: drop `base_contact`, add `bad_orientation`
+   (limit_angle 1.4).
+3. **joint_pos_out_of_limit uses SOFT (0.9-scaled) limits.** SATA's folded start (calf -2.5)
+   sits at the soft-limit edge → instant joint_limit termination (~2 steps). Isaac Lab's term
+   tests soft limits, not hard. Fix: drop the joint-limit termination; rely on the
+   `soft_dof_pos_limits` REWARD penalty (-5) + flip-over. (platform diff vs SATA's hard-limit reset)
+
+**Smoke result (post-fix, 30 iters, 1024 envs, GPU 1):** exit 0, no NaN; episode length climbs
+10→590 (learns to survive from prone), all `time_out`/`bad_orientation 0`; reward breakdown sane
+(track_x +1.82, base_height +0.16; net negative dominated by joint_acc −1.32 early — expected,
+G still ~0.15). 22k steps/s. Logs `results/sata_smoke{,2,3}.log`.
+
+## Task C1 — 8-seed reference training (IN PROGRESS, launched 2026-06-02 ~04:13)
+`Isaac-Velocity-Flat-Go2-Sata-v0`, 4096 envs, **3000 iters, 8 seeds** (user: ≥8 for mean±std
+matching SATA's 8-seed 104±16). GPU 0 busy (other tenant) → GPUs 1/2/3 only:
+GPU1 seeds 1,4,7 ; GPU2 2,5,8 ; GPU3 3,6 (sequential via `dispatch_seeds.sh`, `MAX_ITER=3000`).
+Logs `results/go2_sata_s<N>.log`, dispatcher `results/dispatch_sata_gpu<G>.log`.
+
+**Concurrency race found (keep this gotcha):** Isaac Lab names each run dir by
+`datetime.now().strftime("%Y-%m-%d_%H-%M-%S")` (timestamp-to-the-second). When two
+concurrently-launched seeds initialize rsl_rl in the SAME wall-clock second, they pick the
+same dir and the loser dies with `FileExistsError: .../<ts>/git/IsaacLab.diff`. Seed 6 hit this
+(exit 1) at 05:34:41. **Fix:** `dispatch_seeds.sh` now passes `--run_name <prefix>_s<seed>`
+(train.py appends it → `<ts>_<run_name>`, unique per seed). Seed 6 re-run on GPU3 with the fix.
+Self-healing: any seed that loses the race is re-run solo (no concurrent init → no collision).
+First-batch result: seeds 1,2,3 trained (final reward 75 / 24 / 71 — seed 2 a laggard, expected;
+reward NOT comparable cross-engine, envelope metrics are the claim).
+
+**WORSE than one crash — silent checkpoint corruption (keep this):** seeds **1,2,3** launched
+simultaneously (04:13:10) ALL initialized at the same second and got the SAME run dir
+`2026-06-02_04-14-08` (logs confirm all three print that dir). They did NOT crash — they wrote
+checkpoints into the SAME directory, last-writer-wins, so that dir holds only ONE usable final
+policy, not three. (The later collisions of seeds 6 and 8 instead crashed on `git/IsaacLab.diff`.)
+So a same-second race can either crash a seed OR silently merge checkpoints. **Recovery:** void
+`04-14-08`; re-run seeds 1,2,3 with the `--run_name`-fixed dispatcher (distinct dirs). Old per-seed
+reward logs preserved as `results/go2_sata_s{1,2,3}.corrupt.log`. Clean 8-seed set = re-run
+{1,2,3} + {4,5,6,7,8} (each a distinct `<ts>[_go2_sata_sN]` dir). Lesson: always pass a unique
+`--run_name` for ANY concurrent rsl_rl launches — the timestamp dir name is not collision-safe.
+
+**eval_metrics.py bug (fixed):** it redefined `--load_run`/`--checkpoint` AND called
+`cli_args.add_rsl_rl_args` → argparse conflict. Removed the dupes; select a checkpoint via
+`--load_run <dir>` (latest model_*.pt auto-picked); `--checkpoint` expects a full path. (28e9bf1)
+
+## Task C1/C2 — RESULT (8 clean seeds, 2026-06-02 ~09:45)
+
+All 8 seeds trained 3000 iters (clean, distinct dirs after the race fix). Walking confirmed
+via training telemetry: every seed reaches full-length episodes (2000 steps, ~all time_out,
+flip-over≈0) — the robot rises from the prone start and tracks the velocity command. Final
+training rewards 24–75 (seed 2 reproducibly the laggard at 24; reward NOT comparable
+cross-engine — SATA's 104±16 is a different engine). Eval: `scripts/eval_metrics.py` rolled out
+each seed (32 envs ×1000 steps, headless) → `results/metrics_sata_s<N>.csv`;
+`scripts/aggregate_envelope.py` → `results/envelope_summary.{csv,png}`.
+
+**Cross-engine feasibility-envelope reproduction (the Tier-2 headline):**
+
+| metric | Isaac Lab (8-seed full SATA) | SATA Isaac-Gym ref |
+|---|---|---|
+| Peak \|torque\| | **23.86 ± 2.45 N·m** | 22.5 ± 0.3 |
+| Energy / step | 1.82 ± 0.37 J | (reference band) |
+| Action jerk | 1961 ± 478 | (reference band) |
+
+All 8 seeds keep peak joint torque **inside the 45 N·m hardware envelope** (max 28.3),
+matching SATA's ~22.5 reference. Wider spread than SATA's ±0.3 traces to two less-converged
+seeds (s2 28.3, s3 26.1); the other six cluster ~22.75 ± 1.4. **→ the feasibility-envelope
+finding reproduces across the Isaac Gym → Isaac Lab engine change.** Anti-over-claim: sim-only;
+"within envelope" = within the rated torque number, not hardware-validated; reward magnitudes
+are not cross-engine-comparable (envelope metrics are).
+
+### Eval gotchas (keep)
+- Eval MUST pass `--headless` — without it the RTX renderer segfaults on this display-less box
+  (`librtx.scenedb` crash). Metrics need no rendering.
+- Raw per-step CSVs + training/eval logs are gitignored (regenerable, bulky); the committed
+  artifacts are `envelope_summary.{csv,png}` + per-seed `envelope_s*.png`.
+
+## Remaining / next steps
+1. **Walking clip** (deck nice-to-have, NOT blocking): `play.py --video` needs the VNC/EGL render
+   path (headless RTX segfaults). Render via the Phase-0 VNC display when assembling the deck.
+2. Final code review → `finishing-a-development-branch` (merge `feat/sata-faithful-migration`→main).
+3. Deck (Phase 4 of the original plan): why-migrate, torque paradigm, envelope reproduction chart.
+
+## Task B3 — Go2SataEnv (variable-freq step override) + full SATA env cfg
+
+Created `src/torque_loco/go2_sata_env.py`.
+
+**step() source mirrored:** `Go2SataEnv._stepped` reproduces the body of
+`isaaclab.envs.manager_based_rl_env.ManagerBasedRLEnv.step`
+(IsaacLab `source/isaaclab/isaaclab/envs/manager_based_rl_env.py`, lines 153-240) verbatim,
+with the SINGLE change `for _ in range(self.cfg.decimation):` -> `for _ in range(n_sub):`.
+All `recorder_manager` calls, `_sim_step_counter` increment, render gating, counter increments,
+termination/reward/reset/command/interval-event flow and the 5-tuple return are preserved.
+Constructor mirrors `ManagerBasedRLEnv.__init__(self, cfg, render_mode=None, **kwargs)`
+(same file line 65); `common_step_counter` is initialised to 0 there and incremented once per
+`step()` after the physics loop (line 202) — `step()` reads it BEFORE incrementing, so the
+Gompertz scalar uses the pre-increment count.
+
+**Render gating choice:** kept stock `self._sim_step_counter % self.cfg.sim.render_interval == 0`.
+With `decimation=1` / `render_interval=4` it renders every 4th physics step regardless of how
+many sub-steps a given control step ran, which is correct; under headless training `is_rendering`
+is False so the whole branch is skipped.
+
+**API verified against installed source (no fixes needed beyond skeleton):**
+- `UnitreeGo2FlatEnvCfg`: `.../config/go2/flat_env_cfg.py` (inherits `rough_env_cfg.py`,
+  inherits `velocity_env_cfg.py::LocomotionVelocityRoughEnvCfg`).
+- `mdp.JointEffortActionCfg`: defined `isaaclab/envs/mdp/actions/actions_cfg.py:95`, re-exported
+  via `actions/__init__.py` -> `isaaclab.envs.mdp`.
+- `ObservationTermCfg.scale`: `isaaclab/managers/manager_term_cfg.py:176` (field exists).
+- obs terms `base_lin_vel/base_ang_vel/joint_pos/joint_vel/actions/height_scan`: all present in
+  `velocity_env_cfg.py::ObservationsCfg.PolicyCfg`.
+- actuator key `base_legs`: `isaaclab_assets/robots/unitree.py:170` (DCMotorCfg). Replaced with
+  BioActuatorCfg(joint_names_expr=[".*"]) — Go2 only has the 12 leg joints so `.*` is equivalent
+  to the stock `.*_hip/_thigh/_calf` exprs.
+- events `push_robot` (interval) + `add_base_mass` (startup): present in
+  `velocity_env_cfg.py::EventCfg`. NOTE: go2 `rough_env_cfg.py:34` already sets
+  `push_robot = None`; we re-create it as the growth-scaled push. `add_base_mass` mass range
+  overridden (-1,5).
+- `num_rerenders_on_reset`, `self.extras`, `recorder_manager`, `step_dt`, `physics_dt`: all
+  confirmed in `manager_based_env.py` / cfg.
+
+**Reward clearing:** `for name in list(vars(R)): setattr(R, name, None)` — `@configclass`
+instances expose terms as instance attrs, so this drops all stock terms before adding SATA terms.
+
+py_compile: PASS. Runtime smoke = Task B4.
