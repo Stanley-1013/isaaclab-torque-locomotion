@@ -20,10 +20,14 @@ from isaaclab.utils import configclass
 from isaaclab_tasks.manager_based.locomotion.velocity.config.go2.flat_env_cfg import (
     UnitreeGo2FlatEnvCfg,
 )
+from isaaclab_tasks.manager_based.locomotion.velocity.config.go2.rough_env_cfg import (
+    UnitreeGo2RoughEnvCfg,
+)
 
 from . import sata_mdp
 from .bio_actuator import BioActuatorCfg
 from .growth import gompertz, control_freq
+from .sata_terrain import SATA_TERRAINS_CFG
 
 PHYSICS_HZ = 200.0
 PHYSICS_DT = 1.0 / PHYSICS_HZ      # 0.005
@@ -124,83 +128,150 @@ class Go2SataEnv(ManagerBasedRLEnv):
         return self.obs_buf, self.reward_buf, self.reset_terminated, self.reset_time_outs, self.extras
 
 
+def _apply_sata_bio(self):
+    """Install SATA's full bio stack (actuator, obs, rewards, terminations, events, defaults)
+    onto a LocomotionVelocity-derived cfg. Terrain is set by each subclass (flat / SATA-slopes /
+    Isaac-Lab-default-rough) BEFORE calling this — the bio stack is terrain-agnostic."""
+    self.sim.dt = PHYSICS_DT
+    # decimation=1 -> step_dt = physics_dt = 0.005s regardless of the variable n_sub set in
+    # Go2SataEnv.step(). Intentional: at cold start (n_sub=2, 100Hz control) each env step
+    # covers 0.010s of physics but rewards/events use step_dt=0.005s, halving reward scale
+    # early — consistent with SATA's growth-based cold-start stabilization.
+    self.decimation = 1
+    self.sim.render_interval = 4
+    self.episode_length_s = 10.0
+    self.scene.robot.init_state.pos = (0.0, 0.0, 0.10)
+    self.scene.robot.init_state.joint_pos = {
+        "FL_hip_joint": 0.1, "RL_hip_joint": 0.1, "FR_hip_joint": -0.1, "RR_hip_joint": -0.1,
+        "FL_thigh_joint": 1.45, "RL_thigh_joint": 1.45, "FR_thigh_joint": 1.45, "RR_thigh_joint": 1.45,
+        "FL_calf_joint": -2.5, "RL_calf_joint": -2.5, "FR_calf_joint": -2.5, "RR_calf_joint": -2.5,
+    }
+    self.actions.joint_pos = None
+    self.actions.joint_effort = mdp.JointEffortActionCfg(
+        asset_name="robot", joint_names=[".*"], scale=1.0,
+    )
+    self.scene.robot.actuators["base_legs"] = BioActuatorCfg(
+        joint_names_expr=[".*"], stiffness=0.0, damping=0.0,
+        effort_limit=1000.0, velocity_limit=30.0,
+    )
+    cr = self.commands.base_velocity.ranges
+    cr.lin_vel_x = (-0.5, 1.5); cr.lin_vel_y = (-0.5, 0.5); cr.ang_vel_z = (-1.5, 1.5)
+    self.commands.base_velocity.resampling_time_range = (5.0, 5.0)
+    p = self.observations.policy
+    p.base_lin_vel.scale = 2.0; p.base_ang_vel.scale = 0.25
+    p.joint_pos.scale = 1.0; p.joint_vel.scale = 0.05
+    # SATA does NOT feed terrain heights to the policy (num_observations=60, no height scan).
+    # The height_scanner SENSOR (if present on rough terrain) is still used by the base_height
+    # reward for a terrain-relative head height — it is just not an observation.
+    p.height_scan = None
+    p.actions = None
+    p.applied_torque = ObservationTermCfg(func=sata_mdp.applied_torque)
+    p.motor_fatigue = ObservationTermCfg(func=sata_mdp.motor_fatigue)
+    R = self.rewards
+    for name in list(vars(R)):
+        setattr(R, name, None)
+    R.track_x = RewardTermCfg(func=sata_mdp.track_x, weight=10.0)
+    R.track_y = RewardTermCfg(func=sata_mdp.track_y, weight=5.0)
+    R.track_yaw = RewardTermCfg(func=sata_mdp.track_yaw, weight=5.0)
+    R.base_height = RewardTermCfg(func=sata_mdp.base_height, weight=5.0)
+    R.roll = RewardTermCfg(func=sata_mdp.roll_penalty, weight=-5.0)
+    R.lin_vel_z = RewardTermCfg(func=sata_mdp.lin_vel_z, weight=-5.0)
+    R.joint_limits = RewardTermCfg(func=sata_mdp.soft_dof_pos_limits, weight=-5.0)
+    R.fatigue = RewardTermCfg(func=sata_mdp.fatigue_penalty, weight=-0.05)
+    R.joint_acc = RewardTermCfg(func=sata_mdp.joint_acc_l2, weight=-1e-6)
+    # SATA terminations = flip-over (primary) + time_out (inherited). NOT base contact
+    # (robot starts prone at z=0.10). joint_pos_out_of_limit is intentionally NOT used:
+    # it tests the 0.9-scaled SOFT limits, and SATA's folded start (calf -2.5) sits at that
+    # soft-limit edge -> it would fire instantly. The soft_dof_pos_limits REWARD penalty
+    # (weight -5) supplies the joint-limit gradient instead (platform-difference vs SATA's
+    # hard-limit reset).
+    self.terminations.base_contact = None
+    self.terminations.bad_orientation = DoneTerm(func=mdp.bad_orientation, params={"limit_angle": 1.4})
+    E = self.events
+    E.push_robot = EventTermCfg(
+        func=sata_mdp.push_scaled_by_growth, mode="interval", interval_range_s=(4.0, 4.0),
+        params={"velocity_range": {"x": (-1.5, 1.5), "y": (-1.5, 1.5),
+                                   "roll": (-1.0, 1.0), "pitch": (-1.0, 1.0), "yaw": (-1.0, 1.0)}},
+    )
+    if hasattr(E, "add_base_mass") and E.add_base_mass is not None:
+        E.add_base_mass.params["mass_distribution_params"] = (-1.0, 5.0)
+
+
 @configclass
 class Go2SataEnvCfg(UnitreeGo2FlatEnvCfg):
+    """SATA on FLAT ground. Kept as the flat baseline (NOT SATA-faithful terrain — SATA trains on
+    rough slopes; see Go2SataRoughEnvCfg). Behaviour is unchanged from the original migration."""
     # Deployment growth scalar. None -> use the Gompertz schedule (training). A float (e.g. 1.0)
     # forces FULL capacity at every step, matching SATA's deployment ("restore f_end, tau_end").
     growth_deploy_scale: float | None = None
 
     def __post_init__(self):
         super().__post_init__()
-        self.sim.dt = PHYSICS_DT
-        # decimation=1 -> step_dt = physics_dt = 0.005s regardless of the variable n_sub set in
-        # Go2SataEnv.step(). Intentional: at cold start (n_sub=2, 100Hz control) each env step
-        # covers 0.010s of physics but rewards/events use step_dt=0.005s, halving reward scale
-        # early — consistent with SATA's growth-based cold-start stabilization.
-        self.decimation = 1
-        self.sim.render_interval = 4
-        self.episode_length_s = 10.0
-        self.scene.robot.init_state.pos = (0.0, 0.0, 0.10)
-        self.scene.robot.init_state.joint_pos = {
-            "FL_hip_joint": 0.1, "RL_hip_joint": 0.1, "FR_hip_joint": -0.1, "RR_hip_joint": -0.1,
-            "FL_thigh_joint": 1.45, "RL_thigh_joint": 1.45, "FR_thigh_joint": 1.45, "RR_thigh_joint": 1.45,
-            "FL_calf_joint": -2.5, "RL_calf_joint": -2.5, "FR_calf_joint": -2.5, "RR_calf_joint": -2.5,
-        }
-        self.actions.joint_pos = None
-        self.actions.joint_effort = mdp.JointEffortActionCfg(
-            asset_name="robot", joint_names=[".*"], scale=1.0,
-        )
-        self.scene.robot.actuators["base_legs"] = BioActuatorCfg(
-            joint_names_expr=[".*"], stiffness=0.0, damping=0.0,
-            effort_limit=1000.0, velocity_limit=30.0,
-        )
-        cr = self.commands.base_velocity.ranges
-        cr.lin_vel_x = (-0.5, 1.5); cr.lin_vel_y = (-0.5, 0.5); cr.ang_vel_z = (-1.5, 1.5)
-        self.commands.base_velocity.resampling_time_range = (5.0, 5.0)
-        p = self.observations.policy
-        p.base_lin_vel.scale = 2.0; p.base_ang_vel.scale = 0.25
-        p.joint_pos.scale = 1.0; p.joint_vel.scale = 0.05
-        p.height_scan = None
-        p.actions = None
-        p.applied_torque = ObservationTermCfg(func=sata_mdp.applied_torque)
-        p.motor_fatigue = ObservationTermCfg(func=sata_mdp.motor_fatigue)
-        R = self.rewards
-        for name in list(vars(R)):
-            setattr(R, name, None)
-        R.track_x = RewardTermCfg(func=sata_mdp.track_x, weight=10.0)
-        R.track_y = RewardTermCfg(func=sata_mdp.track_y, weight=5.0)
-        R.track_yaw = RewardTermCfg(func=sata_mdp.track_yaw, weight=5.0)
-        R.base_height = RewardTermCfg(func=sata_mdp.base_height, weight=5.0)
-        R.roll = RewardTermCfg(func=sata_mdp.roll_penalty, weight=-5.0)
-        R.lin_vel_z = RewardTermCfg(func=sata_mdp.lin_vel_z, weight=-5.0)
-        R.joint_limits = RewardTermCfg(func=sata_mdp.soft_dof_pos_limits, weight=-5.0)
-        R.fatigue = RewardTermCfg(func=sata_mdp.fatigue_penalty, weight=-0.05)
-        R.joint_acc = RewardTermCfg(func=sata_mdp.joint_acc_l2, weight=-1e-6)
-        # SATA terminations = flip-over (primary) + time_out (inherited). NOT base contact
-        # (robot starts prone at z=0.10). joint_pos_out_of_limit is intentionally NOT used:
-        # it tests the 0.9-scaled SOFT limits, and SATA's folded start (calf -2.5) sits at that
-        # soft-limit edge -> it would fire instantly. The soft_dof_pos_limits REWARD penalty
-        # (weight -5) supplies the joint-limit gradient instead (platform-difference vs SATA's
-        # hard-limit reset).
-        self.terminations.base_contact = None
-        self.terminations.bad_orientation = DoneTerm(func=mdp.bad_orientation, params={"limit_angle": 1.4})
-        E = self.events
-        E.push_robot = EventTermCfg(
-            func=sata_mdp.push_scaled_by_growth, mode="interval", interval_range_s=(4.0, 4.0),
-            params={"velocity_range": {"x": (-1.5, 1.5), "y": (-1.5, 1.5),
-                                       "roll": (-1.0, 1.0), "pitch": (-1.0, 1.0), "yaw": (-1.0, 1.0)}},
-        )
-        if hasattr(E, "add_base_mass") and E.add_base_mass is not None:
-            E.add_base_mass.params["mass_distribution_params"] = (-1.0, 5.0)
+        _apply_sata_bio(self)
+
+
+@configclass
+class Go2SataRoughEnvCfg(UnitreeGo2RoughEnvCfg):
+    """SATA-FAITHFUL terrain: trimesh rough SLOPES (0.2 smooth + 0.8 rough), curriculum OFF —
+    matching SATA's terrain_proportions=[0.2,0.8,0,0,0] & curriculum=False. Inherits the rough
+    cfg's height_scanner sensor (used by the terrain-relative base_height reward, not by obs)."""
+    growth_deploy_scale: float | None = None
+
+    def __post_init__(self):
+        super().__post_init__()
+        # Replace Isaac Lab's default rough terrain (steep slopes + stairs + boxes, curriculum)
+        # with SATA's gentle-slopes-only terrain, no curriculum.
+        self.scene.terrain.terrain_generator = SATA_TERRAINS_CFG
+        self.curriculum.terrain_levels = None   # base __post_init__ keys terrain curriculum off this
+        _apply_sata_bio(self)
+
+
+@configclass
+class Go2SataDefaultRoughEnvCfg(UnitreeGo2RoughEnvCfg):
+    """SATA bio stack on Isaac Lab's DEFAULT rough terrain (steep slopes + stairs + boxes +
+    difficulty curriculum). Harder than SATA's terrain — a second comparison point, not a faithful
+    SATA repro. Terrain curriculum stays ON (inherited)."""
+    growth_deploy_scale: float | None = None
+
+    def __post_init__(self):
+        super().__post_init__()
+        _apply_sata_bio(self)
 
 
 @configclass
 class Go2SataEnvCfg_PLAY(Go2SataEnvCfg):
     def __post_init__(self):
         super().__post_init__()
-        self.scene.num_envs = 50
-        self.observations.policy.enable_corruption = False
-        self.events.push_robot = None
-        # Deploy at FULL capacity (G=1): torque ceiling 23.5 N·m, 200 Hz — SATA's deployment
-        # setting. (Without this, eval ran the policy in the crippled "infant" body, G~=0.13.)
-        self.growth_deploy_scale = 1.0
+        _play_overrides(self)
+
+
+@configclass
+class Go2SataRoughEnvCfg_PLAY(Go2SataRoughEnvCfg):
+    def __post_init__(self):
+        super().__post_init__()
+        _play_overrides(self)
+        if self.scene.terrain.terrain_generator is not None:
+            self.scene.terrain.terrain_generator.num_rows = 5
+            self.scene.terrain.terrain_generator.num_cols = 5
+
+
+@configclass
+class Go2SataDefaultRoughEnvCfg_PLAY(Go2SataDefaultRoughEnvCfg):
+    def __post_init__(self):
+        super().__post_init__()
+        _play_overrides(self)
+        self.scene.terrain.max_init_terrain_level = None
+        if self.scene.terrain.terrain_generator is not None:
+            self.scene.terrain.terrain_generator.num_rows = 5
+            self.scene.terrain.terrain_generator.num_cols = 5
+            self.scene.terrain.terrain_generator.curriculum = False
+
+
+def _play_overrides(self):
+    """Shared PLAY/eval overrides: small scene, no corruption/push, deploy at FULL capacity (G=1)
+    — SATA's deployment setting (torque ceiling 23.5 N·m, 200 Hz). Without this, eval ran the
+    policy in the crippled "infant" body (G~=0.13)."""
+    self.scene.num_envs = 50
+    self.observations.policy.enable_corruption = False
+    self.events.push_robot = None
+    self.growth_deploy_scale = 1.0

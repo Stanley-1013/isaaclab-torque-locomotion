@@ -50,10 +50,16 @@ def track_yaw(env, command_name="base_velocity", asset_cfg=SceneEntityCfg("robot
 
 def base_height(env, target_height=0.3, asset_cfg=SceneEntityCfg("robot")):
     # Matches SATA _reward_head_height exactly: base_height*(1+G) + head_up,
-    # head_up = -(grav_x.clip(min=m)), m = min(0, -0.2*(1.5-2G)). (flat: measured_heights=0)
+    # head_up = -(grav_x.clip(min=m)), m = min(0, -0.2*(1.5-2G)).
+    # SATA: base_height = mean(root_z - measured_heights) (terrain-RELATIVE). On rough terrain we
+    # subtract the height-scanner ground height; on flat (no scanner) this is just root_z.
     asset = env.scene[asset_cfg.name]
     g = _G(env)
-    bh = torch.clamp(asset.data.root_pos_w[:, 2], max=target_height)
+    height = asset.data.root_pos_w[:, 2]
+    scanner = getattr(env.scene, "sensors", {}).get("height_scanner")
+    if scanner is not None:
+        height = height - torch.mean(scanner.data.ray_hits_w[..., 2], dim=1)
+    bh = torch.clamp(height, max=target_height)
     gx = asset.data.projected_gravity_b[:, 0]
     m = min(0.0, -0.2 * (1.5 - 2.0 * g))
     head_up = -torch.clamp(gx, min=m)

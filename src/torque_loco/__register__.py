@@ -67,3 +67,47 @@ gym.register(
         "rsl_rl_cfg_entry_point": _RSL_RL_PPO_SATA,
     },
 )
+
+# --- SATA-FAITHFUL terrain: rough SLOPES (0.2 smooth + 0.8 rough), curriculum OFF.
+# This is the control-variable-correct repro (SATA trains on trimesh rough slopes, not flat). ---
+gym.register(
+    id="Isaac-Velocity-Rough-Go2-Sata-v0",
+    entry_point="torque_loco.go2_sata_env:Go2SataEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "torque_loco.go2_sata_env:Go2SataRoughEnvCfg",
+        "rsl_rl_cfg_entry_point": _RSL_RL_PPO_SATA,
+    },
+)
+
+gym.register(
+    id="Isaac-Velocity-Rough-Go2-Sata-Play-v0",
+    entry_point="torque_loco.go2_sata_env:Go2SataEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "torque_loco.go2_sata_env:Go2SataRoughEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": _RSL_RL_PPO_SATA,
+    },
+)
+
+# --- Isaac Lab DEFAULT rough terrain (steeper slopes + stairs + boxes + curriculum): a second,
+# harder comparison point (NOT SATA-faithful) for the terrain ablation. ---
+gym.register(
+    id="Isaac-Velocity-Rough-Go2-Sata-Default-v0",
+    entry_point="torque_loco.go2_sata_env:Go2SataEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "torque_loco.go2_sata_env:Go2SataDefaultRoughEnvCfg",
+        "rsl_rl_cfg_entry_point": _RSL_RL_PPO_SATA,
+    },
+)
+
+gym.register(
+    id="Isaac-Velocity-Rough-Go2-Sata-Default-Play-v0",
+    entry_point="torque_loco.go2_sata_env:Go2SataEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": "torque_loco.go2_sata_env:Go2SataDefaultRoughEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": _RSL_RL_PPO_SATA,
+    },
+)
