@@ -32,13 +32,16 @@ PHYSICS_DT = 1.0 / PHYSICS_HZ      # 0.005
 class Go2SataEnv(ManagerBasedRLEnv):
     def __init__(self, cfg, render_mode=None, **kwargs):
         super().__init__(cfg, render_mode=render_mode, **kwargs)
-        self._G = gompertz(0)   # G at t=0 (not full capacity) until step() updates it
+        # Deployment override: SATA restores FULL capacity (G=1) at deployment/eval
+        # (paper IV-B). Training uses the Gompertz schedule (growth_deploy_scale=None).
+        self._deploy_G = getattr(cfg, "growth_deploy_scale", None)
+        self._G = self._deploy_G if self._deploy_G is not None else gompertz(0)
         act = self.scene["robot"].actuators["base_legs"]
         if hasattr(act, "set_runtime"):
             act.set_runtime(PHYSICS_DT, self)
 
     def step(self, action):
-        self._G = gompertz(self.common_step_counter)
+        self._G = self._deploy_G if self._deploy_G is not None else gompertz(self.common_step_counter)
         freq = control_freq(self._G)              # 100 -> 200 Hz
         accum, n_sub = 0.0, 0
         while accum * freq < 1.0:
@@ -123,6 +126,10 @@ class Go2SataEnv(ManagerBasedRLEnv):
 
 @configclass
 class Go2SataEnvCfg(UnitreeGo2FlatEnvCfg):
+    # Deployment growth scalar. None -> use the Gompertz schedule (training). A float (e.g. 1.0)
+    # forces FULL capacity at every step, matching SATA's deployment ("restore f_end, tau_end").
+    growth_deploy_scale: float | None = None
+
     def __post_init__(self):
         super().__post_init__()
         self.sim.dt = PHYSICS_DT
@@ -194,3 +201,6 @@ class Go2SataEnvCfg_PLAY(Go2SataEnvCfg):
         self.scene.num_envs = 50
         self.observations.policy.enable_corruption = False
         self.events.push_robot = None
+        # Deploy at FULL capacity (G=1): torque ceiling 23.5 N·m, 200 Hz — SATA's deployment
+        # setting. (Without this, eval ran the policy in the crippled "infant" body, G~=0.13.)
+        self.growth_deploy_scale = 1.0

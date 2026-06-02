@@ -78,6 +78,13 @@ parser.add_argument(
     default="rsl_rl_cfg_entry_point",
     help="RL agent configuration entry point name (default rsl_rl_cfg_entry_point).",
 )
+parser.add_argument(
+    "--traj_out",
+    type=str,
+    default=None,
+    help="If set, also write a kinematic-replay trajectory CSV (base pose + joint angles + "
+         "joint names) for rendering the motion in a working renderer (e.g. Isaac Gym).",
+)
 
 # Append rsl_rl CLI args (--experiment_name, --load_run, --resume, --checkpoint, …)
 cli_args.add_rsl_rl_args(parser)
@@ -191,6 +198,8 @@ def main(
     robot = isaac_env.scene["robot"]
 
     rows = []  # list of dicts, one per recorded step
+    traj_rows = []  # base pose + joint angles per step (for kinematic replay)
+    joint_names = list(robot.data.joint_names)  # Isaac Lab joint ordering
 
     obs = env.get_observations()
     print(f"[INFO] Starting rollout for {args_cli.steps} steps ...")
@@ -224,6 +233,20 @@ def main(
                 row[f"act_{j}"] = act[j].item()
             rows.append(row)
 
+            if args_cli.traj_out is not None:
+                # root_state_w = [pos(3), quat wxyz(4), lin_vel(3), ang_vel(3)]
+                root = robot.data.root_state_w[0, :7].cpu()       # pos + quat(wxyz)
+                qpos = robot.data.joint_pos[0].cpu()              # (J,) Isaac Lab order
+                trow = {
+                    "step": step_idx,
+                    "bpx": root[0].item(), "bpy": root[1].item(), "bpz": root[2].item(),
+                    "bqw": root[3].item(), "bqx": root[4].item(),
+                    "bqy": root[5].item(), "bqz": root[6].item(),
+                }
+                for j, name in enumerate(joint_names):
+                    trow[f"q:{name}"] = qpos[j].item()
+                traj_rows.append(trow)
+
     print(f"[INFO] Rollout complete. Writing {len(rows)} rows to: {args_cli.out}")
 
     # --- write CSV (stdlib csv, no pandas) ---
@@ -245,6 +268,19 @@ def main(
         writer.writerows(rows)
 
     print(f"[INFO] Saved: {out_path}")
+
+    if args_cli.traj_out is not None and traj_rows:
+        traj_path = os.path.expanduser(args_cli.traj_out)
+        _td = os.path.dirname(traj_path)
+        if _td:
+            os.makedirs(_td, exist_ok=True)
+        traj_fields = (["step", "bpx", "bpy", "bpz", "bqw", "bqx", "bqy", "bqz"]
+                       + [f"q:{n}" for n in joint_names])
+        with open(traj_path, "w", newline="") as fh:
+            tw = csv.DictWriter(fh, fieldnames=traj_fields)
+            tw.writeheader()
+            tw.writerows(traj_rows)
+        print(f"[INFO] Saved trajectory ({len(traj_rows)} steps, joints={joint_names}) to: {traj_path}")
 
     env.close()
 

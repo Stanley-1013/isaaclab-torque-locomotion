@@ -16,6 +16,16 @@ _RSL_RL_PPO = (
     "rsl_rl_ppo_cfg:UnitreeGo2FlatPPORunnerCfg"
 )
 
+# SATA-matched PPO: the FULL SATA bio task needs SATA's actor/critic net [512,256,128].
+# Isaac Lab's *Flat* runner shrinks it to [128,128,128] (fine for easy position control on
+# flat ground, too small for torque control) — so we reuse Isaac Lab's *Rough* runner, whose
+# [512,256,128] + lr/entropy/clip/gamma/lam/KL/steps already EQUAL SATA's GO2TorqueCfgPPO.
+# (No invented hyperparameters — Isaac Lab's own cfg that matches SATA.)
+_RSL_RL_PPO_SATA = (
+    "isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents."
+    "rsl_rl_ppo_cfg:UnitreeGo2RoughPPORunnerCfg"
+)
+
 gym.register(
     id="Isaac-Velocity-Flat-Go2-Torque-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
@@ -44,7 +54,7 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": "torque_loco.go2_sata_env:Go2SataEnvCfg",
-        "rsl_rl_cfg_entry_point": _RSL_RL_PPO,
+        "rsl_rl_cfg_entry_point": _RSL_RL_PPO_SATA,
     },
 )
 
@@ -54,6 +64,6 @@ gym.register(
     disable_env_checker=True,
     kwargs={
         "env_cfg_entry_point": "torque_loco.go2_sata_env:Go2SataEnvCfg_PLAY",
-        "rsl_rl_cfg_entry_point": _RSL_RL_PPO,
+        "rsl_rl_cfg_entry_point": _RSL_RL_PPO_SATA,
     },
 )
