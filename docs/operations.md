@@ -384,3 +384,12 @@ improvements (kept), just not the gait cause.
 (b) for faithful repro, control EVERY variable vs the reference + verify via the reference's own
 training logs (per-term rewards), not just final behavior; (c) when paper Table ≠ code, the CODE is
 authoritative (it produced the working policy).
+
+## Render gotcha (keep): Isaac Gym replay needs flip_visual_attachments=True
+The kinematic-replay clip first rendered the Go2 "disassembled" (mis-attached limb meshes) even
+though the joint STATES were correct. Cause: `render_replay_isaacgym.py` loaded the URDF with raw
+AssetOptions; the Unitree .dae meshes are y-up and MUST be flipped to z-up. Fix: set
+`asset_opts.flip_visual_attachments = True` (+ `replace_cylinder_with_capsule = True`) to match
+legged_gym's Go2 load. This is a RENDER-only bug — the trained policy was always fine (base 0.30 m
+confirmed numerically). Deck clips re-rendered: go2_sata_FAILURE_lowcrawl.gif (crawl 0.10 m) /
+go2_sata_FIXED_walk.gif (upright walk 0.30 m).

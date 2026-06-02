@@ -82,6 +82,11 @@ def main():
     asset_opts.fix_base_link = False
     asset_opts.default_dof_drive_mode = int(gymapi.DOF_MODE_NONE)
     asset_opts.collapse_fixed_joints = True
+    # MUST match legged_gym's Go2 load or the robot renders "disassembled": the Unitree .dae
+    # meshes are y-up and must be flipped to z-up. Without flip_visual_attachments the visual
+    # meshes attach mis-oriented even though joint STATES are correct.
+    asset_opts.flip_visual_attachments = True
+    asset_opts.replace_cylinder_with_capsule = True
     asset = gym.load_asset(sim, URDF_DIR, URDF_FILE, asset_opts)
     dof_names = gym.get_asset_dof_names(asset)
     print(f"[INFO] Isaac Gym DOF order: {dof_names}")
