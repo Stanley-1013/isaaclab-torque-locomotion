@@ -393,3 +393,74 @@ AssetOptions; the Unitree .dae meshes are y-up and MUST be flipped to z-up. Fix:
 legged_gym's Go2 load. This is a RENDER-only bug — the trained policy was always fine (base 0.30 m
 confirmed numerically). Deck clips re-rendered: go2_sata_FAILURE_lowcrawl.gif (crawl 0.10 m) /
 go2_sata_FIXED_walk.gif (upright walk 0.30 m).
+
+---
+
+## 2026-06-03 — Rough-terrain control-variable fix, NaN crash fix, 4-agent faithfulness audit + maximal-fidelity rework
+
+**Context:** user noticed the render's ground was flat and flagged that SATA's reproduction trains
+on ROUGH terrain, not flat. This kicked off a terrain fix → a NaN-crash debug → a full faithfulness
+audit → a maximal-fidelity rework. All training runs to date (flat + first rough attempts) are
+SUPERSEDED; the authoritative runs are the 16 launched 2026-06-03 02:28.
+
+### A. Terrain control-variable fix (commit 7e728f2)
+SATA `go2_torque_config.py`: `mesh_type='trimesh'`, `terrain_proportions=[0.2 smooth slope, 0.8
+rough slope, 0,0,0]`, `curriculum=False`, `measure_heights=True`. Our migration had inherited
+`UnitreeGo2FlatEnvCfg` → FLAT, which UNDER-estimates the torque envelope (terrain-dependent). Fix:
+`sata_terrain.py` (smooth slope + custom `rough_slope` = gentle pyramid slope + ±0.06 m uniform
+noise in one cell, mirroring legged_gym), terrain-relative `base_height` via the height scanner,
+`Go2SataRoughEnvCfg` (variant A = SATA slopes) + `Go2SataDefaultRoughEnvCfg` (variant B = Isaac Lab
+default rough). `verify_terrain.py` confirmed A = gentle slopes+roughness (std .083/.024 m,
+curriculum off), B = steep (std .598 m), flat = no scanner. obs was already SATA-faithful.
+
+### B. NaN-divergence crash (commit 75aa16c)
+All SATA-rough seeds crashed in a tight band (iter 619–885): `RuntimeError: normal expects all
+elements of std >= 0.0` (PPO action std → NaN). Reward was healthy (~38) until a SUDDEN NaN → a
+rare non-finite injected into one rollout (clusters at the iteration where the policy first walks
+well enough to traverse the terrain). Two differences from SATA, both fixed to MATCH SATA:
+1. height-scanner RayCaster returns ±inf for rays missing the mesh → -inf `base_height` reward →
+   NaN. SATA's `_get_heights` is always finite. Fix: average only finite rays (fall back to root-z).
+2. SATA clips obs to ±`clip_observations`(=100) every step; ours were unclipped. Fix: clip ±100 on
+   every policy obs term.
+SATA does NOT clip the Hill torque (raw → `set_dof_actuation_force_tensor`), so our no-clip
+actuator is correct. CONFIRMED: canary SR1 reward 86.9, cleared the crash band, 0 crashes.
+
+### C. 4-agent faithfulness audit (paper + SATA legged_gym + repro repo)
+PPO hyperparams byte-for-byte match; robot mass identical (15.019 kg); all 9 reward terms, bio
+activation/Hill/fatigue, Gompertz growth, obs composition+scales+clip ±100, command ranges, init
+state, terrain type/proportions all MATCH. Found 1 real bug + several gaps.
+
+### D. Maximal-fidelity rework (commit 712343b) — verified against SATA source, smoke-clean, 19 tests pass
+- **REAL BUG — rear-leg torque growth:** SATA (`go2_torque.py:315,223-224`) sets `torque_limits=23.5`
+  for ALL joints × `current_torque_limit_scale`(0.3→1.0); the `r_leg_scaled` rear knob is
+  start=max=1.0 (a DISABLED no-op). So SATA rear legs grow 7.05→23.5 IDENTICALLY to front — NOT
+  constant 23.5 as we (and the docs) had assumed. Old code pinned rear at 23.5 → rear over-powered
+  early, biasing the growth curriculum + envelope. Fixed: all 12 joints grow; removed front mask.
+- **Per-substep cadence:** SATA's `step_count` / reward / episode clock increment per PHYSICS
+  SUBSTEP (inside the variable-frequency loop). n_sub=2 for the WHOLE growth phase (drops to 1 only
+  at G=1/200 Hz), so our per-env-step counters made G ~2× too slow, reward ~½, episodes ~2× long.
+  Fixed in `go2_sata_env.step`: growth counter `+= n_sub`; reward/command/event `dt = n_sub*0.005`;
+  `episode_length_buf += n_sub` (→ correct 10 s sim-time horizon + reward magnitude).
+- heading_command=False + rel_standing_envs=0 (SATA samples ang_vel_yaw directly, no standing envs).
+- `GrowthVelocityCommand` (sata_mdp): command ranges scale by G — lin_vel_x narrows to its midpoint
+  early (full by G=0.5), vy/yaw → 0 early (`go2_torque.py:337-357`).
+- friction randomization U[0.5,1.25] (was fixed 0.8/0.6); reset joints = default×U(0.95,1.05);
+  reset base shifted ±1 m xy (no yaw/vel rand); base_com randomization x±0.2, y/z±0.1 + base mass
+  U[-1,5].
+- hard-limit termination ±0.05 + soft_dof_pos_limits reward BOTH use SATA's `go2_torque.urdf`
+  limits (front thigh [0,1.5] / rear [0,2.0]; calf [-2.7227,-0.838]), not the wider Isaac Lab USD.
+- terrain `difficulty_range=(0.5,0.9)` to match SATA's discrete {0.5,0.75,0.9} (was uniform [0,1)).
+- DEFERRED (documented, minor/regularization): `loss_rate=0.1` obs/action dropout; per-link mass
+  jitter ±5/16 (base mass + COM are done); USD thigh physical stop not clamped (the SATA-limit
+  reward + hard-limit termination handle the joint range instead).
+
+### E. Authoritative runs
+16 runs launched 2026-06-03 02:28 on GPU0/1/2/3 (4 seeds/GPU, ~8 h):
+`go2_sr_s1-8` (Isaac-Velocity-Rough-Go2-Sata-v0, SATA slopes) + `go2_dr_s1-8`
+(Isaac-Velocity-Rough-Go2-Sata-Default-v0, Isaac Lab default rough). 3000 it / 4096 envs. Flat
+seeds 1–4 (`go2_sata_fix2_s1-4`, model_2999) kept as the flat comparison point.
+
+PENDING: envelope eval @G=1 (Play, growth_deploy_scale=1.0) on both rough terrains — these are the
+authoritative Tier-2 numbers; ALL prior flat numbers (incl. 22.75 / 23.86) are invalid. Then NATIVE
+Isaac Lab render (RTX blocked by container IOMMU / Vulkan↔CUDA enumeration mismatch — all GPUs go
+"bad state"; retry single-GPU + multiGpu-off when a GPU frees), then the deck.
