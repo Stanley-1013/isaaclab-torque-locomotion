@@ -58,7 +58,16 @@ def base_height(env, target_height=0.3, asset_cfg=SceneEntityCfg("robot")):
     height = asset.data.root_pos_w[:, 2]
     scanner = getattr(env.scene, "sensors", {}).get("height_scanner")
     if scanner is not None:
-        height = height - torch.mean(scanner.data.ray_hits_w[..., 2], dim=1)
+        # RayCaster returns +/-inf for rays that miss the mesh (an env can roam to the terrain-map
+        # edge over a long rollout). SATA's _get_heights is always finite, so an inf here is a
+        # platform difference, not SATA behaviour — and a single inf poisons the reward -> NaN ->
+        # PPO std NaN -> crash. Average only the rays that actually hit; fall back to root-z if all
+        # miss (so base_height stays finite, matching SATA's always-finite measured_heights).
+        ground = scanner.data.ray_hits_w[..., 2]
+        finite = torch.isfinite(ground)
+        denom = finite.sum(dim=1).clamp(min=1)
+        ground_mean = torch.where(finite, ground, torch.zeros_like(ground)).sum(dim=1) / denom
+        height = height - ground_mean
     bh = torch.clamp(height, max=target_height)
     gx = asset.data.projected_gravity_b[:, 0]
     m = min(0.0, -0.2 * (1.5 - 2.0 * g))

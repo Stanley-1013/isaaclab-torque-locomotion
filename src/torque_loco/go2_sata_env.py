@@ -167,6 +167,13 @@ def _apply_sata_bio(self):
     p.actions = None
     p.applied_torque = ObservationTermCfg(func=sata_mdp.applied_torque)
     p.motor_fatigue = ObservationTermCfg(func=sata_mdp.motor_fatigue)
+    # SATA clips observations to +/-clip_observations (=100) every step (legged_robot.step ->
+    # torch.clip(obs_buf, -100, 100)). Without it, a transient torque/velocity spike on rough
+    # terrain feeds an unbounded value to the policy -> network blow-up -> NaN. Match SATA: clip
+    # every policy obs term. (Isaac Lab clips per-term before scaling; bound is what matters here.)
+    for _term in vars(p).values():
+        if isinstance(_term, ObservationTermCfg):
+            _term.clip = (-100.0, 100.0)
     R = self.rewards
     for name in list(vars(R)):
         setattr(R, name, None)
