@@ -34,9 +34,12 @@ def _load(path):
     with open(path) as f:
         for row in csv.DictReader(f):
             rows.append(row)
+    if not rows:
+        raise ValueError(f"Empty CSV: {path}")
     J = sum(1 for k in rows[0] if k.startswith("tau_"))
     def col(prefix):
-        return torch.tensor([[float(r[f"{prefix}_{j}"]) for j in range(J)] for r in rows])
+        return torch.tensor([[float(r[f"{prefix}_{j}"]) for j in range(J)] for r in rows],
+                            dtype=torch.float32)
     return col("tau"), col("vel"), col("act")
 
 

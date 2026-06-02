@@ -174,7 +174,9 @@ def main():
     plt.tight_layout()
 
     out_path = os.path.expanduser(args.out)
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    _d = os.path.dirname(out_path)
+    if _d:
+        os.makedirs(_d, exist_ok=True)
     plt.savefig(out_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
     print(f"[INFO] Saved plot: {out_path}")

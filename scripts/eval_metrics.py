@@ -119,8 +119,6 @@ from isaaclab_rl.rsl_rl import (
     RslRlVecEnvWrapper,
     handle_deprecated_rsl_rl_cfg,
 )
-from isaaclab_rl.utils.pretrained_checkpoint import get_published_pretrained_checkpoint
-
 import isaaclab_tasks  # noqa: F401  (side-effect: registers stock tasks)
 from isaaclab_tasks.utils import get_checkpoint_path
 from isaaclab_tasks.utils.hydra import hydra_task_config
@@ -186,9 +184,9 @@ def main(
 
     # --- rollout loop ---
     # Access the robot articulation via the unwrapped (Isaac Lab) env.
-    # env is RslRlVecEnvWrapper -> env.unwrapped is the gymnasium Env
-    # -> env.unwrapped.unwrapped is the ManagerBasedRLEnv / Go2SataEnv.
-    # scene["robot"] returns the Articulation asset.
+    # env.unwrapped already returns the underlying Go2SataEnv (the rsl_rl
+    # wrapper delegates .unwrapped to the base env); do NOT add a second
+    # .unwrapped.  scene["robot"] returns the Articulation asset.
     isaac_env = env.unwrapped
     robot = isaac_env.scene["robot"]
 
@@ -216,7 +214,7 @@ def main(
             vel = robot.data.joint_vel[0].cpu()        # (J,)
             act = actions[0].cpu()                     # (J,)
 
-            num_joints = tau.shape[0]
+            num_joints = tau.shape[-1]
             row = {"step": step_idx}
             for j in range(num_joints):
                 row[f"tau_{j}"] = tau[j].item()
@@ -230,9 +228,11 @@ def main(
 
     # --- write CSV (stdlib csv, no pandas) ---
     out_path = os.path.expanduser(args_cli.out)
-    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    _d = os.path.dirname(out_path)
+    if _d:
+        os.makedirs(_d, exist_ok=True)
 
-    num_joints = tau.shape[0]
+    num_joints = tau.shape[-1]
     fieldnames = (
         ["step"]
         + [f"tau_{j}" for j in range(num_joints)]
