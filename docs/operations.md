@@ -348,3 +348,39 @@ is False so the whole branch is skipped.
 instances expose terms as instance attrs, so this drops all stock terms before adding SATA terms.
 
 py_compile: PASS. Runtime smoke = Task B4.
+
+## Post-merge fidelity investigation (2026-06-02) — the migrated policy LOW-CRAWLED, not walked
+
+The merged reproduction trained + "reproduced" the envelope number, but the rendered clip showed a
+low forward crawl (base height ~0.10 m), not SATA's upright walk. User (who reproduced SATA cleanly
+in Isaac Gym) correctly pushed: a faithful PORT should walk → we hadn't controlled the variables.
+Systematic audit (one variable at a time):
+
+1. **Deploy capacity G** — eval ran at G≈0.13 (infant body: front τ 9 N·m, 100 Hz) instead of SATA's
+   "restore full capacity at deployment" (paper §IV-B). Fixed: `Go2SataEnvCfg_PLAY.growth_deploy_scale=1.0`.
+   Real bug, but didn't fix the crawl.
+2. **PPO network** — Isaac Lab's *Flat* runner shrinks the net to [128,128,128]; SATA uses [512,256,128].
+   Fixed: point Sata task at Isaac Lab's *Rough* runner (= SATA's net + matched hyperparams; no
+   invented values). Retrained 3000 iters → STILL crawled (base_z 0.106). Disconfirmed as the cause.
+3. **Robot model** — deep-checked Isaac Lab Go2 USD vs SATA URDF: total mass 15.019 kg / base 6.921 kg
+   IDENTICAL, hip/calf limits + default pose match; only deltas = thigh pos-limit range + calf vel-limit
+   (minor). NOT the confound.
+4. **ROOT CAUSE — reward fidelity (forward reward 2× over-scaled).** Read SATA's reference training
+   tfevents (`logs/SATA/May25_*_ref_s1`): SATA balances `forward 8.2` with `head_height 2.6`. Ours had
+   `forward 10.7` (higher) + `head_height 0.8` (3.3× lower) → policy over-collected forward by crawling.
+   Cause: `track_x` implemented the PAPER Table-II two-term form `φ(vx−mid)(1−G)+φ(vx−cmd)(1+G)`
+   (ceiling ~2.0), but SATA's CODE `_reward_forward` is a SINGLE exp of a blended target (ceiling 1.0).
+   2× over-scaled forward dominated head_height → low crawl. **Fix (c0d89a1): match SATA code** —
+   single-exp blended target; also aligned `base_height` head_up to SATA's exact `-(grav_x.clip(min=m))`.
+   **Trust the code, not the paper's simplified Table.**
+
+**CONFIRMED:** reward-fixed, at iter 1000 the robot rises prone→~0.20 m and walks forward (was 0.106
+crawl); reward balance now matches SATA (forward 8.5, head_height 2.0, dof_acc −1.05, mean reward 102).
+Full 8-seed reward-fixed retrain launched. The low-crawl `results/go2_sata_FAILURE_lowcrawl.gif` is kept
+as the documented "before/failure" artifact for the deck. Net & G fixes were correct fidelity
+improvements (kept), just not the gait cause.
+
+**Lessons (keep):** (a) an envelope NUMBER reproducing ≠ faithful reproduction — check the actual gait;
+(b) for faithful repro, control EVERY variable vs the reference + verify via the reference's own
+training logs (per-term rewards), not just final behavior; (c) when paper Table ≠ code, the CODE is
+authoritative (it produced the working policy).
