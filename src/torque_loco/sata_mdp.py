@@ -32,7 +32,11 @@ def track_x(env, command_name="base_velocity", asset_cfg=SceneEntityCfg("robot")
     g = _G(env)
     rng = env.command_manager.get_term(command_name).cfg.ranges.lin_vel_x
     mid = 0.5 * (rng[0] + rng[1])
-    return _phi(vx - mid) * (1.0 - g) + _phi(vx - cmd[:, 0]) * (1.0 + g)
+    # SATA's CODE (_reward_forward) is a SINGLE exp of a growth-blended target (ceiling 1.0),
+    # NOT the paper Table II two-term sum (which would have ceiling ~2.0 and over-weight forward
+    # vs head_height -> low crawl). Match the code: target = mid*max(1-2G,0) + cmd*min(2G,1).
+    target = mid * max(1.0 - 2.0 * g, 0.0) + cmd[:, 0] * min(2.0 * g, 1.0)
+    return _phi(vx - target)
 
 def track_y(env, command_name="base_velocity", asset_cfg=SceneEntityCfg("robot")):
     asset = env.scene[asset_cfg.name]
@@ -45,12 +49,15 @@ def track_yaw(env, command_name="base_velocity", asset_cfg=SceneEntityCfg("robot
     return _phi(asset.data.root_ang_vel_b[:, 2] - cmd[:, 2]) * _G(env)
 
 def base_height(env, target_height=0.3, asset_cfg=SceneEntityCfg("robot")):
+    # Matches SATA _reward_head_height exactly: base_height*(1+G) + head_up,
+    # head_up = -(grav_x.clip(min=m)), m = min(0, -0.2*(1.5-2G)). (flat: measured_heights=0)
     asset = env.scene[asset_cfg.name]
     g = _G(env)
-    h = torch.clamp(asset.data.root_pos_w[:, 2], max=target_height)
+    bh = torch.clamp(asset.data.root_pos_w[:, 2], max=target_height)
     gx = asset.data.projected_gravity_b[:, 0]
-    head_up = torch.maximum(gx, -torch.clamp(0.2 * (1.5 - 2.0 * g) * torch.ones_like(gx), max=0.0))
-    return h * (1.0 + g) - head_up
+    m = min(0.0, -0.2 * (1.5 - 2.0 * g))
+    head_up = -torch.clamp(gx, min=m)
+    return bh * (1.0 + g) + head_up
 
 def roll_penalty(env, asset_cfg=SceneEntityCfg("robot")):
     return env.scene[asset_cfg.name].data.projected_gravity_b[:, 1].abs()
