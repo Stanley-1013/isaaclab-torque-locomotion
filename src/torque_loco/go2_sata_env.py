@@ -242,8 +242,17 @@ def _apply_sata_bio(self):
     # SATA domain_rand: friction U[0.5,1.25]; added base mass U[-1,5] + COM shift x±0.2,y/z±0.1;
     # reset dof = default*U(0.95,1.05); reset base shifted ±1 m in xy (no yaw/vel randomization).
     if hasattr(E, "physics_material") and E.physics_material is not None:
-        E.physics_material.params["static_friction_range"] = (0.5, 1.25)
-        E.physics_material.params["dynamic_friction_range"] = (0.5, 1.25)
+        # FRICTION COMBINE-MODE MATCH (cross-engine fix). Isaac Gym defaults to `average` friction
+        # combine, Isaac Lab to `multiply`. SATA randomises the robot's friction U[0.5,1.25] over a
+        # ground of 1.0, so its EFFECTIVE foot mu = average(1.0, U[0.5,1.25]) = U[0.75,1.125]. Under
+        # Isaac Lab's `multiply` over ground 1.0, effective mu = the robot value directly, so to
+        # reproduce SATA's effective foot friction we set the range to (0.75,1.125) (robust — no
+        # dependence on PhysX combine-mode priority). Our previous (0.5,1.25) made ~half the envs
+        # much more slippery (mu down to 0.50 vs SATA's 0.75 floor) -> the policy locked its legs
+        # straight for static stability and rode the calf extension limit. THE leading cross-engine
+        # config mismatch found by the agent audit.
+        E.physics_material.params["static_friction_range"] = (0.75, 1.125)
+        E.physics_material.params["dynamic_friction_range"] = (0.75, 1.125)
     if hasattr(E, "add_base_mass") and E.add_base_mass is not None:
         E.add_base_mass.params["mass_distribution_params"] = (-1.0, 5.0)
     # re-create base_com (the rough cfg sets it to None): SATA shifts base COM x±0.2, y/z±0.1.
