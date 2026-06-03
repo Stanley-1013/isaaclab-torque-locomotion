@@ -48,9 +48,18 @@ class Go2SataEnv(ManagerBasedRLEnv):
         # it each step (the earlier bug) pinned n_sub=2 -> control freq stuck at 100 Hz until G=1.
         self._ctrl_dt = 0.0
         self._G = self._deploy_G if self._deploy_G is not None else gompertz(0)
-        act = self.scene["robot"].actuators["base_legs"]
+        robot = self.scene["robot"]
+        act = robot.actuators["base_legs"]
         if hasattr(act, "set_runtime"):
             act.set_runtime(PHYSICS_DT, self)
+        # SATA-faithful calf velocity limit: the Isaac Lab Go2 USD caps calf joint velocity at
+        # 15.70 rad/s, but SATA's go2_torque.urdf uses 20.07. We confirmed the calf SATURATES at
+        # 15.70 in the gait (binding constraint) -> throttled ~23% slower than SATA, forcing the
+        # policy into a stiff, extension-limit-riding gait. The bio Hill model already uses 20.07,
+        # so the USD value also created a model/physics mismatch. Write the physics limit to match.
+        calf_ids = [i for i, n in enumerate(robot.joint_names) if "calf" in n]
+        if calf_ids:
+            robot.write_joint_velocity_limit_to_sim(20.07, joint_ids=calf_ids)
 
     def step(self, action):
         self._G = self._deploy_G if self._deploy_G is not None else gompertz(self._growth_step)
