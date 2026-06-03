@@ -142,21 +142,12 @@ def fatigue_penalty(env, kappa_scale=5.0, asset_cfg=SceneEntityCfg("robot")):
     return (fatigue * action_scaled).sum(dim=1)
 
 def joint_acc_l2(env, asset_cfg=SceneEntityCfg("robot")):
-    # SATA _reward_dof_acc = sum(((last_dof_vel - dof_vel)/dt)^2): a FINITE DIFFERENCE of joint
-    # velocity over the control step. We previously used PhysX's instantaneous data.joint_acc,
-    # which SPIKES at foot contacts on rough terrain -> inflated the penalty ~60% (-3.18 vs SATA's
-    # -1.96) and pushed the policy into a stiff, joint-limit-riding gait that terminated early
-    # (episodes ~853 vs SATA's ~2026 steps -> ~half the reward). Match SATA: finite difference.
-    asset = env.scene[asset_cfg.name]
-    vel = asset.data.joint_vel
-    last = getattr(env, "_sata_last_jvel", None)
-    dt = getattr(env, "_eff_dt", None) or env.step_dt
-    if last is not None and last.shape == vel.shape:
-        acc = (((last - vel) / dt) ** 2).sum(dim=1)
-    else:
-        acc = torch.zeros(vel.shape[0], device=vel.device)
-    env._sata_last_jvel = vel.detach().clone()
-    return acc
+    # NOTE: SATA's _reward_dof_acc is a finite difference ((last_vel-vel)/dt)^2; we tried matching
+    # that (commit 322e8b7) hypothesising the PhysX-instantaneous accel over-penalised contacts and
+    # caused the crouch — but the finite-diff version trained markedly WORSE (iter~1000: reward 12 /
+    # ep_len 254 vs PhysX's 26 / 707), so PhysX joint_acc is the better baseline and dof_acc was NOT
+    # the cause of the 66-vs-119 gap. Reverted. (Finite-diff likely spiked on episode resets.)
+    return (env.scene[asset_cfg.name].data.joint_acc ** 2).sum(dim=1)
 
 # ---- events ----
 def push_scaled_by_growth(env, env_ids, velocity_range, asset_cfg=SceneEntityCfg("robot")):
