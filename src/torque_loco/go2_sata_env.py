@@ -90,14 +90,17 @@ class Go2SataEnv(ManagerBasedRLEnv):
             # update buffers at sim dt
             self.scene.update(dt=self.physics_dt)
 
-        # post-step:
-        # SATA runs post_physics_step (counters, reward, termination) once per physics substep, so
-        # at cold start (n_sub=2) episode length and reward accumulate over 2 substeps. We compute
-        # once per env.step but scale by the substep count: reward/command/event dt = n_sub*dt
-        # (== summing n_sub substeps, since state barely changes over n_sub*0.005s) and episode
-        # length advances by n_sub (so the 10s episode horizon matches SATA in sim time).
+        # post-step: SATA's per-substep semantics, faithfully split (see compute_reward in
+        # legged_robot.py — it ZEROS rew_buf each call, so the reward fed to PPO is the LAST
+        # substep's value, NOT a sum over substeps). Therefore:
+        #   * REWARD to PPO = a single substep's worth -> dt = PHYSICS_DT (NOT n_sub*dt). Using
+        #     n_sub*dt double-counted reward during the growth phase (n_sub=2 -> 2x), drifting the
+        #     reward scale as G ramped and destabilising value/adaptive-LR.
+        #   * episode length + growth counter advance PER SUBSTEP -> += n_sub (SATA counts substeps;
+        #     gives the correct 10s episode horizon and the right G(t) timing).
+        #   * command resample + interval events advance in SIM TIME over the env step -> eff_dt.
         eff_dt = n_sub * PHYSICS_DT
-        self._eff_dt = eff_dt  # exposed for sata_mdp.joint_acc_l2 finite-difference
+        self._eff_dt = eff_dt
         # -- update env counters (used for curriculum generation)
         self.episode_length_buf += n_sub  # advance by substeps (SATA episode clock is per-substep)
         self.common_step_counter += 1  # total step (common for all envs)
@@ -105,8 +108,8 @@ class Go2SataEnv(ManagerBasedRLEnv):
         self.reset_buf = self.termination_manager.compute()
         self.reset_terminated = self.termination_manager.terminated
         self.reset_time_outs = self.termination_manager.time_outs
-        # -- reward computation
-        self.reward_buf = self.reward_manager.compute(dt=eff_dt)
+        # -- reward computation (single-substep, matching SATA's rew_buf fed to PPO)
+        self.reward_buf = self.reward_manager.compute(dt=PHYSICS_DT)
 
         if len(self.recorder_manager.active_terms) > 0:
             # update observations for recording if needed
