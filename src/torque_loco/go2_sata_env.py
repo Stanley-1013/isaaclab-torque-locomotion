@@ -60,6 +60,25 @@ class Go2SataEnv(ManagerBasedRLEnv):
         calf_ids = [i for i, n in enumerate(robot.joint_names) if "calf" in n]
         if calf_ids:
             robot.write_joint_velocity_limit_to_sim(20.07, joint_ids=calf_ids)
+        # SATA-faithful PHYSICAL joint position limits. The Isaac Lab Go2 USD uses WIDE thigh limits
+        # ([-1.57,3.49] front / [-0.52,4.54] rear) vs SATA's go2_torque.urdf [0,1.5]/[0,2.0]. SATA's
+        # PhysX hard-stops (clamps) the joint at the URDF limit, so exploration that would exceed it
+        # just bounces off and the episode CONTINUES. With the wide USD limit, our thigh physically
+        # goes past SATA's 1.5 during exploration -> our hard-limit TERMINATION fires -> ~0.7-0.8 of
+        # episodes die on exploration SATA tolerates -> short episodes, low reward, stiff policy.
+        # Writing SATA's limits makes the physics CLAMP like SATA (the termination then never fires,
+        # exactly as in SATA where the physical stop pre-empts it). calf/hip already match the USD.
+        import torch as _t
+        _lo = _t.empty(robot.num_joints, device=self.device)
+        _hi = _t.empty(robot.num_joints, device=self.device)
+        for _i, _n in enumerate(robot.joint_names):
+            if "hip" in _n: _l, _h = -1.0472, 1.0472
+            elif "thigh" in _n: _l, _h = (0.0, 1.5) if _n.startswith(("FL", "FR")) else (0.0, 2.0)
+            elif "calf" in _n: _l, _h = -2.7227, -0.83776
+            else: _l, _h = -1e9, 1e9
+            _lo[_i], _hi[_i] = _l, _h
+        _lim = _t.stack([_lo, _hi], dim=-1).unsqueeze(0).expand(self.num_envs, -1, -1)
+        robot.write_joint_position_limit_to_sim(_lim, warn_limit_violation=False)
 
     def step(self, action):
         self._G = self._deploy_G if self._deploy_G is not None else gompertz(self._growth_step)
