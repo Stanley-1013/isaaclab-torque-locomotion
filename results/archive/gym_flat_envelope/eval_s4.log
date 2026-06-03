@@ -1,0 +1,235 @@
+[3gH    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H   [INFO] Using python from: /home/han/miniconda3/envs/isaaclab/bin/python
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/han/workspace/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO]: Parsing configuration from: torque_loco.go2_sata_env:Go2SataEnvCfg_PLAY
+[INFO]: Parsing configuration from: isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2FlatPPORunnerCfg
+[WARNING]: The `policy` configuration is deprecated for rsl-rl >= 4.0.0. Please use, e.g., `actor` and `critic` model configurations instead.
+[WARNING]: The `policy` configuration is used to infer the `actor` model configuration.
+[WARNING]: The `policy` configuration is used to infer the `critic` model configuration.
+[WARNING]: The `distribution_cfg` configuration is now used to specify the output distribution for stochastic policies. Consider updating the configuration to use `distribution_cfg` instead of `stochastic`, `init_noise_std`, `noise_std_type`, and `state_dependent_std` parameters.
+[INFO] Loading experiment from directory: /home/han/workspace/IsaacLab/logs/rsl_rl/unitree_go2_flat
+
+[36m==================================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/claude-1001/isaaclab/logs/isaaclab_2026-06-02_08-32-38.log[0m
+[36m==================================================================================================[0m
+
+[33m08:32:38 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 42
+	Physics step-size     : 0.005
+	Rendering step-size   : 0.02
+	Environment step-size : 0.005
+[33m08:32:39 [terrain_importer.py] WARNING: Visual material specified for ground plane but no diffuse color found. Using default color: (0.0, 0.0, 0.0)[0m
+/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/rsl_rl/utils/utils.py:220: UserWarning: The observation configuration dictionary 'obs_groups' is empty and thus likely not configured. Consider configuring the 'obs_groups' dictionary explicitly
+  warnings.warn(
+/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/rsl_rl/utils/utils.py:251: UserWarning: The observation configuration dictionary 'obs_groups' does not contain the 'actor' key. As an observation group with the name 'policy' was found, this is assumed to be the appropriate observation. Consider adding the 'actor' key to the 'obs_groups' dictionary for clarity. This behavior will be removed in a future version.
+  warnings.warn(
+/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/rsl_rl/utils/utils.py:251: UserWarning: The observation configuration dictionary 'obs_groups' does not contain the 'critic' key. As an observation group with the name 'policy' was found, this is assumed to be the appropriate observation. Consider adding the 'critic' key to the 'obs_groups' dictionary for clarity. This behavior will be removed in a future version.
+  warnings.warn(
+[INFO]: Time taken for scene creation : 1.520538 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 32
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : ['/World/ground']
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 1.409999 seconds
+[INFO] Command Manager:  <CommandManager> contains 1 active terms.
++------------------------------------------------+
+|              Active Command Terms              |
++-------+---------------+------------------------+
+| Index | Name          |          Type          |
++-------+---------------+------------------------+
+|   0   | base_velocity | UniformVelocityCommand |
++-------+---------------+------------------------+
+
+[INFO] Event Manager:  <EventManager> contains 2 active terms.
++--------------------------------------+
+| Active Event Terms in Mode: 'startup' |
++----------+---------------------------+
+|  Index   | Name                      |
++----------+---------------------------+
+|    0     | physics_material          |
+|    1     | add_base_mass             |
++----------+---------------------------+
++---------------------------------------+
+|  Active Event Terms in Mode: 'reset'  |
++--------+------------------------------+
+| Index  | Name                         |
++--------+------------------------------+
+|   0    | base_external_force_torque   |
+|   1    | reset_base                   |
+|   2    | reset_robot_joints           |
++--------+------------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 1 active terms.
++-------------------------------------+
+|   Active Action Terms (shape: 12)   |
++--------+---------------+------------+
+| Index  | Name          |  Dimension |
++--------+---------------+------------+
+|   0    | joint_effort  |         12 |
++--------+---------------+------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (60,)) |
++-----------+---------------------------------+-----------+
+|   Index   | Name                            |   Shape   |
++-----------+---------------------------------+-----------+
+|     0     | base_lin_vel                    |    (3,)   |
+|     1     | base_ang_vel                    |    (3,)   |
+|     2     | projected_gravity               |    (3,)   |
+|     3     | velocity_commands               |    (3,)   |
+|     4     | joint_pos                       |   (12,)   |
+|     5     | joint_vel                       |   (12,)   |
+|     6     | applied_torque                  |   (12,)   |
+|     7     | motor_fatigue                   |   (12,)   |
++-----------+---------------------------------+-----------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 2 active terms.
++------------------------------------+
+|      Active Termination Terms      |
++-------+-----------------+----------+
+| Index | Name            | Time Out |
++-------+-----------------+----------+
+|   0   | time_out        |   True   |
+|   1   | bad_orientation |  False   |
++-------+-----------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 9 active terms.
++-------------------------------+
+|      Active Reward Terms      |
++-------+--------------+--------+
+| Index | Name         | Weight |
++-------+--------------+--------+
+|   0   | track_x      |   10.0 |
+|   1   | track_y      |    5.0 |
+|   2   | track_yaw    |    5.0 |
+|   3   | base_height  |    5.0 |
+|   4   | roll         |   -5.0 |
+|   5   | lin_vel_z    |   -5.0 |
+|   6   | joint_limits |   -5.0 |
+|   7   | fatigue      |  -0.05 |
+|   8   | joint_acc    | -1e-06 |
++-------+--------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+[INFO]: Loading model checkpoint from: /home/han/workspace/IsaacLab/logs/rsl_rl/unitree_go2_flat/2026-06-02_05-35-16/model_2999.pt
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 actor :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor Model: MLPModel(
+  (obs_normalizer): Identity()
+  (distribution): GaussianDistribution()
+  (mlp): MLP(
+    (0): Linear(in_features=60, out_features=128, bias=True)
+    (1): ELU(alpha=1.0)
+    (2): Linear(in_features=128, out_features=128, bias=True)
+    (3): ELU(alpha=1.0)
+    (4): Linear(in_features=128, out_features=128, bias=True)
+    (5): ELU(alpha=1.0)
+    (6): Linear(in_features=128, out_features=12, bias=True)
+  )
+)
+Critic Model: MLPModel(
+  (obs_normalizer): Identity()
+  (mlp): MLP(
+    (0): Linear(in_features=60, out_features=128, bias=True)
+    (1): ELU(alpha=1.0)
+    (2): Linear(in_features=128, out_features=128, bias=True)
+    (3): ELU(alpha=1.0)
+    (4): Linear(in_features=128, out_features=128, bias=True)
+    (5): ELU(alpha=1.0)
+    (6): Linear(in_features=128, out_features=1, bias=True)
+  )
+)
+[INFO] Starting rollout for 1000 steps ...
+[INFO] Rollout complete. Writing 1000 rows to: /home/han/workspace/isaaclab-torque-locomotion/results/metrics_sata_s4.csv
+[INFO] Saved: /home/han/workspace/isaaclab-torque-locomotion/results/metrics_sata_s4.csv
+Loading user config located at: '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260602_083212.log
+2026-06-02T00:32:13Z [1,697ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-06-02T00:32:14Z [2,398ms] [Warning] [omni.platforminfo.plugin] failed to open the default display.  Can't verify X Server version.
+2026-06-02T00:32:15Z [3,078ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-06-02T00:32:15Z [3,112ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-06-02T00:32:26Z [14,639ms] [Warning] [carb.cudainterop.plugin] CUDA_VISIBLE_DEVICES environment variable is set.
+2026-06-02T00:32:26Z [14,639ms] [Warning] [carb.cudainterop.plugin] Note CUDA device enumeration and Omniverse device enumeration are different.
+2026-06-02T00:32:26Z [14,639ms] [Warning] [carb.cudainterop.plugin] Setting CUDA_VISIBLE_DEVICES can lead to undesired behavior or crashes.
+2026-06-02T00:32:28Z [15,808ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T00:32:28Z [15,808ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T00:32:28Z [15,809ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T00:32:28Z [15,809ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T00:32:28Z [15,810ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T00:32:28Z [15,810ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T00:32:28Z [15,812ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T00:32:28Z [15,812ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T00:32:28Z [15,812ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T00:32:28Z [15,812ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T00:32:28Z [15,812ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T00:32:28Z [15,812ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 595.58.03     | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | fc236847.. |
+|     |                                  |        |     |            | 2         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | c6b9ed55.. |
+|     |                                  |        |     |            | 3         |            |
+|---------------------------------------------------------------------------------------------|
+| 2   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 80560f73.. |
+|     |                                  |        |     |            | 83        |            |
+|---------------------------------------------------------------------------------------------|
+| 3   | NVIDIA RTX A6000                 | Yes: 0 |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 3b0cb3e3.. |
+|     |                                  |        |     |            | 84        |            |
+|=============================================================================================|
+| OS: 24.04.2 LTS (Noble Numbat) ubuntu, Version: 24.04.2, Kernel: 6.8.0-111-generic
+| Processor: Intel(R) Xeon(R) CPU E5-4667 v3 @ 2.00GHz
+| Cores: 32 | Logical Cores: 64
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 61440 | Free Memory: 4116
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-06-02T00:32:28Z [16,340ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-06-02T00:32:28Z [16,340ms] [Warning] [gpu.foundation.plugin] Detected IOMMU is enabled. Running CUDA peer-to-peer bandwidth and latency validation.
+Unidirectional P2P=Enabled Bandwidth (P2P Writes) Matrix (GB/s)
+   D\D     0 
+     0 675.33 
+P2P=Enabled Latency (P2P Writes) Matrix (us)
+   GPU     0 
+     0   1.70 
+
+   CPU     0 
+     0   5.19 
+2026-06-02T00:32:28Z [16,413ms] [Warning] [omni.kvdb.plugin] Disabling key-value database because another kit process is locking it
+2026-06-02T00:32:42Z [30,701ms] [Warning] [omni.physx.fabric.plugin] FabricManager::initializePointInstancer mismatched prototypes on point instancer: /Visuals/Command/velocity_goal.
+2026-06-02T00:32:42Z [30,701ms] [Warning] [omni.physx.fabric.plugin] FabricManager::initializePointInstancer mismatched prototypes on point instancer: /Visuals/Command/velocity_current.

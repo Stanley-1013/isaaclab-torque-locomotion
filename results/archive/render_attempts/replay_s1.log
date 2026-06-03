@@ -1,0 +1,19 @@
+Importing module 'gym_38' (/home/han/workspace/isaacgym/python/isaacgym/_bindings/linux-x86_64/gym_38.so)
+Setting GYM_USD_PLUG_INFO_PATH to /home/han/workspace/isaacgym/python/isaacgym/_bindings/linux-x86_64/usd/plugInfo.json
+PyTorch version 2.0.1+cu117
+Device count 4
+/home/han/workspace/isaacgym/python/isaacgym/_bindings/src/gymtorch
+Using /home/han/.cache/torch_extensions/py38_cu117 as PyTorch extensions root...
+Emitting ninja build file /home/han/.cache/torch_extensions/py38_cu117/gymtorch/build.ninja...
+Building extension module gymtorch...
+Allowing ninja to set a default number of workers... (overridable by setting the environment variable MAX_JOBS=N)
+ninja: no work to do.
+Not connected to PVD
+Physics Engine: PhysX
+Physics Device: cpu
+GPU Pipeline: disabled
+Loading extension module gymtorch...
+IMAGEIO FFMPEG_WRITER WARNING: input image is not divisible by macro_block_size=8, resizing from (960, 540) to (960, 544) to ensure video compatibility with most codecs and players. To prevent resizing, make your input image divisible by the macro_block_size or set the macro_block_size to 1 (risking incompatibility).
+[INFO] trajectory: 500 steps, 12 joints: ['FL_hip_joint', 'FR_hip_joint', 'RL_hip_joint', 'RR_hip_joint', 'FL_thigh_joint', 'FR_thigh_joint', 'RL_thigh_joint', 'RR_thigh_joint', 'FL_calf_joint', 'FR_calf_joint', 'RL_calf_joint', 'RR_calf_joint']
+[INFO] Isaac Gym DOF order: ['FL_hip_joint', 'FL_thigh_joint', 'FL_calf_joint', 'FR_hip_joint', 'FR_thigh_joint', 'FR_calf_joint', 'RL_hip_joint', 'RL_thigh_joint', 'RL_calf_joint', 'RR_hip_joint', 'RR_thigh_joint', 'RR_calf_joint']
+[INFO] wrote results/go2_sata_s1_walk.mp4

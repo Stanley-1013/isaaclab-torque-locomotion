@@ -1,0 +1,4 @@
+[gpu1] dispatch start: task=Isaac-Velocity-Flat-Go2-Sata-v0 seeds=[4 6 8] Tue Jun  2 19:29:33 CST 2026
+[gpu1] >>> seed 4 starting Tue Jun  2 19:29:33 CST 2026 -> /home/han/workspace/isaaclab-torque-locomotion/results/go2_sata_fix2_s4.log
+[gpu1] <<< seed 4 exit=0 Tue Jun  2 20:47:18 CST 2026
+[gpu1] >>> seed 6 starting Tue Jun  2 20:47:18 CST 2026 -> /home/han/workspace/isaaclab-torque-locomotion/results/go2_sata_fix2_s6.log

@@ -1,0 +1,85 @@
+[3gH    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H   [INFO] Using python from: /home/han/miniconda3/envs/isaaclab/bin/python
+[WARN][AppLauncher]: There are no arguments attached to the ArgumentParser object. If you have your own arguments, please load your own arguments before calling the `AppLauncher.add_app_launcher_args` method. This allows the method to check the validity of the arguments and perform checks for argument names.
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/han/workspace/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO]: Parsing configuration from: torque_loco.go2_sata_env:Go2SataEnvCfg_PLAY
+
+[36m==================================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/claude-1001/isaaclab/logs/isaaclab_2026-06-02_15-38-27.log[0m
+[36m==================================================================================================[0m
+
+[33m15:38:27 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : None
+	Physics step-size     : 0.005
+	Rendering step-size   : 0.02
+	Environment step-size : 0.005
+[33m15:38:29 [terrain_importer.py] WARNING: Visual material specified for ground plane but no diffuse color found. Using default color: (0.0, 0.0, 0.0)[0m
+Loading user config located at: '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260602_153746.log
+2026-06-02T07:37:47Z [266ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] preventing upload of minidump due to user opt-out: '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/c72c3481-26f0-4dfc-65b95dbf-9f41f3dd.dmp'
+2026-06-02T07:37:47Z [270ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] preventing upload of minidump due to user opt-out: '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/372ea588-04cf-44dd-bf091495-ecca1fcd.dmp'
+2026-06-02T07:37:47Z [272ms] [Warning] [carb.crashreporter-breakpad.plugin] [previous crash] preventing upload of minidump due to user opt-out: '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/519d3fb9-4316-48c0-7dfb29b0-eb9a523c.dmp'
+2026-06-02T07:37:57Z [10,120ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-06-02T07:37:58Z [11,108ms] [Warning] [omni.platforminfo.plugin] failed to open the default display.  Can't verify X Server version.
+2026-06-02T07:38:00Z [13,073ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-06-02T07:38:00Z [13,148ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-06-02T07:38:24Z [37,522ms] [Warning] [carb.cudainterop.plugin] CUDA_VISIBLE_DEVICES environment variable is set.
+2026-06-02T07:38:24Z [37,522ms] [Warning] [carb.cudainterop.plugin] Note CUDA device enumeration and Omniverse device enumeration are different.
+2026-06-02T07:38:24Z [37,522ms] [Warning] [carb.cudainterop.plugin] Setting CUDA_VISIBLE_DEVICES can lead to undesired behavior or crashes.
+2026-06-02T07:38:26Z [38,947ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T07:38:26Z [38,947ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T07:38:26Z [38,948ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T07:38:26Z [38,948ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T07:38:26Z [38,949ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T07:38:26Z [38,949ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T07:38:26Z [38,950ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T07:38:26Z [38,950ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T07:38:26Z [38,950ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T07:38:26Z [38,950ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T07:38:26Z [38,950ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T07:38:26Z [38,950ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 595.58.03     | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA RTX A6000                 | Yes: 0 |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | fc236847.. |
+|     |                                  |        |     |            | 2         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | c6b9ed55.. |
+|     |                                  |        |     |            | 3         |            |
+|---------------------------------------------------------------------------------------------|
+| 2   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 80560f73.. |
+|     |                                  |        |     |            | 83        |            |
+|---------------------------------------------------------------------------------------------|
+| 3   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 3b0cb3e3.. |
+|     |                                  |        |     |            | 84        |            |
+|=============================================================================================|
+| OS: 24.04.2 LTS (Noble Numbat) ubuntu, Version: 24.04.2, Kernel: 6.8.0-111-generic
+| Processor: Intel(R) Xeon(R) CPU E5-4667 v3 @ 2.00GHz
+| Cores: 32 | Logical Cores: 64
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 61440 | Free Memory: 17497
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-06-02T07:38:26Z [39,460ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-06-02T07:38:26Z [39,460ms] [Warning] [gpu.foundation.plugin] Detected IOMMU is enabled. Running CUDA peer-to-peer bandwidth and latency validation.
+Unidirectional P2P=Enabled Bandwidth (P2P Writes) Matrix (GB/s)
+   D\D     0 
+     0 675.75 
+P2P=Enabled Latency (P2P Writes) Matrix (us)
+   GPU     0 
+     0   1.63 
+
+   CPU     0 
+     0   4.23 
+2026-06-02T07:38:27Z [40,274ms] [Warning] [isaaclab.envs.manager_based_env] Seed not set for the environment. The environment creation may not be deterministic.

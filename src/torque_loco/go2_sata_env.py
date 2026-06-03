@@ -97,6 +97,7 @@ class Go2SataEnv(ManagerBasedRLEnv):
         # (== summing n_sub substeps, since state barely changes over n_sub*0.005s) and episode
         # length advances by n_sub (so the 10s episode horizon matches SATA in sim time).
         eff_dt = n_sub * PHYSICS_DT
+        self._eff_dt = eff_dt  # exposed for sata_mdp.joint_acc_l2 finite-difference
         # -- update env counters (used for curriculum generation)
         self.episode_length_buf += n_sub  # advance by substeps (SATA episode clock is per-substep)
         self.common_step_counter += 1  # total step (common for all envs)

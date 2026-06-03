@@ -1,0 +1,11 @@
+[3gH    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H   [INFO] Using python from: /home/han/miniconda3/envs/isaaclab/bin/python
+X Error of failed request:  GLXBadFBConfig
+  Major opcode of failed request:  151 (GLX)
+  Minor opcode of failed request:  0 ()
+  Serial number of failed request:  153
+  Current serial number in output stream:  153
+Loading user config located at: '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260602_111851.log
+2026-06-02T03:19:07Z [15,234ms] [Warning] [carb.cudainterop.plugin] CUDA_VISIBLE_DEVICES environment variable is set.
+2026-06-02T03:19:07Z [15,234ms] [Warning] [carb.cudainterop.plugin] Note CUDA device enumeration and Omniverse device enumeration are different.
+2026-06-02T03:19:07Z [15,234ms] [Warning] [carb.cudainterop.plugin] Setting CUDA_VISIBLE_DEVICES can lead to undesired behavior or crashes.

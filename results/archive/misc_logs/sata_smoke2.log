@@ -1,0 +1,882 @@
+[3gH    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H   [INFO] Using python from: /home/han/miniconda3/envs/isaaclab/bin/python
+[INFO][AppLauncher]: Using device: cuda:0
+[INFO][AppLauncher]: Loading experience file: /home/han/workspace/IsaacLab/apps/isaaclab.python.headless.kit
+[INFO]: Parsing configuration from: torque_loco.go2_sata_env:Go2SataEnvCfg
+[INFO]: Parsing configuration from: isaaclab_tasks.manager_based.locomotion.velocity.config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2FlatPPORunnerCfg
+[WARNING]: The `policy` configuration is deprecated for rsl-rl >= 4.0.0. Please use, e.g., `actor` and `critic` model configurations instead.
+[WARNING]: The `policy` configuration is used to infer the `actor` model configuration.
+[WARNING]: The `policy` configuration is used to infer the `critic` model configuration.
+[WARNING]: The `distribution_cfg` configuration is now used to specify the output distribution for stochastic policies. Consider updating the configuration to use `distribution_cfg` instead of `stochastic`, `init_noise_std`, `noise_std_type`, and `state_dependent_std` parameters.
+[INFO] Logging experiment in directory: /home/han/workspace/IsaacLab/logs/rsl_rl/unitree_go2_flat
+Exact experiment name requested from command line: 2026-06-02_03-56-34
+
+[36m==================================================================================================[0m
+[36m[1m[INFO][IsaacLab]: Logging to file: /tmp/claude-1001/isaaclab/logs/isaaclab_2026-06-02_03-56-34.log[0m
+[36m==================================================================================================[0m
+
+[33m03:56:34 [simulation_context.py] WARNING: The `enable_external_forces_every_iteration` parameter in the PhysxCfg is set to False. If you are experiencing noisy velocities, consider enabling this flag. You may need to slightly increase the number of velocity iterations (setting it to 1 or 2 rather than 0), together with this flag, to improve the accuracy of velocity updates.[0m
+[INFO]: Base environment:
+	Environment device    : cuda:0
+	Environment seed      : 42
+	Physics step-size     : 0.005
+	Rendering step-size   : 0.02
+	Environment step-size : 0.005
+[33m03:56:35 [terrain_importer.py] WARNING: Visual material specified for ground plane but no diffuse color found. Using default color: (0.0, 0.0, 0.0)[0m
+/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/rsl_rl/utils/utils.py:220: UserWarning: The observation configuration dictionary 'obs_groups' is empty and thus likely not configured. Consider configuring the 'obs_groups' dictionary explicitly
+  warnings.warn(
+/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/rsl_rl/utils/utils.py:251: UserWarning: The observation configuration dictionary 'obs_groups' does not contain the 'actor' key. As an observation group with the name 'policy' was found, this is assumed to be the appropriate observation. Consider adding the 'actor' key to the 'obs_groups' dictionary for clarity. This behavior will be removed in a future version.
+  warnings.warn(
+/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/rsl_rl/utils/utils.py:251: UserWarning: The observation configuration dictionary 'obs_groups' does not contain the 'critic' key. As an observation group with the name 'policy' was found, this is assumed to be the appropriate observation. Consider adding the 'critic' key to the 'obs_groups' dictionary for clarity. This behavior will be removed in a future version.
+  warnings.warn(
+[INFO]: Time taken for scene creation : 3.176981 seconds
+[INFO]: Scene manager:  <class InteractiveScene>
+	Number of environments: 1024
+	Environment spacing   : 2.5
+	Source prim name      : /World/envs/env_0
+	Global prim paths     : ['/World/ground']
+	Replicate physics     : True
+[INFO]: Starting the simulation. This may take a few seconds. Please wait...
+[INFO]: Time taken for simulation start : 3.204092 seconds
+[INFO] Command Manager:  <CommandManager> contains 1 active terms.
++------------------------------------------------+
+|              Active Command Terms              |
++-------+---------------+------------------------+
+| Index | Name          |          Type          |
++-------+---------------+------------------------+
+|   0   | base_velocity | UniformVelocityCommand |
++-------+---------------+------------------------+
+
+[INFO] Event Manager:  <EventManager> contains 3 active terms.
++--------------------------------------+
+| Active Event Terms in Mode: 'startup' |
++----------+---------------------------+
+|  Index   | Name                      |
++----------+---------------------------+
+|    0     | physics_material          |
+|    1     | add_base_mass             |
++----------+---------------------------+
++---------------------------------------+
+|  Active Event Terms in Mode: 'reset'  |
++--------+------------------------------+
+| Index  | Name                         |
++--------+------------------------------+
+|   0    | base_external_force_torque   |
+|   1    | reset_base                   |
+|   2    | reset_robot_joints           |
++--------+------------------------------+
++----------------------------------------------+
+|    Active Event Terms in Mode: 'interval'    |
++-------+------------+-------------------------+
+| Index | Name       | Interval time range (s) |
++-------+------------+-------------------------+
+|   0   | push_robot |        (4.0, 4.0)       |
++-------+------------+-------------------------+
+
+[INFO] Recorder Manager:  <RecorderManager> contains 0 active terms.
++---------------------+
+| Active Recorder Terms |
++-----------+---------+
+|   Index   | Name    |
++-----------+---------+
++-----------+---------+
+
+[INFO] Action Manager:  <ActionManager> contains 1 active terms.
++-------------------------------------+
+|   Active Action Terms (shape: 12)   |
++--------+---------------+------------+
+| Index  | Name          |  Dimension |
++--------+---------------+------------+
+|   0    | joint_effort  |         12 |
++--------+---------------+------------+
+
+[INFO] Observation Manager: <ObservationManager> contains 1 groups.
++---------------------------------------------------------+
+| Active Observation Terms in Group: 'policy' (shape: (60,)) |
++-----------+---------------------------------+-----------+
+|   Index   | Name                            |   Shape   |
++-----------+---------------------------------+-----------+
+|     0     | base_lin_vel                    |    (3,)   |
+|     1     | base_ang_vel                    |    (3,)   |
+|     2     | projected_gravity               |    (3,)   |
+|     3     | velocity_commands               |    (3,)   |
+|     4     | joint_pos                       |   (12,)   |
+|     5     | joint_vel                       |   (12,)   |
+|     6     | applied_torque                  |   (12,)   |
+|     7     | motor_fatigue                   |   (12,)   |
++-----------+---------------------------------+-----------+
+
+[INFO] Termination Manager:  <TerminationManager> contains 3 active terms.
++------------------------------------+
+|      Active Termination Terms      |
++-------+-----------------+----------+
+| Index | Name            | Time Out |
++-------+-----------------+----------+
+|   0   | time_out        |   True   |
+|   1   | bad_orientation |  False   |
+|   2   | joint_limit     |  False   |
++-------+-----------------+----------+
+
+[INFO] Reward Manager:  <RewardManager> contains 9 active terms.
++-------------------------------+
+|      Active Reward Terms      |
++-------+--------------+--------+
+| Index | Name         | Weight |
++-------+--------------+--------+
+|   0   | track_x      |   10.0 |
+|   1   | track_y      |    5.0 |
+|   2   | track_yaw    |    5.0 |
+|   3   | base_height  |    5.0 |
+|   4   | roll         |   -5.0 |
+|   5   | lin_vel_z    |   -5.0 |
+|   6   | joint_limits |   -5.0 |
+|   7   | fatigue      |  -0.05 |
+|   8   | joint_acc    | -1e-06 |
++-------+--------------+--------+
+
+[INFO] Curriculum Manager:  <CurriculumManager> contains 0 active terms.
++----------------------+
+| Active Curriculum Terms |
++-----------+----------+
+|   Index   | Name     |
++-----------+----------+
++-----------+----------+
+
+[INFO]: Completed setting up the environment...
+--------------------------------------------------------------------------------
+Resolved observation sets: 
+	 actor :  ['policy']
+	 critic :  ['policy']
+--------------------------------------------------------------------------------
+Actor Model: MLPModel(
+  (obs_normalizer): Identity()
+  (distribution): GaussianDistribution()
+  (mlp): MLP(
+    (0): Linear(in_features=60, out_features=128, bias=True)
+    (1): ELU(alpha=1.0)
+    (2): Linear(in_features=128, out_features=128, bias=True)
+    (3): ELU(alpha=1.0)
+    (4): Linear(in_features=128, out_features=128, bias=True)
+    (5): ELU(alpha=1.0)
+    (6): Linear(in_features=128, out_features=12, bias=True)
+  )
+)
+Critic Model: MLPModel(
+  (obs_normalizer): Identity()
+  (mlp): MLP(
+    (0): Linear(in_features=60, out_features=128, bias=True)
+    (1): ELU(alpha=1.0)
+    (2): Linear(in_features=128, out_features=128, bias=True)
+    (3): ELU(alpha=1.0)
+    (4): Linear(in_features=128, out_features=128, bias=True)
+    (5): ELU(alpha=1.0)
+    (6): Linear(in_features=128, out_features=1, bias=True)
+  )
+)
+Could not find git repository in /home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/rsl_rl/__init__.py. Skipping.
+Storing git diff for 'IsaacLab' in: /home/han/workspace/IsaacLab/logs/rsl_rl/unitree_go2_flat/2026-06-02_03-56-34/git/IsaacLab.diff
+################################################################################
+[1m                            Learning iteration 0/20                             [0m 
+
+                            Total steps: 24576 
+                       Steps per second: 5574 
+                        Collection time: 3.979s 
+                          Learning time: 0.430s 
+                        Mean value loss: 0.0040
+                    Mean surrogate loss: -0.0072
+                      Mean entropy loss: 17.0041
+                            Mean reward: 0.02
+                    Mean episode length: 2.09
+                        Mean action std: 1.00
+                 Episode_Reward/track_x: 0.0032
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0001
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0002
+               Episode_Reward/joint_acc: -0.0017
+     Metrics/base_velocity/error_vel_xy: 0.0015
+    Metrics/base_velocity/error_vel_yaw: 0.0015
+           Episode_Termination/time_out: 0.0003
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 0.9531
+--------------------------------------------------------------------------------
+                         Iteration time: 4.41s
+                           Time elapsed: 00:00:04
+                                    ETA: 00:01:23
+
+################################################################################
+[1m                            Learning iteration 1/20                             [0m 
+
+                            Total steps: 49152 
+                       Steps per second: 16931 
+                        Collection time: 1.114s 
+                          Learning time: 0.337s 
+                        Mean value loss: 0.0006
+                    Mean surrogate loss: -0.0123
+                      Mean entropy loss: 16.9252
+                            Mean reward: 0.02
+                    Mean episode length: 2.19
+                        Mean action std: 0.99
+                 Episode_Reward/track_x: 0.0032
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0001
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0017
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0016
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.45s
+                           Time elapsed: 00:00:05
+                                    ETA: 00:00:52
+
+################################################################################
+[1m                            Learning iteration 2/20                             [0m 
+
+                            Total steps: 73728 
+                       Steps per second: 16846 
+                        Collection time: 1.119s 
+                          Learning time: 0.340s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0144
+                      Mean entropy loss: 16.8061
+                            Mean reward: 0.02
+                    Mean episode length: 2.17
+                        Mean action std: 0.98
+                 Episode_Reward/track_x: 0.0032
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0001
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0016
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0016
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.46s
+                           Time elapsed: 00:00:07
+                                    ETA: 00:00:41
+
+################################################################################
+[1m                            Learning iteration 3/20                             [0m 
+
+                            Total steps: 98304 
+                       Steps per second: 18299 
+                        Collection time: 1.056s 
+                          Learning time: 0.287s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0124
+                      Mean entropy loss: 16.7081
+                            Mean reward: 0.03
+                    Mean episode length: 2.12
+                        Mean action std: 0.97
+                 Episode_Reward/track_x: 0.0033
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0001
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0016
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0016
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.34s
+                           Time elapsed: 00:00:08
+                                    ETA: 00:00:34
+
+################################################################################
+[1m                            Learning iteration 4/20                             [0m 
+
+                            Total steps: 122880 
+                       Steps per second: 18790 
+                        Collection time: 0.964s 
+                          Learning time: 0.344s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0135
+                      Mean entropy loss: 16.5934
+                            Mean reward: 0.03
+                    Mean episode length: 2.09
+                        Mean action std: 0.96
+                 Episode_Reward/track_x: 0.0032
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0001
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0015
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0016
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.31s
+                           Time elapsed: 00:00:09
+                                    ETA: 00:00:29
+
+################################################################################
+[1m                            Learning iteration 5/20                             [0m 
+
+                            Total steps: 147456 
+                       Steps per second: 18164 
+                        Collection time: 1.051s 
+                          Learning time: 0.302s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0134
+                      Mean entropy loss: 16.4944
+                            Mean reward: 0.03
+                    Mean episode length: 2.17
+                        Mean action std: 0.95
+                 Episode_Reward/track_x: 0.0033
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0015
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.35s
+                           Time elapsed: 00:00:11
+                                    ETA: 00:00:26
+
+################################################################################
+[1m                            Learning iteration 6/20                             [0m 
+
+                            Total steps: 172032 
+                       Steps per second: 17035 
+                        Collection time: 1.122s 
+                          Learning time: 0.321s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0131
+                      Mean entropy loss: 16.3900
+                            Mean reward: 0.02
+                    Mean episode length: 2.12
+                        Mean action std: 0.94
+                 Episode_Reward/track_x: 0.0033
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0015
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.44s
+                           Time elapsed: 00:00:12
+                                    ETA: 00:00:23
+
+################################################################################
+[1m                            Learning iteration 7/20                             [0m 
+
+                            Total steps: 196608 
+                       Steps per second: 17279 
+                        Collection time: 1.071s 
+                          Learning time: 0.351s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0161
+                      Mean entropy loss: 16.2091
+                            Mean reward: 0.03
+                    Mean episode length: 2.15
+                        Mean action std: 0.93
+                 Episode_Reward/track_x: 0.0034
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0014
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.42s
+                           Time elapsed: 00:00:14
+                                    ETA: 00:00:21
+
+################################################################################
+[1m                            Learning iteration 8/20                             [0m 
+
+                            Total steps: 221184 
+                       Steps per second: 17993 
+                        Collection time: 1.009s 
+                          Learning time: 0.356s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0153
+                      Mean entropy loss: 16.0276
+                            Mean reward: 0.03
+                    Mean episode length: 2.23
+                        Mean action std: 0.91
+                 Episode_Reward/track_x: 0.0034
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0013
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.37s
+                           Time elapsed: 00:00:15
+                                    ETA: 00:00:19
+
+################################################################################
+[1m                            Learning iteration 9/20                             [0m 
+
+                            Total steps: 245760 
+                       Steps per second: 15806 
+                        Collection time: 1.209s 
+                          Learning time: 0.346s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0134
+                      Mean entropy loss: 15.8547
+                            Mean reward: 0.03
+                    Mean episode length: 2.19
+                        Mean action std: 0.90
+                 Episode_Reward/track_x: 0.0035
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0013
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.55s
+                           Time elapsed: 00:00:17
+                                    ETA: 00:00:17
+
+################################################################################
+[1m                            Learning iteration 10/20                            [0m 
+
+                            Total steps: 270336 
+                       Steps per second: 15374 
+                        Collection time: 1.211s 
+                          Learning time: 0.388s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0146
+                      Mean entropy loss: 15.6289
+                            Mean reward: 0.03
+                    Mean episode length: 2.23
+                        Mean action std: 0.88
+                 Episode_Reward/track_x: 0.0036
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0013
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.60s
+                           Time elapsed: 00:00:18
+                                    ETA: 00:00:15
+
+################################################################################
+[1m                            Learning iteration 11/20                            [0m 
+
+                            Total steps: 294912 
+                       Steps per second: 16732 
+                        Collection time: 1.129s 
+                          Learning time: 0.339s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0124
+                      Mean entropy loss: 15.4355
+                            Mean reward: 0.04
+                    Mean episode length: 2.18
+                        Mean action std: 0.87
+                 Episode_Reward/track_x: 0.0036
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0012
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.47s
+                           Time elapsed: 00:00:20
+                                    ETA: 00:00:13
+
+################################################################################
+[1m                            Learning iteration 12/20                            [0m 
+
+                            Total steps: 319488 
+                       Steps per second: 19109 
+                        Collection time: 0.992s 
+                          Learning time: 0.294s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0134
+                      Mean entropy loss: 15.2538
+                            Mean reward: 0.03
+                    Mean episode length: 2.25
+                        Mean action std: 0.86
+                 Episode_Reward/track_x: 0.0036
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0006
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0012
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.29s
+                           Time elapsed: 00:00:21
+                                    ETA: 00:00:11
+
+################################################################################
+[1m                            Learning iteration 13/20                            [0m 
+
+                            Total steps: 344064 
+                       Steps per second: 19303 
+                        Collection time: 0.963s 
+                          Learning time: 0.310s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0130
+                      Mean entropy loss: 15.0609
+                            Mean reward: 0.04
+                    Mean episode length: 2.22
+                        Mean action std: 0.84
+                 Episode_Reward/track_x: 0.0038
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0007
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0012
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.27s
+                           Time elapsed: 00:00:22
+                                    ETA: 00:00:09
+
+################################################################################
+[1m                            Learning iteration 14/20                            [0m 
+
+                            Total steps: 368640 
+                       Steps per second: 18168 
+                        Collection time: 1.016s 
+                          Learning time: 0.336s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0126
+                      Mean entropy loss: 14.8566
+                            Mean reward: 0.03
+                    Mean episode length: 2.28
+                        Mean action std: 0.83
+                 Episode_Reward/track_x: 0.0037
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0007
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0011
+     Metrics/base_velocity/error_vel_xy: 0.0016
+    Metrics/base_velocity/error_vel_yaw: 0.0017
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.35s
+                           Time elapsed: 00:00:24
+                                    ETA: 00:00:08
+
+################################################################################
+[1m                            Learning iteration 15/20                            [0m 
+
+                            Total steps: 393216 
+                       Steps per second: 18052 
+                        Collection time: 1.024s 
+                          Learning time: 0.338s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0123
+                      Mean entropy loss: 14.6958
+                            Mean reward: 0.04
+                    Mean episode length: 2.39
+                        Mean action std: 0.82
+                 Episode_Reward/track_x: 0.0039
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0007
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0011
+     Metrics/base_velocity/error_vel_xy: 0.0017
+    Metrics/base_velocity/error_vel_yaw: 0.0018
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.36s
+                           Time elapsed: 00:00:25
+                                    ETA: 00:00:06
+
+################################################################################
+[1m                            Learning iteration 16/20                            [0m 
+
+                            Total steps: 417792 
+                       Steps per second: 16954 
+                        Collection time: 1.128s 
+                          Learning time: 0.321s 
+                        Mean value loss: 0.0005
+                    Mean surrogate loss: -0.0129
+                      Mean entropy loss: 14.5025
+                            Mean reward: 0.03
+                    Mean episode length: 2.32
+                        Mean action std: 0.81
+                 Episode_Reward/track_x: 0.0039
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0007
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0011
+     Metrics/base_velocity/error_vel_xy: 0.0017
+    Metrics/base_velocity/error_vel_yaw: 0.0018
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.45s
+                           Time elapsed: 00:00:26
+                                    ETA: 00:00:04
+
+################################################################################
+[1m                            Learning iteration 17/20                            [0m 
+
+                            Total steps: 442368 
+                       Steps per second: 15906 
+                        Collection time: 1.221s 
+                          Learning time: 0.324s 
+                        Mean value loss: 0.0004
+                    Mean surrogate loss: -0.0123
+                      Mean entropy loss: 14.3063
+                            Mean reward: 0.04
+                    Mean episode length: 2.33
+                        Mean action std: 0.79
+                 Episode_Reward/track_x: 0.0039
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0007
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0010
+     Metrics/base_velocity/error_vel_xy: 0.0017
+    Metrics/base_velocity/error_vel_yaw: 0.0018
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.55s
+                           Time elapsed: 00:00:28
+                                    ETA: 00:00:03
+
+################################################################################
+[1m                            Learning iteration 18/20                            [0m 
+
+                            Total steps: 466944 
+                       Steps per second: 17468 
+                        Collection time: 1.077s 
+                          Learning time: 0.330s 
+                        Mean value loss: 0.0011
+                    Mean surrogate loss: -0.0117
+                      Mean entropy loss: 14.0414
+                            Mean reward: 0.04
+                    Mean episode length: 2.34
+                        Mean action std: 0.78
+                 Episode_Reward/track_x: 0.0041
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0007
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0010
+     Metrics/base_velocity/error_vel_xy: 0.0017
+    Metrics/base_velocity/error_vel_yaw: 0.0018
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.41s
+                           Time elapsed: 00:00:29
+                                    ETA: 00:00:01
+
+################################################################################
+[1m                            Learning iteration 19/20                            [0m 
+
+                            Total steps: 491520 
+                       Steps per second: 18633 
+                        Collection time: 1.018s 
+                          Learning time: 0.301s 
+                        Mean value loss: 0.0005
+                    Mean surrogate loss: -0.0101
+                      Mean entropy loss: 13.8555
+                            Mean reward: 0.04
+                    Mean episode length: 2.39
+                        Mean action std: 0.76
+                 Episode_Reward/track_x: 0.0042
+                 Episode_Reward/track_y: 0.0003
+               Episode_Reward/track_yaw: 0.0001
+             Episode_Reward/base_height: 0.0007
+                    Episode_Reward/roll: -0.0001
+               Episode_Reward/lin_vel_z: -0.0002
+            Episode_Reward/joint_limits: -0.0001
+                 Episode_Reward/fatigue: -0.0001
+               Episode_Reward/joint_acc: -0.0010
+     Metrics/base_velocity/error_vel_xy: 0.0017
+    Metrics/base_velocity/error_vel_yaw: 0.0018
+           Episode_Termination/time_out: 0.0000
+    Episode_Termination/bad_orientation: 0.0000
+        Episode_Termination/joint_limit: 1.0000
+--------------------------------------------------------------------------------
+                         Iteration time: 1.32s
+                           Time elapsed: 00:00:31
+                                    ETA: 00:00:00
+
+Training time: 34.83 seconds
+Loading user config located at: '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260602_035608.log
+2026-06-01T19:56:10Z [2,163ms] [Warning] [omni.usd_config.extension] Enable omni.materialx.libs extension to use MaterialX
+2026-06-01T19:56:11Z [3,019ms] [Warning] [omni.platforminfo.plugin] failed to open the default display.  Can't verify X Server version.
+2026-06-01T19:56:12Z [4,108ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-06-01T19:56:12Z [4,153ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-06-01T19:56:25Z [17,009ms] [Warning] [carb.cudainterop.plugin] CUDA_VISIBLE_DEVICES environment variable is set.
+2026-06-01T19:56:25Z [17,009ms] [Warning] [carb.cudainterop.plugin] Note CUDA device enumeration and Omniverse device enumeration are different.
+2026-06-01T19:56:25Z [17,009ms] [Warning] [carb.cudainterop.plugin] Setting CUDA_VISIBLE_DEVICES can lead to undesired behavior or crashes.
+2026-06-01T19:56:26Z [18,206ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-01T19:56:26Z [18,206ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-01T19:56:26Z [18,208ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-01T19:56:26Z [18,208ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-01T19:56:26Z [18,210ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-01T19:56:26Z [18,210ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-01T19:56:26Z [18,210ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-01T19:56:26Z [18,210ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-01T19:56:26Z [18,210ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-01T19:56:26Z [18,210ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-01T19:56:26Z [18,210ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-01T19:56:26Z [18,210ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 595.58.03     | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | fc236847.. |
+|     |                                  |        |     |            | 2         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | NVIDIA RTX A6000                 | Yes: 0 |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | c6b9ed55.. |
+|     |                                  |        |     |            | 3         |            |
+|---------------------------------------------------------------------------------------------|
+| 2   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 80560f73.. |
+|     |                                  |        |     |            | 83        |            |
+|---------------------------------------------------------------------------------------------|
+| 3   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 3b0cb3e3.. |
+|     |                                  |        |     |            | 84        |            |
+|=============================================================================================|
+| OS: 24.04.2 LTS (Noble Numbat) ubuntu, Version: 24.04.2, Kernel: 6.8.0-111-generic
+| Processor: Intel(R) Xeon(R) CPU E5-4667 v3 @ 2.00GHz
+| Cores: 32 | Logical Cores: 64
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 61440 | Free Memory: 11859
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-06-01T19:56:28Z [19,848ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-06-01T19:56:28Z [19,848ms] [Warning] [gpu.foundation.plugin] Detected IOMMU is enabled. Running CUDA peer-to-peer bandwidth and latency validation.
+Unidirectional P2P=Enabled Bandwidth (P2P Writes) Matrix (GB/s)
+   D\D     0 
+     0 674.69 
+P2P=Enabled Latency (P2P Writes) Matrix (us)
+   GPU     0 
+     0   1.61 
+
+   CPU     0 
+     0   6.66 
+2026-06-01T19:56:42Z [34,300ms] [Warning] [omni.physx.fabric.plugin] FabricManager::initializePointInstancer mismatched prototypes on point instancer: /Visuals/Command/velocity_goal.
+2026-06-01T19:56:42Z [34,300ms] [Warning] [omni.physx.fabric.plugin] FabricManager::initializePointInstancer mismatched prototypes on point instancer: /Visuals/Command/velocity_current.

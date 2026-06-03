@@ -1,0 +1,1287 @@
+[3gH    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H    H   [INFO] Using python from: /home/han/miniconda3/envs/isaaclab/bin/python
+Loading user config located at: '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/user.config.json'
+[Info] [carb] Logging to file: /home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/logs/Kit/Isaac-Sim/5.1/kit_20260602_112028.log
+2026-06-02T03:20:31Z [2,123ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-06-02T03:20:31Z [2,123ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-06-02T03:20:31Z [2,186ms] [Warning] [omni.platforminfo.plugin] failed to open the default display.  Can't verify X Server version.
+2026-06-02T03:20:31Z [2,198ms] [Warning] [carb.cudainterop.plugin] CUDA_VISIBLE_DEVICES environment variable is set.
+2026-06-02T03:20:31Z [2,199ms] [Warning] [carb.cudainterop.plugin] Note CUDA device enumeration and Omniverse device enumeration are different.
+2026-06-02T03:20:31Z [2,199ms] [Warning] [carb.cudainterop.plugin] Setting CUDA_VISIBLE_DEVICES can lead to undesired behavior or crashes.
+2026-06-02T03:20:32Z [3,072ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-06-02T03:20:32Z [3,072ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-06-02T03:20:32Z [3,565ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T03:20:32Z [3,565ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T03:20:32Z [3,566ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T03:20:32Z [3,566ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T03:20:32Z [3,568ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T03:20:32Z [3,568ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T03:20:32Z [3,568ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T03:20:32Z [3,568ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T03:20:32Z [3,568ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T03:20:32Z [3,568ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+2026-06-02T03:20:32Z [3,568ms] [Warning] [gpu.foundation.plugin] Skipping NVIDIA GPU due CUDA being in bad state: NVIDIA RTX A6000
+2026-06-02T03:20:32Z [3,568ms] [Warning] [gpu.foundation.plugin] Please restart your system if CUDA is known to work in your system.
+
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 595.58.03     | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA RTX A6000                 | Yes: 0 |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | fc236847.. |
+|     |                                  |        |     |            | 2         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | c6b9ed55.. |
+|     |                                  |        |     |            | 3         |            |
+|---------------------------------------------------------------------------------------------|
+| 2   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 80560f73.. |
+|     |                                  |        |     |            | 83        |            |
+|---------------------------------------------------------------------------------------------|
+| 3   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 3b0cb3e3.. |
+|     |                                  |        |     |            | 84        |            |
+|=============================================================================================|
+| OS: 24.04.2 LTS (Noble Numbat) ubuntu, Version: 24.04.2, Kernel: 6.8.0-111-generic
+| Processor: Intel(R) Xeon(R) CPU E5-4667 v3 @ 2.00GHz
+| Cores: 32 | Logical Cores: 64
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 61440 | Free Memory: 18321
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+2026-06-02T03:20:33Z [4,199ms] [Warning] [gpu.foundation.plugin] IOMMU is enabled.
+2026-06-02T03:20:33Z [4,199ms] [Warning] [gpu.foundation.plugin] Detected IOMMU is enabled. Running CUDA peer-to-peer bandwidth and latency validation.
+Unidirectional P2P=Enabled Bandwidth (P2P Writes) Matrix (GB/s)
+   D\D     0 
+     0 675.42 
+P2P=Enabled Latency (P2P Writes) Matrix (us)
+   GPU     0 
+     0   1.66 
+
+   CPU     0 
+     0   5.20 
+2026-06-02T03:20:42Z [13,445ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-06-02T03:20:42Z [13,445ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-06-02T03:20:42Z [13,942ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-06-02T03:20:42Z [13,942ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-06-02T03:20:42Z [13,978ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-06-02T03:20:42Z [13,979ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-06-02T03:20:43Z [14,146ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-06-02T03:20:43Z [14,146ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-06-02T03:20:43Z [14,159ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-06-02T03:20:43Z [14,159ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-06-02T03:20:43Z [14,164ms] [Warning] [carb.windowing-glfw.plugin] GLFW initialization failed.
+2026-06-02T03:20:43Z [14,164ms] [Warning] [carb] Failed to startup plugin carb.windowing-glfw.plugin (interfaces: [carb::windowing::IGLContext v1.0],[carb::windowing::IWindowing v1.5]) (impl: carb.windowing-glfw.plugin)
+2026-06-02T03:20:44Z [15,942ms] [Warning] [omni.log] Source: omni.hydra was already registered.
+2026-06-02T03:20:49Z [20,309ms] [Warning] [carb] Acquiring non optional plugin interface which is not listed as dependency: [omni::physx::IPhysxBenchmarks v1.0] (plugin: <default plugin>), by client: omni.physics.physx.plugin. Add it to CARB_PLUGIN_IMPL_DEPS() macro of a client.
+2026-06-02T03:20:49Z [20,454ms] [Warning] [omni.isaac.dynamic_control] omni.isaac.dynamic_control is deprecated as of Isaac Sim 4.5. No action is needed from end-users.
+2026-06-02T03:21:02Z [33,460ms] [Warning] [pxr.Semantics] pxr.Semantics is deprecated - please use Semantics instead
+2026-06-02T03:21:03Z [34,122ms] [Warning] [omni.graph.core.plugin] Found duplicate of category 'Replicator' - was 'Annotators', adding 'Fabric Reader'
+2026-06-02T03:21:03Z [34,122ms] [Warning] [omni.graph.core.plugin] Category 'Replicator' not accepted on node type 'omni.replicator.core.FabricReader' in extension 'omni.replicator.core'
+2026-06-02T03:21:03Z [34,141ms] [Warning] [omni.replicator.core.scripts.extension] No material configuration file, adding configuration to material settings directly.
+2026-06-02T03:21:20Z [0ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash] A crash has occurred.  If a debugger should be attached, please set the '/crashreporter/debuggerAttachTimeoutMs' setting to a timeout in milliseconds.  This can be used to allow the crash reporter to wait for up to that long for a debugger to attach before processing or sending the crash report.
+2026-06-02T03:21:20Z [158ms] [Error] [carb.crashreporter-breakpad.plugin] [crash] Wrote dump file '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/519d3fb9-4316-48c0-7dfb29b0-eb9a523c.dmp'
+2026-06-02T03:21:20Z [158ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash] preventing upload of minidump due to user opt-out: '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/519d3fb9-4316-48c0-7dfb29b0-eb9a523c.dmp'
+2026-06-02T03:21:20Z [160ms] [Error] [carb.crashreporter-breakpad.plugin] [crash]     dump file size is 5280032 bytes, file is readable.
+2026-06-02T03:21:21Z [208ms] [Fatal] [carb.crashreporter-breakpad.plugin] [crash] Crash detected in pid 2395514 thread 2395514
+2026-06-02T03:21:21Z [208ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash] Crash metadata:
+2026-06-02T03:21:21Z [209ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  BuildGitlabJobID = '209507876'
+2026-06-02T03:21:21Z [210ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  CarbSdkVersion = '206.6+release.9587.07f17b1b.gl'
+2026-06-02T03:21:21Z [210ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  CrashTime = 'Tue Jun  2 03:21:20 2026 GMT'
+2026-06-02T03:21:21Z [211ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  DriverShaderCacheWrapper = 'disabled'
+2026-06-02T03:21:21Z [211ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  DumpId = '519d3fb9-4316-48c0-7dfb29b0-eb9a523c'
+2026-06-02T03:21:21Z [211ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  LastUploadStatus = '0'
+2026-06-02T03:21:21Z [212ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  ProductName = 'OmniverseKit'
+2026-06-02T03:21:21Z [212ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  PythonTracebackStatus = ''py-spy' successfully wrote info to '/home/han/miniconda3/envs/isaaclab/lib/python3.11/site-packages/isaacsim/kit/data/Kit/Isaac-Sim/5.1/519d3fb9-4316-48c0-7dfb29b0-eb9a523c.py.txt''
+2026-06-02T03:21:21Z [213ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  RetryCount = '0'
+2026-06-02T03:21:21Z [213ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  StartupTime = '1780370428'
+2026-06-02T03:21:21Z [213ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  UploadSuccessful = '0'
+2026-06-02T03:21:21Z [214ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  UptimeSeconds = '52'
+2026-06-02T03:21:21Z [214ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  UserStory = ''
+2026-06-02T03:21:21Z [214ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  UserStoryStatus = 'Running in headless mode; not gathering user story'
+2026-06-02T03:21:21Z [215ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  Version = '107.3.3+production.229672.69cbf6ad.gl'
+2026-06-02T03:21:21Z [215ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  aftermath_enabled = '1'
+2026-06-02T03:21:21Z [215ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  aftermath_flags = '3'
+2026-06-02T03:21:21Z [216ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  aftermath_status = 'auto-enabled'
+2026-06-02T03:21:21Z [216ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  aftermath_version = '2024.1'
+2026-06-02T03:21:21Z [216ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  appName = 'Isaac-Sim'
+2026-06-02T03:21:21Z [217ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  appState = 'started'
+2026-06-02T03:21:21Z [217ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  appVersion = '5.1.0'
+2026-06-02T03:21:21Z [217ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  autoloadExts = ''
+2026-06-02T03:21:21Z [218ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildBranch = 'production'
+2026-06-02T03:21:21Z [218ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildCi = 'gl'
+2026-06-02T03:21:21Z [218ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildConfig = 'release'
+2026-06-02T03:21:21Z [219ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildGitlabJobName = 'kit-build-release-linux-x86_64'
+2026-06-02T03:21:21Z [219ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildGitlabJobStage = 'kit-build'
+2026-06-02T03:21:21Z [220ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildGitlabPipelineID = '34875094'
+2026-06-02T03:21:21Z [220ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildHash = '69cbf6ad'
+2026-06-02T03:21:21Z [220ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildMajor = '107'
+2026-06-02T03:21:21Z [221ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildMinor = '3'
+2026-06-02T03:21:21Z [221ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildNumber = '229672'
+2026-06-02T03:21:21Z [222ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildPatch = '3'
+2026-06-02T03:21:21Z [222ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  buildVersion = '107.3.3'
+2026-06-02T03:21:21Z [222ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  carboniteFrameworkVersion = '206.6+release.9587.07f17b1b.gl'
+2026-06-02T03:21:21Z [223ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  carboniteSdkVersion = '206.6+release.9587.07f17b1b.gl'
+2026-06-02T03:21:21Z [223ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  commandLine = '/home/<username>/miniconda3/envs/isaaclab/bin/python /home/<username>/workspace/isaaclab-torque-locomotion/scripts/play_go2.py --task Isaac-Velocity-Flat-Go2-Sata-Play-v0 --load_run 2026-06-02_07-06-04_go2_sata_s1 --num_envs 16 --video --video_length 400 --headless --enable_cameras'
+2026-06-02T03:21:21Z [223ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  cpuCoreLimited = '64'
+2026-06-02T03:21:21Z [224ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  cpuId = 'Intel64 Family 6 Model 63 Stepping 2'
+2026-06-02T03:21:21Z [224ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  cpuLogicalCoresBareMetal = '64'
+2026-06-02T03:21:21Z [224ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  cpuName = 'Intel(R) Xeon(R) CPU E5-4667 v3 @ 2.00GHz'
+2026-06-02T03:21:21Z [225ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  cpuPhysicalCoresBareMetal = '32'
+2026-06-02T03:21:21Z [225ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  cpuUsageQuota = '-1.000000'
+2026-06-02T03:21:21Z [226ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  cpuVendor = 'GenuineIntel'
+2026-06-02T03:21:21Z [226ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  environmentName = 'Individual'
+2026-06-02T03:21:21Z [226ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  experience = 'Isaac Sim'
+2026-06-02T03:21:21Z [227ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  externalBuild = '1'
+2026-06-02T03:21:21Z [227ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpuDriver_0 = '595.58'
+2026-06-02T03:21:21Z [227ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpuDriver_1 = '595.58'
+2026-06-02T03:21:21Z [228ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpuDriver_2 = '595.58'
+2026-06-02T03:21:21Z [228ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpuDriver_3 = '595.58'
+2026-06-02T03:21:21Z [228ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpuVRAM_0 = '51784974336'
+2026-06-02T03:21:21Z [228ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpuVRAM_1 = '51784974336'
+2026-06-02T03:21:21Z [229ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpuVRAM_2 = '51784974336'
+2026-06-02T03:21:21Z [229ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpuVRAM_3 = '51784974336'
+2026-06-02T03:21:21Z [229ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpu_0 = 'NVIDIA RTX A6000'
+2026-06-02T03:21:21Z [230ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpu_1 = 'NVIDIA RTX A6000'
+2026-06-02T03:21:21Z [230ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpu_2 = 'NVIDIA RTX A6000'
+2026-06-02T03:21:21Z [230ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  gpu_3 = 'NVIDIA RTX A6000'
+2026-06-02T03:21:21Z [231ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  kitRendererDriverVersion = '595.58'
+2026-06-02T03:21:21Z [231ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_isaacSim_buildBranch = 'release'
+2026-06-02T03:21:21Z [231ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_isaacSim_buildDate = 'Fri Oct 17 03:55:10 2025 +0000'
+2026-06-02T03:21:21Z [232ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_isaacSim_buildHash = '9c81211'
+2026-06-02T03:21:21Z [232ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_isaacSim_buildRepo = 'https://gitlab-master.nvidia.com/omniverse/isaac/omni_isaac_sim.git'
+2026-06-02T03:21:21Z [232ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_isaacSim_buildVersion = '5.1.0-rc.19'
+2026-06-02T03:21:21Z [233ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_physx_buildBranch = 'HEAD'
+2026-06-02T03:21:21Z [233ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_physx_buildDate = 'Oct-03-2025'
+2026-06-02T03:21:21Z [234ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_physx_buildHash = '3a61992'
+2026-06-02T03:21:21Z [234ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_physx_buildRepo = 'gitlab-master.nvidia.com/omniverse/physics'
+2026-06-02T03:21:21Z [234ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  lib_physx_buildVersion = '107.3.26'
+2026-06-02T03:21:21Z [235ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  memoryStats = '(avail/total) RAM: 332.462/377.742GB, Swap: 0/0GB, VM: 1.71799e+10/1.71799e+10GB'
+2026-06-02T03:21:21Z [235ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  nvidia-smi = '
+==============NVSMI LOG==============
+
+Timestamp                                              : Tue Jun  2 11:20:31 2026
+Driver Version                                         : 595.58.03
+CUDA Version                                           : 13.2
+
+Attached GPUs                                          : 4
+GPU 00000000:02:00.0
+    Product Name                                       : NVIDIA RTX A6000
+    Product Brand                                      : NVIDIA RTX
+    Product Architecture                               : Ampere
+    Display Mode                                       : Requested functionality has been deprecated
+    Display Attached                                   : No
+    Display Active                                     : Disabled
+    Persistence Mode                                   : Disabled
+    Addressing Mode                                    : None
+    MIG Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    Accounting Mode                                    : Disabled
+    Accounting Mode Buffer Size                        : 4000
+    Driver Model
+        Current                                        : N/A
+        Pending                                        : N/A
+    Serial Number                                      : 1324421112417
+    GPU UUID                                           : GPU-fc236847-7f2f-ec99-ff59-ae779c62677e
+    GPU PDI                                            : 0x741aaa2459698b55
+    Minor Number                                       : 0
+    VBIOS Version                                      : 94.02.5C.00.07
+    MultiGPU Board                                     : No
+    Board ID                                           : 0x200
+    Board Part Number                                  : 900-5G133-0100-001
+    GPU Part Number                                    : 2230-875-A1
+    FRU Part Number                                    : N/A
+    Platform Info
+        Chassis Serial Number                          : N/A
+        Slot Number                                    : N/A
+        Tray Index                                     : N/A
+        Host ID                                        : N/A
+        Peer Type                                      : N/A
+        Module Id                                      : 1
+        GPU Fabric GUID                                : N/A
+    Inforom Version
+        Image Version                                  : G133.0500.00.05
+        OEM Object                                     : 2.0
+        ECC Object                                     : 6.16
+        Power Management Object                        : N/A
+    Inforom BBX Object Flush
+        Latest Timestamp                               : N/A
+        Latest Duration                                : N/A
+    GPU Operation Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    GPU C2C Mode                                       : N/A
+    GPU Virtualization Mode
+        Virtualization Mode                            : None
+        Host VGPU Mode                                 : N/A
+        vGPU Heterogeneous Mode                        : N/A
+    GPU Recovery Action                                : None
+    GSP Firmware Version                               : 595.58.03
+    IBMNPU
+        Relaxed Ordering Mode                          : N/A
+    PCI
+        Bus                                            : 0x02
+        Device                                         : 0x00
+        Domain                                         : 0x0000
+        Base Classcode                                 : 0x3
+        Sub Classcode                                  : 0x0
+        Device Id                                      : 0x223010DE
+        Bus Id                                         : 00000000:02:00.0
+        Sub System Id                                  : 0x14591028
+        GPU Link Info
+            PCIe Generation
+                Max                                    : 3
+                Current                                : 1
+                Device Current                         : 1
+                Device Max                             : 4
+                Host Max                               : 3
+            Link Width
+                Max                                    : 16x
+                Current                                : 16x
+        Bridge Chip
+            Type                                       : N/A
+            Firmware                                   : N/A
+        Replays Since Reset                            : 0
+        Replay Number Rollovers                        : 0
+        Tx Throughput                                  : 6591 KB/s
+        Rx Throughput                                  : 4443 KB/s
+        Atomic Caps Outbound                           : N/A
+        Atomic Caps Inbound                            : N/A
+    Fan Speed                                          : 30 %
+    Performance State                                  : P8
+    Clocks Event Reasons
+        Idle                                           : Active
+        Applications Clocks Setting                    : Not Active
+        SW Power Cap                                   : Not Active
+        HW Slowdown                                    : Not Active
+            HW Thermal Slowdown                        : Not Active
+            HW Power Brake Slowdown                    : Not Active
+        Sync Boost                                     : Not Active
+        SW Thermal Slowdown                            : Not Active
+        Display Clock Setting                          : Not Active
+    Clocks Event Reasons Counters
+        SW Power Capping                               : 178208954913 us
+        Sync Boost                                     : 0 us
+        SW Thermal Slowdown                            : 177625254300 us
+        HW Thermal Slowdown                            : 0 us
+        HW Power Braking                               : 0 us
+    Sparse Operation Mode                              : N/A
+    FB Memory Usage
+        Total                                          : 49140 MiB
+        Reserved                                       : 599 MiB
+        Used                                           : 15 MiB
+        Free                                           : 48527 MiB
+    BAR1 Memory Usage
+        Total                                          : 256 MiB
+        Used                                           : 2 MiB
+        Free                                           : 254 MiB
+    Conf Compute Protected Memory Usage
+        Total                                          : 0 MiB
+        Used                                           : 0 MiB
+        Free                                           : 0 MiB
+    Compute Mode                                       : Default
+    Utilization
+        GPU                                            : 0 %
+        Memory                                         : 0 %
+        Encoder                                        : 0 %
+        Decoder                                        : 0 %
+        JPEG                                           : 0 %
+        OFA                                            : 0 %
+    Encoder Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    FBC Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    DRAM Encryption Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    ECC Mode
+        Current                                        : Disabled
+        Pending                                        : Disabled
+    ECC Errors
+        Volatile
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+        Aggregate
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+            SRAM Threshold Exceeded                    : N/A
+        Aggregate Uncorrectable SRAM Sources
+            SRAM L2                                    : N/A
+            SRAM SM                                    : N/A
+            SRAM Microcontroller                       : N/A
+            SRAM PCIE                                  : N/A
+            SRAM Other                                 : N/A
+        Channel Repair Pending                         : No
+        TPC Repair Pending                             : No
+        Unrepairable Memory                            : N/A
+    Retired Pages
+        Single Bit ECC                                 : N/A
+        Double Bit ECC                                 : N/A
+        Pending Page Blacklist                         : N/A
+    Remapped Rows
+        Correctable Error                              : 0
+        Uncorrectable Error                            : 0
+        Pending                                        : No
+        Remapping Failure Occurred                     : No
+        Bank Remap Availability Histogram
+            Max                                        : 192 bank(s)
+            High                                       : 0 bank(s)
+            Partial                                    : 0 bank(s)
+            Low                                        : 0 bank(s)
+            None                                       : 0 bank(s)
+    Temperature
+        GPU Current Temp                               : 41 C
+        GPU T.Limit Temp                               : N/A
+        GPU Shutdown Temp                              : 98 C
+        GPU Slowdown Temp                              : 95 C
+        GPU Max Operating Temp                         : 93 C
+        GPU Target Temperature                         : 84 C
+        Memory Current Temp                            : N/A
+        Memory Max Operating Temp                      : N/A
+    GPU Power Readings
+        Average Power Draw                             : 32.45 W
+        Instantaneous Power Draw                       : 32.47 W
+        Current Power Limit                            : 300.00 W
+        Requested Power Limit                          : 300.00 W
+        Default Power Limit                            : 300.00 W
+        Min Power Limit                                : 100.00 W
+        Max Power Limit                                : 300.00 W
+    GPU Memory Power Readings 
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+    Module Power Readings
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+        Current Power Limit                            : N/A
+        Requested Power Limit                          : N/A
+        Default Power Limit                            : N/A
+        Min Power Limit                                : N/A
+        Max Power Limit                                : N/A
+    Power Smoothing                                    : N/A
+    Workload Power Profiles
+        Requested Profiles                             : N/A
+        Enforced Profiles                              : N/A
+    EDPp Multiplier                                    : N/A
+    Clocks
+        Graphics                                       : 210 MHz
+        SM                                             : 210 MHz
+        Memory                                         : 405 MHz
+        Video                                          : 555 MHz
+    Applications Clocks
+        Graphics                                       : Requested functionality has been deprecated
+        Memory                                         : Requested functionality has been deprecated
+    Default Applications Clocks
+        Graphics                                       : Requested functionality has been deprecated
+        Memory                                         : Requested functionality has been deprecated
+    Deferred Clocks
+        Memory                                         : N/A
+    Max Clocks
+        Graphics                                       : 2100 MHz
+        SM                                             : 2100 MHz
+        Memory                                         : 8001 MHz
+        Video                                          : 1950 MHz
+    Max Customer Boost Clocks
+        Graphics                                       : N/A
+    Clock Policy
+        Auto Boost                                     : N/A
+        Auto Boost Default                             : N/A
+    Fabric
+        State                                          : N/A
+        Status                                         : N/A
+        CliqueId                                       : N/A
+        ClusterUUID                                    : N/A
+        Health
+            Summary                                    : N/A
+            Bandwidth                                  : N/A
+            Route Recovery in progress                 : N/A
+            Route Unhealthy                            : N/A
+            Access Timeout Recovery                    : N/A
+            Incorrect Configuration                    : N/A
+            Partition Assigned                         : N/A
+    Processes
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 826588
+            Type                          : G
+            Name                          : 
+            Used GPU Memory               : 4 MiB
+    Capabilities
+        EGM                                            : disabled
+
+GPU 00000000:03:00.0
+    Product Name                                       : NVIDIA RTX A6000
+    Product Brand                                      : NVIDIA RTX
+    Product Architecture                               : Ampere
+    Display Mode                                       : Requested functionality has been deprecated
+    Display Attached                                   : No
+    Display Active                                     : Disabled
+    Persistence Mode                                   : Disabled
+    Addressing Mode                                    : None
+    MIG Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    Accounting Mode                                    : Disabled
+    Accounting Mode Buffer Size                        : 4000
+    Driver Model
+        Current                                        : N/A
+        Pending                                        : N/A
+    Serial Number                                      : 1324621010899
+    GPU UUID                                           : GPU-c6b9ed55-708e-31b5-5c2a-b130dfc67719
+    GPU PDI                                            : 0xca0f454d734db657
+    Minor Number                                       : 1
+    VBIOS Version                                      : 94.02.5C.00.02
+    MultiGPU Board                                     : No
+    Board ID                                           : 0x300
+    Board Part Number                                  : 900-5G133-2200-000
+    GPU Part Number                                    : 2230-875-A1
+    FRU Part Number                                    : N/A
+    Platform Info
+        Chassis Serial Number                          : N/A
+        Slot Number                                    : N/A
+        Tray Index                                     : N/A
+        Host ID                                        : N/A
+        Peer Type                                      : N/A
+        Module Id                                      : 1
+        GPU Fabric GUID                                : N/A
+    Inforom Version
+        Image Version                                  : G133.0500.00.05
+        OEM Object                                     : 2.0
+        ECC Object                                     : 6.16
+        Power Management Object                        : N/A
+    Inforom BBX Object Flush
+        Latest Timestamp                               : N/A
+        Latest Duration                                : N/A
+    GPU Operation Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    GPU C2C Mode                                       : N/A
+    GPU Virtualization Mode
+        Virtualization Mode                            : None
+        Host VGPU Mode                                 : N/A
+        vGPU Heterogeneous Mode                        : N/A
+    GPU Recovery Action                                : None
+    GSP Firmware Version                               : 595.58.03
+    IBMNPU
+        Relaxed Ordering Mode                          : N/A
+    PCI
+        Bus                                            : 0x03
+        Device                                         : 0x00
+        Domain                                         : 0x0000
+        Base Classcode                                 : 0x3
+        Sub Classcode                                  : 0x0
+        Device Id                                      : 0x223010DE
+        Bus Id                                         : 00000000:03:00.0
+        Sub System Id                                  : 0x145910DE
+        GPU Link Info
+            PCIe Generation
+                Max                                    : 3
+                Current                                : 1
+                Device Current                         : 1
+                Device Max                             : 4
+                Host Max                               : 3
+            Link Width
+                Max                                    : 16x
+                Current                                : 16x
+        Bridge Chip
+            Type                                       : N/A
+            Firmware                                   : N/A
+        Replays Since Reset                            : 0
+        Replay Number Rollovers                        : 0
+        Tx Throughput                                  : 488 KB/s
+        Rx Throughput                                  : 390 KB/s
+        Atomic Caps Outbound                           : N/A
+        Atomic Caps Inbound                            : N/A
+    Fan Speed                                          : 30 %
+    Performance State                                  : P8
+    Clocks Event Reasons
+        Idle                                           : Active
+        Applications Clocks Setting                    : Not Active
+        SW Power Cap                                   : Not Active
+        HW Slowdown                                    : Not Active
+            HW Thermal Slowdown                        : Not Active
+            HW Power Brake Slowdown                    : Not Active
+        Sync Boost                                     : Not Active
+        SW Thermal Slowdown                            : Not Active
+        Display Clock Setting                          : Not Active
+    Clocks Event Reasons Counters
+        SW Power Capping                               : 249711433248 us
+        Sync Boost                                     : 0 us
+        SW Thermal Slowdown                            : 232000278155 us
+        HW Thermal Slowdown                            : 0 us
+        HW Power Braking                               : 0 us
+    Sparse Operation Mode                              : N/A
+    FB Memory Usage
+        Total                                          : 49140 MiB
+        Reserved                                       : 599 MiB
+        Used                                           : 3 MiB
+        Free                                           : 48540 MiB
+    BAR1 Memory Usage
+        Total                                          : 256 MiB
+        Used                                           : 1 MiB
+        Free                                           : 255 MiB
+    Conf Compute Protected Memory Usage
+        Total                                          : 0 MiB
+        Used                                           : 0 MiB
+        Free                                           : 0 MiB
+    Compute Mode                                       : Default
+    Utilization
+        GPU                                            : 0 %
+        Memory                                         : 0 %
+        Encoder                                        : 0 %
+        Decoder                                        : 0 %
+        JPEG                                           : 0 %
+        OFA                                            : 0 %
+    Encoder Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    FBC Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    DRAM Encryption Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    ECC Mode
+        Current                                        : Disabled
+        Pending                                        : Disabled
+    ECC Errors
+        Volatile
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+        Aggregate
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+            SRAM Threshold Exceeded                    : N/A
+        Aggregate Uncorrectable SRAM Sources
+            SRAM L2                                    : N/A
+            SRAM SM                                    : N/A
+            SRAM Microcontroller                       : N/A
+            SRAM PCIE                                  : N/A
+            SRAM Other                                 : N/A
+        Channel Repair Pending                         : No
+        TPC Repair Pending                             : No
+        Unrepairable Memory                            : N/A
+    Retired Pages
+        Single Bit ECC                                 : N/A
+        Double Bit ECC                                 : N/A
+        Pending Page Blacklist                         : N/A
+    Remapped Rows
+        Correctable Error                              : 0
+        Uncorrectable Error                            : 0
+        Pending                                        : No
+        Remapping Failure Occurred                     : No
+        Bank Remap Availability Histogram
+            Max                                        : 192 bank(s)
+            High                                       : 0 bank(s)
+            Partial                                    : 0 bank(s)
+            Low                                        : 0 bank(s)
+            None                                       : 0 bank(s)
+    Temperature
+        GPU Current Temp                               : 44 C
+        GPU T.Limit Temp                               : N/A
+        GPU Shutdown Temp                              : 98 C
+        GPU Slowdown Temp                              : 95 C
+        GPU Max Operating Temp                         : 93 C
+        GPU Target Temperature                         : 84 C
+        Memory Current Temp                            : N/A
+        Memory Max Operating Temp                      : N/A
+    GPU Power Readings
+        Average Power Draw                             : 32.84 W
+        Instantaneous Power Draw                       : 32.77 W
+        Current Power Limit                            : 300.00 W
+        Requested Power Limit                          : 300.00 W
+        Default Power Limit                            : 300.00 W
+        Min Power Limit                                : 100.00 W
+        Max Power Limit                                : 300.00 W
+    GPU Memory Power Readings 
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+    Module Power Readings
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+        Current Power Limit                            : N/A
+        Requested Power Limit                          : N/A
+        Default Power Limit                            : N/A
+        Min Power Limit                                : N/A
+        Max Power Limit                                : N/A
+    Power Smoothing                                    : N/A
+    Workload Power Profiles
+        Requested Profiles                             : N/A
+        Enforced Profiles                              : N/A
+    EDPp Multiplier                                    : N/A
+    Clocks
+        Graphics                                       : 210 MHz
+        SM                                             : 210 MHz
+        Memory                                         : 405 MHz
+        Video                                          : 555 MHz
+    Applications Clocks
+        Graphics                                       : Requested functionality has been deprecated
+        Memory                                         : Requested functionality has been deprecated
+    Default Applications Clocks
+        Graphics                                       : Requested functionality has been deprecated
+        Memory                                         : Requested functionality has been deprecated
+    Deferred Clocks
+        Memory                                         : N/A
+    Max Clocks
+        Graphics                                       : 2100 MHz
+        SM                                             : 2100 MHz
+        Memory                                         : 8001 MHz
+        Video                                          : 1950 MHz
+    Max Customer Boost Clocks
+        Graphics                                       : N/A
+    Clock Policy
+        Auto Boost                                     : N/A
+        Auto Boost Default                             : N/A
+    Fabric
+        State                                          : N/A
+        Status                                         : N/A
+        CliqueId                                       : N/A
+        ClusterUUID                                    : N/A
+        Health
+            Summary                                    : N/A
+            Bandwidth                                  : N/A
+            Route Recovery in progress                 : N/A
+            Route Unhealthy                            : N/A
+            Access Timeout Recovery                    : N/A
+            Incorrect Configuration                    : N/A
+            Partition Assigned                         : N/A
+    Processes                                          : None
+    Capabilities
+        EGM                                            : disabled
+
+GPU 00000000:83:00.0
+    Product Name                                       : NVIDIA RTX A6000
+    Product Brand                                      : NVIDIA RTX
+    Product Architecture                               : Ampere
+    Display Mode                                       : Requested functionality has been deprecated
+    Display Attached                                   : No
+    Display Active                                     : Disabled
+    Persistence Mode                                   : Disabled
+    Addressing Mode                                    : None
+    MIG Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    Accounting Mode                                    : Disabled
+    Accounting Mode Buffer Size                        : 4000
+    Driver Model
+        Current                                        : N/A
+        Pending                                        : N/A
+    Serial Number                                      : 1324421111975
+    GPU UUID                                           : GPU-80560f73-4866-8d01-17e1-74dd5b1a8049
+    GPU PDI                                            : 0x8560aaa18dbb316e
+    Minor Number                                       : 2
+    VBIOS Version                                      : 94.02.5C.00.07
+    MultiGPU Board                                     : No
+    Board ID                                           : 0x8300
+    Board Part Number                                  : 900-5G133-0100-001
+    GPU Part Number                                    : 2230-875-A1
+    FRU Part Number                                    : N/A
+    Platform Info
+        Chassis Serial Number                          : N/A
+        Slot Number                                    : N/A
+        Tray Index                                     : N/A
+        Host ID                                        : N/A
+        Peer Type                                      : N/A
+        Module Id                                      : 1
+        GPU Fabric GUID                                : N/A
+    Inforom Version
+        Image Version                                  : G133.0500.00.05
+        OEM Object                                     : 2.0
+        ECC Object                                     : 6.16
+        Power Management Object                        : N/A
+    Inforom BBX Object Flush
+        Latest Timestamp                               : N/A
+        Latest Duration                                : N/A
+    GPU Operation Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    GPU C2C Mode                                       : N/A
+    GPU Virtualization Mode
+        Virtualization Mode                            : None
+        Host VGPU Mode                                 : N/A
+        vGPU Heterogeneous Mode                        : N/A
+    GPU Recovery Action                                : None
+    GSP Firmware Version                               : 595.58.03
+    IBMNPU
+        Relaxed Ordering Mode                          : N/A
+    PCI
+        Bus                                            : 0x83
+        Device                                         : 0x00
+        Domain                                         : 0x0000
+        Base Classcode                                 : 0x3
+        Sub Classcode                                  : 0x0
+        Device Id                                      : 0x223010DE
+        Bus Id                                         : 00000000:83:00.0
+        Sub System Id                                  : 0x14591028
+        GPU Link Info
+            PCIe Generation
+                Max                                    : 3
+                Current                                : 1
+                Device Current                         : 1
+                Device Max                             : 4
+                Host Max                               : 3
+            Link Width
+                Max                                    : 16x
+                Current                                : 16x
+        Bridge Chip
+            Type                                       : N/A
+            Firmware                                   : N/A
+        Replays Since Reset                            : 0
+        Replay Number Rollovers                        : 0
+        Tx Throughput                                  : 537 KB/s
+        Rx Throughput                                  : 3906 KB/s
+        Atomic Caps Outbound                           : N/A
+        Atomic Caps Inbound                            : N/A
+    Fan Speed                                          : 30 %
+    Performance State                                  : P8
+    Clocks Event Reasons
+        Idle                                           : Active
+        Applications Clocks Setting                    : Not Active
+        SW Power Cap                                   : Not Active
+        HW Slowdown                                    : Not Active
+            HW Thermal Slowdown                        : Not Active
+            HW Power Brake Slowdown                    : Not Active
+        Sync Boost                                     : Not Active
+        SW Thermal Slowdown                            : Not Active
+        Display Clock Setting                          : Not Active
+    Clocks Event Reasons Counters
+        SW Power Capping                               : 198630984827 us
+        Sync Boost                                     : 0 us
+        SW Thermal Slowdown                            : 166782087410 us
+        HW Thermal Slowdown                            : 0 us
+        HW Power Braking                               : 0 us
+    Sparse Operation Mode                              : N/A
+    FB Memory Usage
+        Total                                          : 49140 MiB
+        Reserved                                       : 599 MiB
+        Used                                           : 2 MiB
+        Free                                           : 48541 MiB
+    BAR1 Memory Usage
+        Total                                          : 256 MiB
+        Used                                           : 1 MiB
+        Free                                           : 255 MiB
+    Conf Compute Protected Memory Usage
+        Total                                          : 0 MiB
+        Used                                           : 0 MiB
+        Free                                           : 0 MiB
+    Compute Mode                                       : Default
+    Utilization
+        GPU                                            : 0 %
+        Memory                                         : 0 %
+        Encoder                                        : 0 %
+        Decoder                                        : 0 %
+        JPEG                                           : 0 %
+        OFA                                            : 0 %
+    Encoder Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    FBC Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    DRAM Encryption Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    ECC Mode
+        Current                                        : Disabled
+        Pending                                        : Disabled
+    ECC Errors
+        Volatile
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+        Aggregate
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+            SRAM Threshold Exceeded                    : N/A
+        Aggregate Uncorrectable SRAM Sources
+            SRAM L2                                    : N/A
+            SRAM SM                                    : N/A
+            SRAM Microcontroller                       : N/A
+            SRAM PCIE                                  : N/A
+            SRAM Other                                 : N/A
+        Channel Repair Pending                         : No
+        TPC Repair Pending                             : No
+        Unrepairable Memory                            : N/A
+    Retired Pages
+        Single Bit ECC                                 : N/A
+        Double Bit ECC                                 : N/A
+        Pending Page Blacklist                         : N/A
+    Remapped Rows
+        Correctable Error                              : 0
+        Uncorrectable Error                            : 0
+        Pending                                        : No
+        Remapping Failure Occurred                     : No
+        Bank Remap Availability Histogram
+            Max                                        : 192 bank(s)
+            High                                       : 0 bank(s)
+            Partial                                    : 0 bank(s)
+            Low                                        : 0 bank(s)
+            None                                       : 0 bank(s)
+    Temperature
+        GPU Current Temp                               : 40 C
+        GPU T.Limit Temp                               : N/A
+        GPU Shutdown Temp                              : 98 C
+        GPU Slowdown Temp                              : 95 C
+        GPU Max Operating Temp                         : 93 C
+        GPU Target Temperature                         : 84 C
+        Memory Current Temp                            : N/A
+        Memory Max Operating Temp                      : N/A
+    GPU Power Readings
+        Average Power Draw                             : 31.87 W
+        Instantaneous Power Draw                       : 31.83 W
+        Current Power Limit                            : 300.00 W
+        Requested Power Limit                          : 300.00 W
+        Default Power Limit                            : 300.00 W
+        Min Power Limit                                : 100.00 W
+        Max Power Limit                                : 300.00 W
+    GPU Memory Power Readings 
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+    Module Power Readings
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+        Current Power Limit                            : N/A
+        Requested Power Limit                          : N/A
+        Default Power Limit                            : N/A
+        Min Power Limit                                : N/A
+        Max Power Limit                                : N/A
+    Power Smoothing                                    : N/A
+    Workload Power Profiles
+        Requested Profiles                             : N/A
+        Enforced Profiles                              : N/A
+    EDPp Multiplier                                    : N/A
+    Clocks
+        Graphics                                       : 210 MHz
+        SM                                             : 210 MHz
+        Memory                                         : 405 MHz
+        Video                                          : 555 MHz
+    Applications Clocks
+        Graphics                                       : Requested functionality has been deprecated
+        Memory                                         : Requested functionality has been deprecated
+    Default Applications Clocks
+        Graphics                                       : Requested functionality has been deprecated
+        Memory                                         : Requested functionality has been deprecated
+    Deferred Clocks
+        Memory                                         : N/A
+    Max Clocks
+        Graphics                                       : 2100 MHz
+        SM                                             : 2100 MHz
+        Memory                                         : 8001 MHz
+        Video                                          : 1950 MHz
+    Max Customer Boost Clocks
+        Graphics                                       : N/A
+    Clock Policy
+        Auto Boost                                     : N/A
+        Auto Boost Default                             : N/A
+    Fabric
+        State                                          : N/A
+        Status                                         : N/A
+        CliqueId                                       : N/A
+        ClusterUUID                                    : N/A
+        Health
+            Summary                                    : N/A
+            Bandwidth                                  : N/A
+            Route Recovery in progress                 : N/A
+            Route Unhealthy                            : N/A
+            Access Timeout Recovery                    : N/A
+            Incorrect Configuration                    : N/A
+            Partition Assigned                         : N/A
+    Processes                                          : None
+    Capabilities
+        EGM                                            : disabled
+
+GPU 00000000:84:00.0
+    Product Name                                       : NVIDIA RTX A6000
+    Product Brand                                      : NVIDIA RTX
+    Product Architecture                               : Ampere
+    Display Mode                                       : Requested functionality has been deprecated
+    Display Attached                                   : No
+    Display Active                                     : Disabled
+    Persistence Mode                                   : Disabled
+    Addressing Mode                                    : None
+    MIG Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    Accounting Mode                                    : Disabled
+    Accounting Mode Buffer Size                        : 4000
+    Driver Model
+        Current                                        : N/A
+        Pending                                        : N/A
+    Serial Number                                      : 1324621060994
+    GPU UUID                                           : GPU-3b0cb3e3-84d1-7b8d-aee2-e388a9ca30b8
+    GPU PDI                                            : 0x72cf8c10f3fe073e
+    Minor Number                                       : 3
+    VBIOS Version                                      : 94.02.5C.00.02
+    MultiGPU Board                                     : No
+    Board ID                                           : 0x8400
+    Board Part Number                                  : 900-5G133-2200-000
+    GPU Part Number                                    : 2230-875-A1
+    FRU Part Number                                    : N/A
+    Platform Info
+        Chassis Serial Number                          : N/A
+        Slot Number                                    : N/A
+        Tray Index                                     : N/A
+        Host ID                                        : N/A
+        Peer Type                                      : N/A
+        Module Id                                      : 1
+        GPU Fabric GUID                                : N/A
+    Inforom Version
+        Image Version                                  : G133.0500.00.05
+        OEM Object                                     : 2.0
+        ECC Object                                     : 6.16
+        Power Management Object                        : N/A
+    Inforom BBX Object Flush
+        Latest Timestamp                               : N/A
+        Latest Duration                                : N/A
+    GPU Operation Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    GPU C2C Mode                                       : N/A
+    GPU Virtualization Mode
+        Virtualization Mode                            : None
+        Host VGPU Mode                                 : N/A
+        vGPU Heterogeneous Mode                        : N/A
+    GPU Recovery Action                                : None
+    GSP Firmware Version                               : 595.58.03
+    IBMNPU
+        Relaxed Ordering Mode                          : N/A
+    PCI
+        Bus                                            : 0x84
+        Device                                         : 0x00
+        Domain                                         : 0x0000
+        Base Classcode                                 : 0x3
+        Sub Classcode                                  : 0x0
+        Device Id                                      : 0x223010DE
+        Bus Id                                         : 00000000:84:00.0
+        Sub System Id                                  : 0x145910DE
+        GPU Link Info
+            PCIe Generation
+                Max                                    : 3
+                Current                                : 3
+                Device Current                         : 3
+                Device Max                             : 4
+                Host Max                               : 3
+            Link Width
+                Max                                    : 16x
+                Current                                : 16x
+        Bridge Chip
+            Type                                       : N/A
+            Firmware                                   : N/A
+        Replays Since Reset                            : 0
+        Replay Number Rollovers                        : 0
+        Tx Throughput                                  : 39746 KB/s
+        Rx Throughput                                  : 47802 KB/s
+        Atomic Caps Outbound                           : N/A
+        Atomic Caps Inbound                            : N/A
+    Fan Speed                                          : 62 %
+    Performance State                                  : P2
+    Clocks Event Reasons
+        Idle                                           : Not Active
+        Applications Clocks Setting                    : Not Active
+        SW Power Cap                                   : Not Active
+        HW Slowdown                                    : Not Active
+            HW Thermal Slowdown                        : Not Active
+            HW Power Brake Slowdown                    : Not Active
+        Sync Boost                                     : Not Active
+        SW Thermal Slowdown                            : Active
+        Display Clock Setting                          : Not Active
+    Clocks Event Reasons Counters
+        SW Power Capping                               : 264122854284 us
+        Sync Boost                                     : 0 us
+        SW Thermal Slowdown                            : 201063718154 us
+        HW Thermal Slowdown                            : 0 us
+        HW Power Braking                               : 0 us
+    Sparse Operation Mode                              : N/A
+    FB Memory Usage
+        Total                                          : 49140 MiB
+        Reserved                                       : 599 MiB
+        Used                                           : 8847 MiB
+        Free                                           : 39696 MiB
+    BAR1 Memory Usage
+        Total                                          : 256 MiB
+        Used                                           : 4 MiB
+        Free                                           : 252 MiB
+    Conf Compute Protected Memory Usage
+        Total                                          : 0 MiB
+        Used                                           : 0 MiB
+        Free                                           : 0 MiB
+    Compute Mode                                       : Default
+    Utilization
+        GPU                                            : 26 %
+        Memory                                         : 21 %
+        Encoder                                        : 0 %
+        Decoder                                        : 0 %
+        JPEG                                           : 0 %
+        OFA                                            : 0 %
+    Encoder Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    FBC Stats
+        Active Sessions                                : 0
+        Average FPS                                    : 0
+        Average Latency                                : 0
+    DRAM Encryption Mode
+        Current                                        : N/A
+        Pending                                        : N/A
+    ECC Mode
+        Current                                        : Disabled
+        Pending                                        : Disabled
+    ECC Errors
+        Volatile
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+        Aggregate
+            SRAM Correctable                           : N/A
+            SRAM Uncorrectable Parity                  : N/A
+            SRAM Uncorrectable SEC-DED                 : N/A
+            DRAM Correctable                           : N/A
+            DRAM Uncorrectable                         : N/A
+            SRAM Threshold Exceeded                    : N/A
+        Aggregate Uncorrectable SRAM Sources
+            SRAM L2                                    : N/A
+            SRAM SM                                    : N/A
+            SRAM Microcontroller                       : N/A
+            SRAM PCIE                                  : N/A
+            SRAM Other                                 : N/A
+        Channel Repair Pending                         : No
+        TPC Repair Pending                             : No
+        Unrepairable Memory                            : N/A
+    Retired Pages
+        Single Bit ECC                                 : N/A
+        Double Bit ECC                                 : N/A
+        Pending Page Blacklist                         : N/A
+    Remapped Rows
+        Correctable Error                              : 0
+        Uncorrectable Error                            : 0
+        Pending                                        : No
+        Remapping Failure Occurred                     : No
+        Bank Remap Availability Histogram
+            Max                                        : 192 bank(s)
+            High                                       : 0 bank(s)
+            Partial                                    : 0 bank(s)
+            Low                                        : 0 bank(s)
+            None                                       : 0 bank(s)
+    Temperature
+        GPU Current Temp                               : 84 C
+        GPU T.Limit Temp                               : N/A
+        GPU Shutdown Temp                              : 98 C
+        GPU Slowdown Temp                              : 95 C
+        GPU Max Operating Temp                         : 93 C
+        GPU Target Temperature                         : 84 C
+        Memory Current Temp                            : N/A
+        Memory Max Operating Temp                      : N/A
+    GPU Power Readings
+        Average Power Draw                             : 243.69 W
+        Instantaneous Power Draw                       : 215.76 W
+        Current Power Limit                            : 300.00 W
+        Requested Power Limit                          : 300.00 W
+        Default Power Limit                            : 300.00 W
+        Min Power Limit                                : 100.00 W
+        Max Power Limit                                : 300.00 W
+    GPU Memory Power Readings 
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+    Module Power Readings
+        Average Power Draw                             : N/A
+        Instantaneous Power Draw                       : N/A
+        Current Power Limit                            : N/A
+        Requested Power Limit                          : N/A
+        Default Power Limit                            : N/A
+        Min Power Limit                                : N/A
+        Max Power Limit                                : N/A
+    Power Smoothing                                    : N/A
+    Workload Power Profiles
+        Requested Profiles                             : N/A
+        Enforced Profiles                              : N/A
+    EDPp Multiplier                                    : N/A
+    Clocks
+        Graphics                                       : 1800 MHz
+        SM                                             : 1800 MHz
+        Memory                                         : 7601 MHz
+        Video                                          : 1605 MHz
+    Applications Clocks
+        Graphics                                       : Requested functionality has been deprecated
+        Memory                                         : Requested functionality has been deprecated
+    Default Applications Clocks
+        Graphics                                       : Requested functionality has been deprecated
+        Memory                                         : Requested functionality has been deprecated
+    Deferred Clocks
+        Memory                                         : N/A
+    Max Clocks
+        Graphics                                       : 2100 MHz
+        SM                                             : 2100 MHz
+        Memory                                         : 8001 MHz
+        Video                                          : 1950 MHz
+    Max Customer Boost Clocks
+        Graphics                                       : N/A
+    Clock Policy
+        Auto Boost                                     : N/A
+        Auto Boost Default                             : N/A
+    Fabric
+        State                                          : N/A
+        Status                                         : N/A
+        CliqueId                                       : N/A
+        ClusterUUID                                    : N/A
+        Health
+            Summary                                    : N/A
+            Bandwidth                                  : N/A
+            Route Recovery in progress                 : N/A
+            Route Unhealthy                            : N/A
+            Access Timeout Recovery                    : N/A
+            Incorrect Configuration                    : N/A
+            Partition Assigned                         : N/A
+    Processes
+        GPU instance ID                   : N/A
+        Compute instance ID               : N/A
+        Process ID                        : 813906
+            Type                          : C
+            Name                          : 
+            Used GPU Memory               : 8830 MiB
+    Capabilities
+        EGM                                            : disabled
+
+'
+2026-06-02T03:21:21Z [236ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  osDistro = 'ubuntu'
+2026-06-02T03:21:21Z [237ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  osName = '24.04.2 LTS (Noble Numbat)'
+2026-06-02T03:21:21Z [237ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  osVersion = '24.04.2'
+2026-06-02T03:21:21Z [238ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  portableMode = '1'
+2026-06-02T03:21:21Z [238ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  runEnvironment = 'Individual'
+2026-06-02T03:21:21Z [238ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  runningInContainer = '1'
+2026-06-02T03:21:21Z [239ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  shaderdb_debugSymbols = '0'
+2026-06-02T03:21:21Z [239ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  shaderdb_dumpIncludeOverrides = '0'
+2026-06-02T03:21:21Z [239ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  shaderdb_dumpIntermediates = '0'
+2026-06-02T03:21:21Z [240ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  shaderdb_obfuscateCode = '1'
+2026-06-02T03:21:21Z [240ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  shaderdb_optimizationLevel = '1'
+2026-06-02T03:21:21Z [241ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  systemInfo = '
+|---------------------------------------------------------------------------------------------|
+| Driver Version: 595.58.03     | Graphics API: Vulkan
+|=============================================================================================|
+| GPU | Name                             | Active | LDA | GPU Memory | Vendor-ID | LUID       |
+|     |                                  |        |     |            | Device-ID | UUID       |
+|     |                                  |        |     |            | Bus-ID    |            |
+|---------------------------------------------------------------------------------------------|
+| 0   | NVIDIA RTX A6000                 | Yes: 0 |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | fc236847.. |
+|     |                                  |        |     |            | 2         |            |
+|---------------------------------------------------------------------------------------------|
+| 1   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | c6b9ed55.. |
+|     |                                  |        |     |            | 3         |            |
+|---------------------------------------------------------------------------------------------|
+| 2   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 80560f73.. |
+|     |                                  |        |     |            | 83        |            |
+|---------------------------------------------------------------------------------------------|
+| 3   | NVIDIA RTX A6000                 |        |     | 49386   MB | 10de      | 0          |
+|     |                                  |        |     |            | 2230      | 3b0cb3e3.. |
+|     |                                  |        |     |            | 84        |            |
+|=============================================================================================|
+| OS: 24.04.2 LTS (Noble Numbat) ubuntu, Version: 24.04.2, Kernel: 6.8.0-111-generic
+| Processor: Intel(R) Xeon(R) CPU E5-4667 v3 @ 2.00GHz
+| Cores: 32 | Logical Cores: 64
+|---------------------------------------------------------------------------------------------|
+| Total Memory (MB): 61440 | Free Memory: 18321
+| Total Page/Swap (MB): 0 | Free Page/Swap: 0
+|---------------------------------------------------------------------------------------------|
+'
+2026-06-02T03:21:21Z [241ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  telemetrySessionId = '2081477611163454343'
+2026-06-02T03:21:21Z [241ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  terminatedByAbort = '0'
+2026-06-02T03:21:21Z [242ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  totalRamBareMetalMB = '386808'
+2026-06-02T03:21:21Z [242ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  totalRamLimitedMB = '61440'
+2026-06-02T03:21:21Z [242ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  totalSwapBareMetalMB = '0'
+2026-06-02T03:21:21Z [243ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  totalSwapLimitedMB = '0'
+2026-06-02T03:21:21Z [243ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  userId = 'default'
+2026-06-02T03:21:21Z [243ms] [Warning] [carb.crashreporter-breakpad.plugin] [crash]  workingDirectory = '/home/<username>/workspace/IsaacLab'
+2026-06-02T03:21:21Z [244ms] [Fatal] [carb.crashreporter-breakpad.plugin] [crash] Thread 2395514 backtrace follows:
+2026-06-02T03:21:21Z [260ms] [Fatal] [carb.crashreporter-breakpad.plugin] 000: libc.so.6!__sigaction+0x50 (??:?)
+2026-06-02T03:21:21Z [269ms] [Fatal] [carb.crashreporter-breakpad.plugin] 001: librtx.scenedb.plugin.so!void std::vector<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>, std::allocator<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int> > >::_M_realloc_insert<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int> >(__gnu_cxx::__normal_iterator<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>*, std::vector<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>, std::allocator<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int> > > >, std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>&&)+0x123ef (??:?)
+2026-06-02T03:21:21Z [278ms] [Fatal] [carb.crashreporter-breakpad.plugin] 002: librtx.scenedb.plugin.so!void std::vector<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>, std::allocator<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int> > >::_M_realloc_insert<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int> >(__gnu_cxx::__normal_iterator<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>*, std::vector<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>, std::allocator<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int> > > >, std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>&&)+0x12766 (??:?)
+2026-06-02T03:21:21Z [286ms] [Fatal] [carb.crashreporter-breakpad.plugin] 003: librtx.scenedb.plugin.so!void std::vector<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>, std::allocator<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int> > >::_M_realloc_insert<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int> >(__gnu_cxx::__normal_iterator<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>*, std::vector<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>, std::allocator<std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int> > > >, std::tuple<char const*, float, float, unsigned int, unsigned int, unsigned int>&&)+0x14a14 (??:?)
+2026-06-02T03:21:21Z [295ms] [Fatal] [carb.crashreporter-breakpad.plugin] 004: librtx.scenedb.plugin.so!carbOnPluginStartup+0x3b4de (??:?)
+2026-06-02T03:21:21Z [304ms] [Fatal] [carb.crashreporter-breakpad.plugin] 005: librtx.scenedb.plugin.so!void std::vector<int, std::allocator<int> >::_M_realloc_insert<int>(__gnu_cxx::__normal_iterator<int*, std::vector<int, std::allocator<int> > >, int&&)+0x7ce1 (??:?)
+2026-06-02T03:21:21Z [313ms] [Fatal] [carb.crashreporter-breakpad.plugin] 006: libcarb.scenerenderer-rtx.plugin.so!std::unordered_map<unsigned int, unsigned int, std::hash<unsigned int>, std::equal_to<unsigned int>, std::allocator<std::pair<unsigned int const, unsigned int> > >::~unordered_map()+0x4655f (??:?)
+2026-06-02T03:21:21Z [321ms] [Fatal] [carb.crashreporter-breakpad.plugin] 007: libcarb.scenerenderer-rtx.plugin.so!std::unordered_map<unsigned int, unsigned int, std::hash<unsigned int>, std::equal_to<unsigned int>, std::allocator<std::pair<unsigned int const, unsigned int> > >::~unordered_map()+0x64486 (??:?)
+2026-06-02T03:21:21Z [329ms] [Fatal] [carb.crashreporter-breakpad.plugin] 008: libcarb.scenerenderer-rtx.plugin.so!carbOnPluginShutdown+0xe4b (??:?)
+2026-06-02T03:21:21Z [334ms] [Fatal] [carb.crashreporter-breakpad.plugin] 009: libomni.hydra.rtx.plugin.so!+0x4459
+2026-06-02T03:21:21Z [345ms] [Fatal] [carb.crashreporter-breakpad.plugin] 010: libomni.usd.so!void std::vector<unsigned long, std::allocator<unsigned long> >::_M_realloc_insert<unsigned long>(__gnu_cxx::__normal_iterator<unsigned long*, std::vector<unsigned long, std::allocator<unsigned long> > >, unsigned long&&)+0x10da (??:?)
+2026-06-02T03:21:21Z [355ms] [Fatal] [carb.crashreporter-breakpad.plugin] 011: libomni.usd.so!void std::vector<unsigned long, std::allocator<unsigned long> >::_M_realloc_insert<unsigned long>(__gnu_cxx::__normal_iterator<unsigned long*, std::vector<unsigned long, std::allocator<unsigned long> > >, unsigned long&&)+0x58ce (??:?)
+2026-06-02T03:21:21Z [365ms] [Fatal] [carb.crashreporter-breakpad.plugin] 012: libomni.usd.so!omni::usd::UsdManager::destroyHydraEngine(unsigned int)+0x3b7 (??:?)
+2026-06-02T03:21:21Z [376ms] [Fatal] [carb.crashreporter-breakpad.plugin] 013: libomni.usd.so!void std::vector<unsigned long, std::allocator<unsigned long> >::_M_realloc_insert<unsigned long>(__gnu_cxx::__normal_iterator<unsigned long*, std::vector<unsigned long, std::allocator<unsigned long> > >, unsigned long&&)+0x8807 (??:?)
+2026-06-02T03:21:21Z [387ms] [Fatal] [carb.crashreporter-breakpad.plugin] 014: libomni.usd.so!omni::usd::UsdManager::createHydraEngine(char const*, omni::usd::UsdContext*)+0x85 (??:?)
+2026-06-02T03:21:21Z [398ms] [Fatal] [carb.crashreporter-breakpad.plugin] 015: _usd.cpython-311-x86_64-linux-gnu.so!std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*>, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*> >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&)+0x15ff4 (??:?)
+2026-06-02T03:21:21Z [409ms] [Fatal] [carb.crashreporter-breakpad.plugin] 016: _usd.cpython-311-x86_64-linux-gnu.so!std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*>, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*> >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&)+0x9cf2 (??:?)
+2026-06-02T03:21:21Z [1,048ms] [Fatal] [carb.crashreporter-breakpad.plugin] 017: python!cfunction_call+0x36 (/usr/local/src/conda/python-3.11.15/Include/internal/pycore_pyerrors.h:23)
+2026-06-02T03:21:22Z [1,525ms] [Fatal] [carb.crashreporter-breakpad.plugin] 018: python!_PyObject_MakeTpCall+0x24b (/usr/local/src/conda/python-3.11.15/Include/internal/pycore_ceval.h:123)
+2026-06-02T03:21:22Z [2,038ms] [Fatal] [carb.crashreporter-breakpad.plugin] 019: python!_PyEval_EvalFrameDefault.cold+0x7c (/usr/local/src/conda/python-3.11.15/Python/ceval.c:7285 (discriminator 1))
+2026-06-02T03:21:23Z [2,527ms] [Fatal] [carb.crashreporter-breakpad.plugin] 020: python!_PyFunction_Vectorcall+0x165 (/usr/local/src/conda/python-3.11.15/Python/frame.c:129)
+2026-06-02T03:21:23Z [2,548ms] [Fatal] [carb.crashreporter-breakpad.plugin] 021: _eventdispatcher.cpython-311-x86_64-linux-gnu.so!void std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::_M_realloc_insert<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >(__gnu_cxx::__normal_iterator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >*, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > >, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&)+0xd7a (??:?)
+2026-06-02T03:21:23Z [2,570ms] [Fatal] [carb.crashreporter-breakpad.plugin] 022: _eventdispatcher.cpython-311-x86_64-linux-gnu.so!std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*>, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*> >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&)+0xa777 (??:?)
+2026-06-02T03:21:23Z [2,590ms] [Fatal] [carb.crashreporter-breakpad.plugin] 023: _eventdispatcher.cpython-311-x86_64-linux-gnu.so!std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*>, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*> >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&)+0xa9d6 (??:?)
+2026-06-02T03:21:23Z [2,609ms] [Fatal] [carb.crashreporter-breakpad.plugin] 024: libcarb.eventdispatcher.plugin.so!carbOnPluginRegisterEx+0x3441 (??:?)
+2026-06-02T03:21:23Z [2,625ms] [Fatal] [carb.crashreporter-breakpad.plugin] 025: libomni.usd.so!std::_Function_handler<std::unique_ptr<std::__future_base::_Result_base, std::__future_base::_Result_base::_Deleter> (), std::__future_base::_Task_setter<std::unique_ptr<std::__future_base::_Result<void>, std::__future_base::_Result_base::_Deleter>, std::thread::_Invoker<std::tuple<omni::usd::UsdContext::Impl::spawnLoaderThread<omni::usd::UsdContext::Impl::attachStage(pxrInternal_v0_24__pxrReserved__::TfRefPtr<pxrInternal_v0_24__pxrReserved__::UsdStage>, bool)::{lambda()#1}>(omni::usd::UsdContext::Impl::attachStage(pxrInternal_v0_24__pxrReserved__::TfRefPtr<pxrInternal_v0_24__pxrReserved__::UsdStage>, bool)::{lambda()#1}&&, bool)::{lambda()#1}> >, void> >::_M_invoke(std::_Any_data const&)+0x51d (??:?)
+2026-06-02T03:21:23Z [2,638ms] [Fatal] [carb.crashreporter-breakpad.plugin] 026: libomni.usd.so!omni::usd::UsdContext::newStage()+0x17c (??:?)
+2026-06-02T03:21:23Z [2,652ms] [Fatal] [carb.crashreporter-breakpad.plugin] 027: _usd.cpython-311-x86_64-linux-gnu.so!PyInit__usd+0x1a78 (??:?)
+2026-06-02T03:21:23Z [2,666ms] [Fatal] [carb.crashreporter-breakpad.plugin] 028: _usd.cpython-311-x86_64-linux-gnu.so!std::__detail::_Map_base<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*>, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, void*> >, std::__detail::_Select1st, std::equal_to<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::hash<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&&)+0x9cf2 (??:?)
+2026-06-02T03:21:23Z [3,150ms] [Fatal] [carb.crashreporter-breakpad.plugin] 029: python!cfunction_call+0x36 (/usr/local/src/conda/python-3.11.15/Include/internal/pycore_pyerrors.h:23)
+2026-06-02T03:21:24Z [3,591ms] [Fatal] [carb.crashreporter-breakpad.plugin] 030: python!PyObject_Call+0xbe (/usr/local/src/conda/python-3.11.15/Include/internal/pycore_ceval.h:123)
+2026-06-02T03:21:24Z [4,061ms] [Fatal] [carb.crashreporter-breakpad.plugin] 031: python!_PyObject_MakeTpCall+0x24b (/usr/local/src/conda/python-3.11.15/Include/internal/pycore_ceval.h:123)
+2026-06-02T03:21:25Z [4,498ms] [Fatal] [carb.crashreporter-breakpad.plugin] 032: python!_PyEval_EvalFrameDefault.cold+0xcd1 (/usr/local/src/conda/python-3.11.15/Python/ceval.c:7307)
+2026-06-02T03:21:25Z [4,938ms] [Fatal] [carb.crashreporter-breakpad.plugin] 033: python!_PyFunction_Vectorcall+0x165 (/usr/local/src/conda/python-3.11.15/Python/frame.c:129)
+2026-06-02T03:21:26Z [5,423ms] [Fatal] [carb.crashreporter-breakpad.plugin] 034: python!slot_tp_init+0x1f3 (/usr/local/src/conda/python-3.11.15/Objects/call.c:1034 (discriminator 1))
+2026-06-02T03:21:26Z [5,883ms] [Fatal] [carb.crashreporter-breakpad.plugin] 035: python!_PyObject_MakeTpCall+0x223 (/usr/local/src/conda/python-3.11.15/Objects/typeobject.c:1104)
+2026-06-02T03:21:27Z [6,368ms] [Fatal] [carb.crashreporter-breakpad.plugin] 036: python!_PyEval_EvalFrameDefault.cold+0xcd1 (/usr/local/src/conda/python-3.11.15/Python/ceval.c:7307)
+2026-06-02T03:21:27Z [6,834ms] [Fatal] [carb.crashreporter-breakpad.plugin] 037: python!_PyFunction_Vectorcall+0x165 (/usr/local/src/conda/python-3.11.15/Python/frame.c:129)
+2026-06-02T03:21:28Z [7,333ms] [Fatal] [carb.crashreporter-breakpad.plugin] 038: python!slot_tp_init+0x11c (/usr/local/src/conda/python-3.11.15/Objects/call.c:141)
+2026-06-02T03:21:28Z [7,885ms] [Fatal] [carb.crashreporter-breakpad.plugin] 039: python!_PyObject_MakeTpCall+0x223 (/usr/local/src/conda/python-3.11.15/Objects/typeobject.c:1104)
+2026-06-02T03:21:29Z [8,502ms] [Fatal] [carb.crashreporter-breakpad.plugin] 040: python!_PyEval_EvalFrameDefault.cold+0xcd1 (/usr/local/src/conda/python-3.11.15/Python/ceval.c:7307)
+2026-06-02T03:21:29Z [9,054ms] [Fatal] [carb.crashreporter-breakpad.plugin] 041: python!_PyEval_Vector+0x145 (/usr/local/src/conda/python-3.11.15/Include/internal/pycore_ceval.h:73)
+2026-06-02T03:21:30Z [9,542ms] [Fatal] [carb.crashreporter-breakpad.plugin] 042: python!PyEval_EvalCode+0x9d (/usr/local/src/conda/python-3.11.15/Python/ceval.c:1149)
+2026-06-02T03:21:30Z [10,005ms] [Fatal] [carb.crashreporter-breakpad.plugin] 043: python!builtin_exec+0x14d (/usr/local/src/conda/python-3.11.15/Python/bltinmodule.c:1108)
+2026-06-02T03:21:31Z [10,523ms] [Fatal] [carb.crashreporter-breakpad.plugin] 044: python!cfunction_vectorcall_FASTCALL_KEYWORDS+0x4f (/usr/local/src/conda/python-3.11.15/Include/internal/pycore_ceval.h:123)
+2026-06-02T03:21:31Z [11,005ms] [Fatal] [carb.crashreporter-breakpad.plugin] 045: python!PyObject_Vectorcall+0x2c (/usr/local/src/conda/python-3.11.15/Include/internal/pycore_pyerrors.h:23)
+2026-06-02T03:21:32Z [11,461ms] [Fatal] [carb.crashreporter-breakpad.plugin] 046: python!_PyEval_EvalFrameDefault+0x60d (/usr/local/src/conda/python-3.11.15/Python/ceval.c:4769)
+2026-06-02T03:21:32Z [11,918ms] [Fatal] [carb.crashreporter-breakpad.plugin] 047: python!_PyEval_Vector+0x145 (/usr/local/src/conda/python-3.11.15/Include/internal/pycore_ceval.h:73)
+2026-06-02T03:21:33Z [12,414ms] [Fatal] [carb.crashreporter-breakpad.plugin] 048: python!PyEval_EvalCode+0x9d (/usr/local/src/conda/python-3.11.15/Python/ceval.c:1149)
+2026-06-02T03:21:33Z [12,899ms] [Fatal] [carb.crashreporter-breakpad.plugin] 049: python!run_eval_code_obj+0x4a (/usr/local/src/conda/python-3.11.15/Python/pythonrun.c:1742)
+2026-06-02T03:21:34Z [13,333ms] [Fatal] [carb.crashreporter-breakpad.plugin] 050: python!run_mod+0x63 (/usr/local/src/conda/python-3.11.15/Include/object.h:537)
+2026-06-02T03:21:34Z [13,794ms] [Fatal] [carb.crashreporter-breakpad.plugin] 051: python!pyrun_file+0x80 (/usr/local/src/conda/python-3.11.15/Python/pythonrun.c:1657)
+2026-06-02T03:21:35Z [14,242ms] [Fatal] [carb.crashreporter-breakpad.plugin] 052: python!_PyRun_SimpleFileObject+0x1ba (/usr/local/src/conda/python-3.11.15/Python/pythonrun.c:440)
+2026-06-02T03:21:35Z [14,721ms] [Fatal] [carb.crashreporter-breakpad.plugin] 053: python!_PyRun_AnyFileObject+0x44 (/usr/local/src/conda/python-3.11.15/Python/pythonrun.c:79)
+2026-06-02T03:21:36Z [15,188ms] [Fatal] [carb.crashreporter-breakpad.plugin] 054: python!Py_RunMain+0x271 (/usr/local/src/conda/python-3.11.15/Modules/main.c:361)
+2026-06-02T03:21:36Z [15,645ms] [Fatal] [carb.crashreporter-breakpad.plugin] 055: python!Py_BytesMain+0x37 (/usr/local/src/conda/python-3.11.15/Modules/main.c:739)
+2026-06-02T03:21:36Z [15,667ms] [Fatal] [carb.crashreporter-breakpad.plugin] 056: libc.so.6!__libc_init_first+0x8a (??:?)
+2026-06-02T03:21:36Z [15,691ms] [Fatal] [carb.crashreporter-breakpad.plugin] 057: libc.so.6!__libc_start_main+0x8b (??:?)
+2026-06-02T03:21:36Z [16,122ms] [Fatal] [carb.crashreporter-breakpad.plugin] 058: python!_start+0x2e (??:?)
+./isaaclab.sh: line 561: 2395514 Segmentation fault      (core dumped) ${python_exe} "$@"
