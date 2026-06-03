@@ -40,10 +40,13 @@ class Go2SataEnv(ManagerBasedRLEnv):
         # (paper IV-B). Training uses the Gompertz schedule (growth_deploy_scale=None).
         self._deploy_G = getattr(cfg, "growth_deploy_scale", None)
         # SATA's growth counter `step_count` increments once per PHYSICS SUBSTEP (it lives in
-        # _update_growth_scale, called inside the substep loop), NOT per env.step. Since n_sub=2
-        # for the entire growth phase (n_sub drops to 1 only at G=1/200Hz), SATA's curriculum
-        # advances 2x faster (in env-steps) than a per-env-step counter would. Track substeps.
+        # _update_growth_scale, called inside the substep loop), NOT per env.step. Track substeps.
         self._growth_step = 0
+        # Control-time accumulator, PERSISTENT across env steps (SATA's self.current_dt). The
+        # residual is carried over (`%= 1/freq`) so that at intermediate frequencies n_sub varies
+        # between 1 and 2 and the AVERAGE control frequency ramps smoothly 100->200 Hz. Resetting
+        # it each step (the earlier bug) pinned n_sub=2 -> control freq stuck at 100 Hz until G=1.
+        self._ctrl_dt = 0.0
         self._G = self._deploy_G if self._deploy_G is not None else gompertz(0)
         act = self.scene["robot"].actuators["base_legs"]
         if hasattr(act, "set_runtime"):
@@ -52,10 +55,14 @@ class Go2SataEnv(ManagerBasedRLEnv):
     def step(self, action):
         self._G = self._deploy_G if self._deploy_G is not None else gompertz(self._growth_step)
         freq = control_freq(self._G)              # 100 -> 200 Hz
-        accum, n_sub = 0.0, 0
-        while accum * freq < 1.0:
+        # SATA's variable-frequency loop with residual carry-over (go2_torque.step):
+        #   while current_dt*freq < 1: substep; current_dt += dt
+        #   current_dt %= 1/freq
+        n_sub = 0
+        while self._ctrl_dt * freq < 1.0:
             n_sub += 1
-            accum += PHYSICS_DT
+            self._ctrl_dt += PHYSICS_DT
+        self._ctrl_dt %= (1.0 / freq)             # carry the overshoot to the next env step
         n_sub = max(1, n_sub)
         if self._deploy_G is None:
             self._growth_step += n_sub            # SATA: step_count += 1 per substep
