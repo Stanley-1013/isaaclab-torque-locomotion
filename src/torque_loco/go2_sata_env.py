@@ -206,6 +206,12 @@ def _apply_sata_bio(self):
         joint_names_expr=[".*"], stiffness=0.0, damping=0.0,
         effort_limit=1000.0, velocity_limit=30.0,
     )
+    # SATA (Isaac Gym) sets rigid-body angular_damping=0 and linear_damping=0; Isaac Sim's USD
+    # default is angular_damping=0.05 (a documented migration gotcha — passive rotational damping
+    # that slightly sluggishes the gait). Match SATA = 0.
+    if getattr(self.scene.robot, "spawn", None) is not None and self.scene.robot.spawn.rigid_props is not None:
+        self.scene.robot.spawn.rigid_props.angular_damping = 0.0
+        self.scene.robot.spawn.rigid_props.linear_damping = 0.0
     cr = self.commands.base_velocity.ranges
     cr.lin_vel_x = (-0.5, 1.5); cr.lin_vel_y = (-0.5, 0.5); cr.ang_vel_z = (-1.5, 1.5)
     self.commands.base_velocity.resampling_time_range = (5.0, 5.0)
