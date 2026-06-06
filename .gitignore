@@ -10,3 +10,8 @@ outputs/
 results/metrics_sata_s*.csv
 results/*.log
 results/go2_torque_s*.log
+
+# large regenerable blobs (commit the generator/source, not the blob)
+docs/final-presentation.standalone.html
+results/deck/*.mp4
+results/*_terrain.npz

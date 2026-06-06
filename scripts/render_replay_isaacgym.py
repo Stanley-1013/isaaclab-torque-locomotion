@@ -52,6 +52,9 @@ def main():
     ap.add_argument("--fps", type=int, default=50)
     ap.add_argument("--width", type=int, default=960)
     ap.add_argument("--height", type=int, default=540)
+    ap.add_argument("--terrain", default=None,
+                    help="optional terrain mesh .npz (vertices,faces) from eval_metrics --traj_out; "
+                         "renders the actual rough ground instead of a flat plane")
     args = ap.parse_args()
 
     n_steps, traj_joint_names, base, q = load_traj(args.traj)
@@ -74,9 +77,20 @@ def main():
     if sim is None:
         raise SystemExit("create_sim failed")
 
-    plane = gymapi.PlaneParams()
-    plane.normal = gymapi.Vec3(0.0, 0.0, 1.0)
-    gym.add_ground(sim, plane)
+    if args.terrain:
+        # Render the actual Isaac-Lab rough terrain (world frame == trajectory frame, so feet align).
+        tdata = np.load(os.path.expanduser(args.terrain))
+        tverts = np.ascontiguousarray(tdata["vertices"], dtype=np.float32)
+        tfaces = np.ascontiguousarray(tdata["faces"], dtype=np.uint32)
+        tm = gymapi.TriangleMeshParams()
+        tm.nb_vertices = tverts.shape[0]
+        tm.nb_triangles = tfaces.shape[0]
+        gym.add_triangle_mesh(sim, tverts.flatten(), tfaces.flatten(), tm)
+        print(f"[INFO] terrain mesh: {tverts.shape[0]} verts, {tfaces.shape[0]} tris")
+    else:
+        plane = gymapi.PlaneParams()
+        plane.normal = gymapi.Vec3(0.0, 0.0, 1.0)
+        gym.add_ground(sim, plane)
 
     asset_opts = gymapi.AssetOptions()
     asset_opts.fix_base_link = False
@@ -101,7 +115,17 @@ def main():
     env = gym.create_env(sim, gymapi.Vec3(-2, -2, 0), gymapi.Vec3(2, 2, 2), 1)
     start = gymapi.Transform()
     start.p = gymapi.Vec3(0.0, 0.0, 0.4)
-    actor = gym.create_actor(env, asset, start, "go2", 0, 1)  # noqa: F841
+    actor = gym.create_actor(env, asset, start, "go2", 0, 1)
+
+    # Visual styling so this Isaac-Lab-reproduction clip is distinguishable at a glance from the
+    # original SATA Isaac-Gym videos (same renderer otherwise). Tint the robot teal and use a cool
+    # key light. Purely cosmetic — joint states / terrain are untouched.
+    robot_color = gymapi.Vec3(0.12, 0.62, 0.70)
+    for bi in range(gym.get_actor_rigid_body_count(env, actor)):
+        gym.set_rigid_body_color(env, actor, bi, gymapi.MESH_VISUAL, robot_color)
+    # cool directional light (intensity, ambient, direction)
+    gym.set_light_parameters(sim, 0, gymapi.Vec3(0.85, 0.9, 1.05),
+                             gymapi.Vec3(0.32, 0.34, 0.42), gymapi.Vec3(0.6, 0.4, -1.0))
 
     cam_props = gymapi.CameraProperties()
     cam_props.width = args.width
@@ -144,7 +168,7 @@ def main():
         b = base[i, 0:3]
         gym.set_camera_location(
             cam, env,
-            gymapi.Vec3(b[0] - 1.8, b[1] - 1.8, b[2] + 0.9),
+            gymapi.Vec3(b[0] - 1.25, b[1] - 1.25, b[2] + 0.65),
             gymapi.Vec3(b[0], b[1], b[2] + 0.1),
         )
         gym.step_graphics(sim)

@@ -85,6 +85,11 @@ parser.add_argument(
     help="If set, also write a kinematic-replay trajectory CSV (base pose + joint angles + "
          "joint names) for rendering the motion in a working renderer (e.g. Isaac Gym).",
 )
+# Lock the velocity command to a fixed value (otherwise the Play task samples a random command
+# that can be ~0, so the robot steps in place). Use e.g. --cmd_vx 1.0 for a forward-walking clip.
+parser.add_argument("--cmd_vx", type=float, default=None, help="fixed forward velocity command (m/s)")
+parser.add_argument("--cmd_vy", type=float, default=None, help="fixed lateral velocity command (m/s)")
+parser.add_argument("--cmd_wz", type=float, default=None, help="fixed yaw-rate command (rad/s)")
 
 # Append rsl_rl CLI args (--experiment_name, --load_run, --resume, --checkpoint, …)
 cli_args.add_rsl_rl_args(parser)
@@ -197,6 +202,25 @@ def main(
     isaac_env = env.unwrapped
     robot = isaac_env.scene["robot"]
 
+    # Optionally LOCK the velocity command to a fixed value for a clean walking clip. The Play task
+    # otherwise samples a random command (every 5 s) that may be near zero -> the robot steps in
+    # place. Disable resampling and pin vel_command_b so the policy is driven forward and the obs
+    # reflects it.
+    _cmd_term = None
+    if any(v is not None for v in (args_cli.cmd_vx, args_cli.cmd_vy, args_cli.cmd_wz)):
+        _cmd_term = isaac_env.command_manager.get_term("base_velocity")
+        _fixed_cmd = torch.tensor(
+            [args_cli.cmd_vx or 0.0, args_cli.cmd_vy or 0.0, args_cli.cmd_wz or 0.0],
+            device=isaac_env.device,
+        )
+        _cmd_term.cfg.resampling_time_range = (1.0e9, 1.0e9)  # never resample during the clip
+        if hasattr(_cmd_term, "is_standing_env"):
+            _cmd_term.is_standing_env[:] = False
+        _cmd_term.vel_command_b[:] = _fixed_cmd
+        if hasattr(_cmd_term, "time_left"):
+            _cmd_term.time_left[:] = 1.0e9
+        print(f"[INFO] velocity command LOCKED to (vx, vy, wz) = {_fixed_cmd.tolist()}")
+
     rows = []  # list of dicts, one per recorded step
     traj_rows = []  # base pose + joint angles per step (for kinematic replay)
     joint_names = list(robot.data.joint_names)  # Isaac Lab joint ordering
@@ -208,6 +232,8 @@ def main(
         for step_idx in range(args_cli.steps):
             actions = policy(obs)
             obs, _, dones, _ = env.step(actions)
+            if _cmd_term is not None:  # keep the command locked even across an episode reset
+                _cmd_term.vel_command_b[:] = _fixed_cmd
 
             # Reset recurrent states for terminated episodes (mirror play.py lines 211-214).
             if version.parse(installed_version) >= version.parse("4.0.0"):
@@ -281,6 +307,56 @@ def main(
             tw.writeheader()
             tw.writerows(traj_rows)
         print(f"[INFO] Saved trajectory ({len(traj_rows)} steps, joints={joint_names}) to: {traj_path}")
+
+        # Also dump the terrain mesh (world frame) so the Isaac-Gym kinematic replay can render the
+        # actual rough ground the robot walked on (feet align: same world coords). The TerrainImporter
+        # no longer keeps the trimesh (`.meshes` is deprecated/empty) and re-generating is NOT
+        # reproducible (the custom rough-slope noise draws from the global NumPy RNG, cfg seed=None),
+        # so read the imported mesh straight from USD. Flat envs have no terrain prim -> skip.
+        import numpy as _np
+        terrain = getattr(isaac_env.scene, "terrain", None)
+        prim_paths = list(getattr(terrain, "terrain_prim_paths", []) or []) if terrain is not None else []
+        if prim_paths:
+            import omni.usd
+            from pxr import Usd, UsdGeom
+            stage = omni.usd.get_context().get_stage()
+            vlist, flist, voff = [], [], 0
+            for path in prim_paths:
+                root = stage.GetPrimAtPath(path)
+                if not root or not root.IsValid():
+                    continue
+                for prim in Usd.PrimRange(root):
+                    if not prim.IsA(UsdGeom.Mesh):
+                        continue
+                    mesh = UsdGeom.Mesh(prim)
+                    pts = _np.asarray(mesh.GetPointsAttr().Get(), dtype=_np.float64)
+                    counts = _np.asarray(mesh.GetFaceVertexCountsAttr().Get(), dtype=_np.int64)
+                    idx = _np.asarray(mesh.GetFaceVertexIndicesAttr().Get(), dtype=_np.int64)
+                    if len(pts) == 0 or len(idx) == 0:
+                        continue
+                    # local -> world (USD row-vector convention: p_world = [x,y,z,1] @ M)
+                    M = _np.asarray(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(
+                        Usd.TimeCode.Default()), dtype=_np.float64).reshape(4, 4)
+                    ptsw = (_np.c_[pts, _np.ones(len(pts))] @ M)[:, :3]
+                    tris, o = [], 0  # triangulate (terrain is triangles, but stay general)
+                    for c in counts:
+                        for k in range(1, c - 1):
+                            tris.append((idx[o], idx[o + k], idx[o + k + 1]))
+                        o += int(c)
+                    if not tris:
+                        continue
+                    vlist.append(ptsw.astype(_np.float32))
+                    flist.append(_np.asarray(tris, dtype=_np.int64) + voff)
+                    voff += len(ptsw)
+            if vlist:
+                verts = _np.concatenate(vlist, axis=0)
+                faces = _np.concatenate(flist, axis=0)
+                terr_path = os.path.splitext(traj_path)[0] + "_terrain.npz"
+                _np.savez(terr_path, vertices=verts, faces=faces)
+                print(f"[INFO] Saved terrain mesh ({len(verts)} verts, {len(faces)} faces, from USD) "
+                      f"to: {terr_path}")
+            else:
+                print("[WARN] terrain prim(s) found but no UsdGeom.Mesh extracted; replay stays flat.")
 
     env.close()
 
