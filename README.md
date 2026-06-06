@@ -9,11 +9,10 @@ This is a follow-on to
 — our reproduction of **SATA** (Safe and Adaptive Torque-Based Locomotion
 Policies Inspired by Animal Learning; Li et al., RSS 2025;
 [official repo](https://github.com/marmotlab/SATA),
-[arXiv:2502.12674](https://arxiv.org/abs/2502.12674)) on Isaac Gym. That study
-read SATA's bio-inspired torque layers as **sim-to-real feasibility
-constraints, not reward devices**. This repo asks a narrower, prior question:
-**does a faithful SATA port survive an engine change at all**, when the only
-thing that changes is the simulator? Educational and research use.
+[arXiv:2502.12674](https://arxiv.org/abs/2502.12674)) on Isaac Gym. This repo
+asks a narrower, prior question: **does a faithful SATA port survive an engine
+change at all**, when the only thing that changes is the simulator? Educational
+and research use.
 
 **Current status (2026-06-06):** the direct port trains and walks. We retrained
 **8 seeds** of the full bio stack on SATA's rough terrain in Isaac Lab and

@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Port SATA's torque-control + bio feasibility-envelope idea from the deprecated Isaac Gym to Isaac Lab on the Unitree Go2, prove the envelope finding reproduces across engines, and (stretch) test cross-engine zero-shot transfer as a sim2real proxy — all within a one-week course-report window.
+**Goal:** Port SATA's torque-control + bio feasibility-envelope idea from the deprecated Isaac Gym to Isaac Lab on the Unitree Go2, check whether the prior repo's peak-torque behaviour also appears across engines, and (stretch) test cross-engine zero-shot transfer as a sim2real proxy — all within a one-week course-report window.
 
 **Architecture:** Build on Isaac Lab's stock manager-based Go2 velocity task. Swap the action term from joint-position to **joint-effort** (torque control). The bio layer (activation low-pass + fatigue capacity) lives in a custom `BioActuator` whose constraint math is factored into a **pure-torch, sim-free function** so it can be unit-tested without launching the simulator. Compare Go2 trained with vs without the bio actuator on training reward AND actuator-feasibility metrics (peak torque, jerk, energy), mirroring the SATA repo's Phase-3 analysis.
 
@@ -18,7 +18,7 @@ This plan is **gated on environment bootstrap (Phase 0)**. Two container-specifi
 - **R1b — CUDA 12.8.** Isaac Sim 5.1 wants torch cu128; the SATA env is cu117. The container driver must support the CUDA 12.8 runtime. Task 0.1 checks `nvidia-smi` driver version FIRST; if it can't support 12.8, STOP and escalate to the user before sinking more time.
 - **R2 — obs/action contract** (Phase 3 only): `legged_gym` obs ordering ≠ Isaac Lab manager ordering. Detailed when we reach it.
 
-**Tiered fallback (each tier is a complete, presentable result):** Phase 1 = Tier 1 (migration proven). Phase 2 = Tier 2 (envelope reproduces). Phase 3 = Tier 3 (transfer). Phase 5 = Tier 3b (new robot). If a tier is cut, the talk still stands on the tier below.
+**Tiered fallback (each tier is a complete, presentable result):** Phase 1 = Tier 1 (migration working). Phase 2 = Tier 2 (peak-torque behaviour also appears). Phase 3 = Tier 3 (transfer). Phase 5 = Tier 3b (new robot). If a tier is cut, the talk still stands on the tier below.
 
 **API caveat (not a placeholder license):** code blocks below are grounded in the Isaac Lab `main` docs as of 2026-06-01 but the exact API of the *installed* 5.1 build must be confirmed. Where a task says "verify the API," that verification IS the first step — do not assume.
 
@@ -134,7 +134,7 @@ git -c user.email=han.li@chainsea.com.tw -c user.name=han commit -m "ops: Isaac 
 
 ## Phase 1 — Go2 torque-control baseline (D1) · Tier 1
 
-Convert the stock Go2 task from position to **effort** control and train a walking policy. This alone proves platform + paradigm migration.
+Convert the stock Go2 task from position to **effort** control and train a walking policy. This alone demonstrates the platform + paradigm migration.
 
 ### Task 1.1: Scaffold the package
 
@@ -572,10 +572,10 @@ A small `scripts/plot_envelope.py` that loads both CSVs, applies `metrics.py`, a
 - [ ] **Step 4: Commit results**
 
 ```bash
-git add results scripts && git -c user.email=han.li@chainsea.com.tw -c user.name=han commit -m "results: Tier-2 envelope comparison reproduces across engines (bio vs no-bio)"
+git add results scripts && git -c user.email=han.li@chainsea.com.tw -c user.name=han commit -m "results: Tier-2 peak-torque comparison (bio vs no-bio) measured in Isaac Lab"
 ```
 
-**✅ Tier 2 secured: the feasibility-envelope finding reproduces in Isaac Lab.**
+**✅ Tier 2: the bio layers' peak-torque behaviour observed in the prior repo also appears here (sim-only, preliminary).**
 
 ---
 

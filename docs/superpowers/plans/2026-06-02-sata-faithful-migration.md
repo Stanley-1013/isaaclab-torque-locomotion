@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Reproduce the full SATA bio-inspired torque-control method (activation low-pass + Hill + fatigue + Gompertz growth curriculum) on the Unitree Go2 in Isaac Lab, and validate the full-bio reference reproduces SATA's hardware-feasibility envelope (peak torque / energy / jerk) cross-engine.
+**Goal:** Reproduce the full SATA bio-inspired torque-control method (activation low-pass + Hill + fatigue + Gompertz growth curriculum) on the Unitree Go2 in Isaac Lab, and check the full-bio reference matches the Isaac Gym reference cross-engine (per-step reward terms, peak torque / energy / jerk) — a fidelity check, not a claim about what the bio layers "are".
 
 **Architecture:** Manager-based. A `Go2SataEnv(ManagerBasedRLEnv)` overrides `step()` to run SATA's variable-frequency accumulator loop (the one growth component that doesn't fit Isaac Lab's fixed decimation); a `BioActuator(IdealPDActuator)` applies the tanh-EMA activation + Hill + fatigue pipeline; the growth scalar `G(t)` is computed each step into `env._G` and read live by the actuator, the SATA reward terms, and the push-DR event. Tier-2 trains only the full-bio reference and validates it against the reproduction repo's ground-truth envelope numbers — no no-bio ablation.
 

@@ -78,8 +78,8 @@ Concrete values:
 - **Stock actuator** (group `"base_legs"`, in `isaaclab_assets/robots/unitree.py:UNITREE_GO2_CFG`):
   `DCMotorCfg(joint_names_expr=[".*_hip_joint",".*_thigh_joint",".*_calf_joint"], effort_limit=23.5,
   saturation_effort=23.5, velocity_limit=30.0, stiffness=25.0, damping=0.5)`.
-  **Note: stock effort_limit 23.5 N·m == SATA's sim torque clip 23.5** — nice alignment for the
-  cross-engine reproducibility story.
+  **Note: stock effort_limit 23.5 N·m == SATA's 23.5 sim torque clip** — a convenient match,
+  one less variable to reconcile.
 - **Actuator cfgs in `isaaclab.actuators`:** `ImplicitActuatorCfg`, `IdealPDActuatorCfg`,
   `DCMotorCfg(IdealPDActuatorCfg)`.
 - **rsl_rl runner entry point:** `...config.go2.agents.rsl_rl_ppo_cfg:UnitreeGo2FlatPPORunnerCfg`.
@@ -181,9 +181,11 @@ SATA's real `go2_torque` (`SATA/legged_gym/.../go2/go2_torque/go2_torque.py`):
 
 Phase-3 headline (reproduction `results/phase3-bio-claims.../README.md`), what Tier-2
 must reproduce qualitatively: reference peak τ 22.5±0.3; **no_activation → 42.5±4.4**
-(jerk collapses); **no_fatigue → energy 1.69 (2.5×), jerk 26,998 (35×)**. Phase-1
-reference reward **104±16 (8 seeds)** / 114±6 (3 seeds). Core claim: bio = **feasibility
-envelope, not a reward device** (see [[feedback-research-rigor]]).
+(jerk rises sharply); **no_fatigue → energy 1.69 (2.5×), jerk 26,998 (35×)**. Phase-1
+reference reward **104±16 (8 seeds)** / 114±6 (3 seeds). (The prior repo read the
+bio layers as feasibility constraints rather than reward devices — its own
+interpretation, not load-bearing here; this repo is about cross-engine fidelity.
+See [[feedback-research-rigor]].)
 
 **Open decision for Task 2.2:** keep our clean hard-clip capacity model (simpler, sim-free
 testable, "envelope" reading is literal) OR realign to SATA's penalty+Hill+sign-filter
@@ -293,8 +295,9 @@ each seed (32 envs ×1000 steps, headless) → `results/metrics_sata_s<N>.csv`;
 
 All 8 seeds keep peak joint torque **inside the 45 N·m hardware envelope** (max 28.3),
 matching SATA's ~22.5 reference. Wider spread than SATA's ±0.3 traces to two less-converged
-seeds (s2 28.3, s3 26.1); the other six cluster ~22.75 ± 1.4. **→ the feasibility-envelope
-finding reproduces across the Isaac Gym → Isaac Lab engine change.** Anti-over-claim: sim-only;
+seeds (s2 28.3, s3 26.1); the other six cluster ~22.75 ± 1.4. **→ the v1 flat-terrain peak-torque
+numbers were consistent with the prior repo's peak-torque observation (this framing was later
+dropped; see the rough-terrain reward result).** Anti-over-claim: sim-only;
 "within envelope" = within the rated torque number, not hardware-validated; reward magnitudes
 are not cross-engine-comparable (envelope metrics are).
 

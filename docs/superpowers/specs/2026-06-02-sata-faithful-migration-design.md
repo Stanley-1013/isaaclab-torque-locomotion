@@ -17,22 +17,26 @@ conflict with the paper/code (obs order; EMA direction), **paper + code win** �
 
 ---
 
-## 1. What SATA actually is (grounded in the paper + code)
+## 1. What SATA reports (per the paper + code)
 
 SATA = *Safe and Adaptive Torque-based locomotion* (Li et al., MARMot Lab @ NUS). The problem:
 torque control is more compliant/adaptive than position control but **hard to train** (highly
 nonlinear action space, inefficient cold-start exploration). SATA shapes the torque action space
 with three bio-inspired structures so it is both trainable and physically plausible:
 
-1. **Biomechanical model (activation low-pass + Hill force-velocity).** *Critical for learning* —
-   the paper's ablation: "without the biomechanical model the robot is completely unable to learn
-   a coherent gait." Its measurable side-effect is a **hardware-realisable torque envelope**
-   (ablating activation lets peak torque jump to 42.5 N·m, near the real Go2's 45 N·m limit).
+1. **Biomechanical model (activation low-pass + Hill force-velocity).** The paper reports that
+   in their setup this is important for *trainability* — their ablation found "without the
+   biomechanical model the robot is completely unable to learn a coherent gait." We take this as
+   a genuine observation of theirs, but cannot confirm it ourselves: we do not run that ablation
+   here, and the sibling repo's later all-bio-off run happened to train, so we leave bio-necessity
+   as an open question rather than a settled fact. Its measurable side-effect is a
+   **hardware-realisable torque envelope** (ablating activation lets peak torque jump to 42.5 N·m,
+   near the real Go2's 45 N·m limit).
 2. **Motor-fatigue feedback state.** A per-joint leaky integrator, fed into the observation and
    lightly penalised (−0.05); enables adaptive load-shedding / leg-effort redistribution.
 3. **Growth curriculum (the named "Adaptive / Animal-Learning" core).** A single Gompertz scalar
-   G(t)∈[0,1] *progressively unlocks the body* over training — it is **not** task-difficulty
-   curriculum but **embodiment growth**: "expands what the agent is physically allowed to do,
+   G(t)∈[0,1] *progressively unlocks the body* over training — the paper frames it as
+   **embodiment growth** rather than task-difficulty curriculum: "expands what the agent is physically allowed to do,
    leading to deeper exploration and reduced risk of suboptimal shortcuts." It improves early
    exploration **and** the deployed policy at the edges (the paper: `no_growth` "struggles to
    achieve high commanded velocities (1.5 m/s), especially above the training range" + worse OOD).
@@ -52,8 +56,10 @@ misread corrected during brainstorming.
   reward-weight modulation).
 - **Tier-2 comparison structure:** train **only the full-bio reference**; validate it **reproduces
   SATA's ground-truth envelope numbers** in Isaac Lab (walks; peak τ ≈ 22.5 N·m inside the 23.5/45
-  envelope; energy/jerk in range; reward magnitude sane). **No `no_bio` training** — the paper shows
-  a full-no-bio policy cannot learn a coherent gait, and the user does not want the per-knob ablation
+  envelope; energy/jerk in range; reward magnitude sane). **No `no_bio` training** — the paper
+  reports a no-bio policy failed to learn (their observation, which we have no reason to doubt); we
+  simply cannot confirm it ourselves (the sibling repo's all-bio-off run happened to train), so we
+  leave it open. We skip the ablation for scope reasons, not because the question is settled; the user does not want the per-knob ablation
   study (that was the prior project). The envelope claim is made by comparison to the hardware lines
   (23.5 sim clip, 45 real) and the SATA ground-truth metrics, not by an in-repo ablation.
 - **Engine reward not directly comparable** across engines; validation against ground truth is on the
@@ -201,7 +207,7 @@ From the reproduction repo's Phase-1/3 (`results/phase1-reference`, `phase3-bio-
 
 ## 6. Risks & items to verify during implementation
 
-1. **Cold-start convergence** — growth exists precisely to make cold-start torque-RL converge; if a
+1. **Cold-start convergence** — growth is intended (per the paper) to aid cold-start convergence; if a
    first faithful run stalls, that is a signal the growth schedule (esp. early torque ceiling / freq)
    needs tuning, not a reason to drop it.
 2. **`step()` override coupling** — small contained copy of Isaac Lab's internal `step()`; pin the
@@ -222,7 +228,7 @@ From the reproduction repo's Phase-1/3 (`results/phase1-reference`, `phase3-bio-
 
 - Sim-only; "within envelope" = within the rated torque number, not hardware-validated.
 - Cross-engine reward magnitudes are not directly comparable; envelope metrics are.
-- The bio layer is a feasibility constraint, not a reward device — same spine as the prior project.
+- Don't import the prior project's bio-layer interpretation as a fact; this slice is about cross-engine fidelity, and that framing is not load-bearing here.
 - Document *why* each design choice diverges from SATA's Isaac-Gym implementation as a
   platform-migration finding (esp. the variable-frequency `step()` override).
 
