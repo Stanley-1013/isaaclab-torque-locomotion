@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SATA — Torque-Based Adaptive Locomotion · Final Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,400..700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f4efe6;          /* warm notebook paper            */
+  --paper-2:#ece4d6;        /* slightly deeper panel          */
+  --ink:#211d18;            /* near-black warm ink            */
+  --ink-soft:#5b5347;       /* muted body                     */
+  --rust:#c4521f;           /* torque-rust accent             */
+  --rust-deep:#9c3d12;
+  --teal:#1f6f6b;           /* blueprint teal accent          */
+  --teal-deep:#12504d;
+  --gold:#b8862f;
+  --line:#cfc4b0;           /* hairlines / grid               */
+  --line-strong:#b3a78f;
+  --good:#1f6f6b;
+  --bad:#c4521f;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",sans-serif;
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- blueprint grid + grain atmosphere ---------- */
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+.bg::before{ /* fine engineering grid */
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:38px 38px;
+  opacity:.34;
+  mask-image:radial-gradient(ellipse 120% 110% at 50% 40%,#000 55%,transparent 100%);
+}
+.bg::after{ /* major rule lines */
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(var(--line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:190px 190px;
+  opacity:.5;
+  mask-image:radial-gradient(ellipse 120% 110% at 50% 40%,#000 50%,transparent 100%);
+}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.045;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+/* ---------- deck / slide mechanics ---------- */
+.deck{position:relative;z-index:2;height:100vh;width:100vw}
+.slide{
+  position:absolute;inset:0;
+  display:none;
+  padding:clamp(28px,4.4vh,60px) clamp(34px,5vw,92px);
+  padding-bottom:clamp(64px,8vh,84px);   /* clear the fixed 46px chrome bar */
+  flex-direction:column;
+  opacity:0;
+}
+.slide.active{display:flex;animation:slideIn .62s var(--ease) both}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px) scale(.992)}to{opacity:1;transform:none}}
+
+/* staggered children reveal */
+.slide.active .rise{animation:rise .7s var(--ease) both}
+.slide.active .rise:nth-child(1){animation-delay:.05s}
+.rise{opacity:0}
+.r1{animation:rise .7s var(--ease) both;animation-delay:.08s!important}
+.r2{animation:rise .7s var(--ease) both;animation-delay:.18s!important}
+.r3{animation:rise .7s var(--ease) both;animation-delay:.30s!important}
+.r4{animation:rise .7s var(--ease) both;animation-delay:.42s!important}
+.r5{animation:rise .7s var(--ease) both;animation-delay:.54s!important}
+.slide:not(.active) .r1,.slide:not(.active) .r2,.slide:not(.active) .r3,
+.slide:not(.active) .r4,.slide:not(.active) .r5{opacity:0}
+@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+/* ---------- shared type ---------- */
+.kicker{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:clamp(11px,1.05vw,13px);
+  letter-spacing:.26em;text-transform:uppercase;
+  color:var(--rust);font-weight:600;
+  display:flex;align-items:center;gap:14px;
+}
+.kicker::before{content:"";width:30px;height:2px;background:var(--rust)}
+h1,h2{font-family:"Fraunces",serif;font-weight:600;line-height:1.02;letter-spacing:-.015em}
+h1{font-size:clamp(38px,6.6vw,104px);font-weight:600}
+h2{font-size:clamp(28px,4vw,58px)}
+.lede{font-size:clamp(15px,1.5vw,21px);color:var(--ink-soft);line-height:1.5;font-weight:300;max-width:60ch}
+.mono{font-family:"IBM Plex Mono",monospace}
+em{font-style:italic;color:var(--rust-deep)}
+strong{font-weight:600;color:var(--ink)}
+.teal{color:var(--teal-deep)}
+.rust{color:var(--rust-deep)}
+
+/* slide header band */
+.head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:clamp(14px,2.4vh,30px);gap:20px}
+.head .idx{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-soft);letter-spacing:.1em}
+
+/* generic card / notebook frame */
+.card{
+  background:linear-gradient(180deg,#fbf7ef,#f1ebde);
+  border:1px solid var(--line);
+  border-radius:3px;
+  box-shadow:0 1px 0 #fff inset,0 16px 34px -22px rgba(33,29,24,.5);
+  position:relative;
+}
+.card.tick::before{ /* corner registration tick */
+  content:"";position:absolute;top:8px;left:8px;width:12px;height:12px;
+  border-left:2px solid var(--rust);border-top:2px solid var(--rust);opacity:.7}
+.card.tick::after{
+  content:"";position:absolute;bottom:8px;right:8px;width:12px;height:12px;
+  border-right:2px solid var(--teal);border-bottom:2px solid var(--teal);opacity:.7}
+
+.figcap{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:#433d33;
+  letter-spacing:.03em;padding:8px 12px;border-top:1px dashed var(--line);background:#f6f1e7;line-height:1.4}
+.figcap b{color:var(--rust-deep);font-weight:600}
+
+img.gif,img.plot{display:block;width:100%;height:auto;border-radius:2px}
+.plotwrap{background:#fff;padding:10px;border-radius:2px}
+
+/* progress + nav */
+.chrome{position:fixed;z-index:20;left:0;right:0;bottom:0;height:46px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-soft)}
+.brandmark{display:flex;align-items:center;gap:10px;letter-spacing:.08em}
+.brandmark b{color:var(--ink);font-weight:600;letter-spacing:.18em}
+.dots{display:flex;gap:7px;align-items:center}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--line-strong);transition:.35s var(--ease);cursor:pointer}
+.dot.on{background:var(--rust);transform:scale(1.45)}
+.pbar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--rust),var(--gold));z-index:21;transition:width .5s var(--ease)}
+.hint{position:fixed;right:24px;top:18px;z-index:20;font-family:"IBM Plex Mono",monospace;font-size:11px;
+  color:var(--ink-soft);letter-spacing:.12em;opacity:.7}
+.hint kbd{border:1px solid var(--line-strong);border-radius:3px;padding:1px 6px;background:#fbf7ef}
+
+/* ---------- layout helpers ---------- */
+.grow{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,46px);align-items:center;flex:1;min-height:0}
+.two.wide-r{grid-template-columns:.82fr 1.18fr}
+.two.wide-l{grid-template-columns:1.18fr .82fr}
+.stack>*+*{margin-top:18px}
+
+/* stat chips */
+.stats{display:flex;gap:14px;flex-wrap:wrap}
+.stat{background:var(--paper-2);border:1px solid var(--line);border-radius:3px;padding:14px 18px;min-width:120px}
+.stat .n{font-family:"Fraunces",serif;font-size:clamp(26px,3vw,40px);font-weight:600;line-height:1;color:var(--rust-deep)}
+.stat .n.teal{color:var(--teal-deep)}
+.stat .l{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin-top:8px}
+
+/* pipeline chips */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;align-items:stretch}
+.node{background:var(--paper-2);border:1px solid var(--line);border-radius:3px;padding:16px 18px;position:relative;display:flex;flex-direction:column}
+.node+.node::before{content:"→";position:absolute;left:-26px;top:50%;transform:translateY(-50%);color:var(--rust);font-size:20px;line-height:1}
+.node .tag{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--rust);text-transform:uppercase}
+.node h4{font-family:"Fraunces",serif;font-size:19px;font-weight:600;margin:6px 0 4px}
+.node p{font-size:12.5px;color:var(--ink-soft);line-height:1.45}
+
+/* data table */
+table{width:100%;border-collapse:collapse;font-size:clamp(12px,1.25vw,15px)}
+th,td{text-align:right;padding:10px 14px;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;border-bottom:1.5px solid var(--ink)}
+tbody tr:hover{background:#fbf7ef}
+td .mono{font-weight:500}
+.win{color:var(--teal-deep);font-weight:600}
+.cost{color:var(--rust-deep);font-weight:600}
+.sig{font-family:"IBM Plex Mono",monospace;font-size:.85em}
+
+/* callout */
+.callout{border-left:3px solid var(--rust);background:#faf4ea;padding:16px 20px;border-radius:0 3px 3px 0;font-size:clamp(13px,1.4vw,17px);line-height:1.5}
+.callout.teal{border-left-color:var(--teal)}
+.bul{list-style:none}
+.bul li{position:relative;padding-left:26px;margin:11px 0;font-size:clamp(13px,1.35vw,16px);line-height:1.5;color:var(--ink-soft)}
+.bul li::before{content:"";position:absolute;left:2px;top:.5em;width:9px;height:9px;border:2px solid var(--rust);border-radius:50%}
+.bul li.t::before{border-color:var(--teal)}
+.bul strong{color:var(--ink)}
+
+/* tag pills */
+.pills{display:flex;gap:9px;flex-wrap:wrap;margin-top:6px}
+.pill{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;padding:6px 12px;border:1px solid var(--line-strong);border-radius:100px;color:var(--ink-soft);background:#fbf7ef}
+
+/* ---------- TITLE slide ---------- */
+.title-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;position:relative}
+.bigmark{position:absolute;right:-2%;top:50%;transform:translateY(-50%);
+  font-family:"Fraunces",serif;font-weight:300;font-size:clamp(180px,34vw,560px);
+  color:var(--ink);opacity:.05;line-height:.8;pointer-events:none;letter-spacing:-.04em}
+.title-meta{display:flex;gap:34px;flex-wrap:wrap;margin-top:30px}
+.title-meta div{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-soft);letter-spacing:.05em}
+.title-meta b{color:var(--ink);display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--rust);margin-bottom:5px}
+.authorline{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--ink-soft);letter-spacing:.08em;margin-top:8px}
+
+/* badge row */
+.badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.badge{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.1em;padding:7px 13px;border-radius:3px;
+  background:var(--ink);color:var(--paper);text-transform:uppercase}
+.badge.alt{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+
+/* two-up gif compare */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:22px;flex:1;min-height:0;align-content:center}
+.compare .card{display:flex;flex-direction:column}
+.verdict{display:flex;align-items:center;gap:10px;padding:11px 14px;font-size:13.5px;font-family:"IBM Plex Sans";font-weight:500}
+.verdict .ico{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;color:#fff;flex:none;font-family:"IBM Plex Mono"}
+.verdict.up{background:#eef4f1}.verdict.up .ico{background:var(--teal)}
+.verdict.down{background:#fbeee5}.verdict.down .ico{background:var(--rust)}
+
+/* gallery 4-up */
+.gal4{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:16px;flex:1;min-height:0}
+.gal4 .card{display:flex;flex-direction:column;overflow:hidden}
+.gal4 .card img{flex:1;object-fit:cover;min-height:0}
+
+/* control-perspective Q/A */
+.qa{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:0;border:1px solid var(--line);border-radius:3px;overflow:hidden;font-size:clamp(12px,1.25vw,15px)}
+.qa>div{padding:13px 16px;border-bottom:1px solid var(--line)}
+.qa .qh{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;background:var(--ink);color:var(--paper);border-bottom:none}
+.qa .ql{background:var(--paper-2);font-weight:500;color:var(--ink)}
+.qa .cls{color:var(--ink-soft)}
+.qa .sat{color:var(--teal-deep);font-weight:500}
+.qa>div:nth-last-child(-n+3){border-bottom:none}
+
+.foot{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:#433d33;letter-spacing:.03em;margin-top:auto;padding-top:14px;border-top:1px dashed var(--line)}
+.foot b{color:var(--rust-deep);font-weight:600}
+
+/* ---------- references ---------- */
+.refcols{display:grid;grid-template-columns:1fr 1fr;gap:14px 38px;flex:1;min-height:0;align-content:start;overflow:auto}
+.refgroup{margin-bottom:6px}
+.refgroup h5{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--rust);margin-bottom:9px;display:flex;align-items:center;gap:10px}
+.refgroup h5::after{content:"";flex:1;height:1px;background:var(--line)}
+.ref{display:flex;gap:11px;margin:8px 0;font-size:clamp(11px,1.08vw,13px);line-height:1.4}
+.ref .num{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--teal-deep);font-weight:600;flex:none;min-width:20px}
+.ref .body{color:var(--ink-soft)}
+.ref .body b{color:var(--ink);font-weight:600}
+.ref .body i{color:var(--rust-deep);font-style:italic}
+.ref .body .src{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--teal-deep);letter-spacing:.02em}
+
+@media (max-width:880px){
+  .two,.compare,.qa{grid-template-columns:1fr}
+  .gal4{grid-template-columns:1fr;grid-template-rows:none}
+  .flow{grid-template-columns:1fr;gap:28px}
+  .node+.node::before{content:"↓";left:50%;top:-22px;transform:translateX(-50%)}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grain"></div>
+<div class="pbar" id="pbar"></div>
+<div class="hint mono">← / → &nbsp;<kbd>navigate</kbd></div>
+
+<div class="deck" id="deck">
+
+  <!-- ============ 1 · TITLE ============ -->
+  <section class="slide active" data-title="Title">
+    <div class="title-wrap">
+      <div class="bigmark">τ</div>
+      <div class="kicker rise r1">Final Report · Embodied AI &amp; Adaptive Control</div>
+      <h1 class="rise r2" style="margin-top:20px">Torque, not<br>position.</h1>
+      <p class="lede rise r3" style="margin-top:22px">
+        A reproduction and analysis of <strong>SATA</strong> — Safe and Adaptive
+        Torque-Based Locomotion Policies Inspired by Animal Learning — read through
+        the questions that <em>adaptive &amp; robust control</em> asks.
+      </p>
+      <div class="badges rise r4">
+        <span class="badge">Unitree Go2</span>
+        <span class="badge alt">Isaac Gym · PPO</span>
+        <span class="badge alt">8 seeds · 48 policies</span>
+        <span class="badge alt">4 phases</span>
+      </div>
+      <div class="title-meta rise r5">
+        <div><b>Subject paper</b>Li et al., RSS 2025<br>marmotlab · NUS</div>
+        <div><b>Method</b>Reproduce → Ablate →<br>Stress-test → Compensate</div>
+        <div><b>Claim</b>Bio mechanisms are<br>feasibility constraints</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2 · WHY TORQUE ============ -->
+  <section class="slide" data-title="Why torque">
+    <div class="head"><div class="kicker">The premise</div><div class="idx mono">02 — Motivation</div></div>
+    <div class="two wide-l">
+      <div class="stack">
+        <h2 class="rise r1">Why give up<br>position control?</h2>
+        <p class="lede rise r2">
+          A position policy is <em>stiff</em> — the paper calls it
+          <span class="rust">“nearly unable to be displaced without stepping.”</span>
+          It fights every disturbance. A <strong>torque policy yields</strong>: it
+          absorbs an external force and recovers, the way a real muscle does.
+        </p>
+        <div class="callout rise r3">
+          Torque control buys <strong>compliance</strong> — but raw torque is
+          dangerous to hardware. SATA's bet: borrow the body's own safety limits
+          from <span class="teal">biology</span>.
+        </div>
+        <div class="pills rise r4">
+          <span class="pill">compliance</span>
+          <span class="pill">disturbance rejection</span>
+          <span class="pill">sim-to-real safety</span>
+        </div>
+      </div>
+      <div class="card tick rise r3">
+        <div class="plotwrap" style="background:#000">
+          <img class="gif" src="../results/phase3-bio-claims-and-robustness/videos/ev_push.gif" alt="reference policy absorbing a lateral push">
+        </div>
+        <div class="figcap"><b>Reproduced SATA reference</b> — a lateral push pulse. Staggers, stays up, recovers its gait. Arrow is a post-hoc overlay; the force is real in-sim.</div>
+      </div>
+    </div>
+    <div class="foot">Quote: SATA §V-B1 · clip recorded with <b>analysis/record_demo.py</b> (slow-motion + camera zoom during the event)</div>
+  </section>
+
+  <!-- ============ 3 · WHAT SATA IS ============ -->
+  <section class="slide" data-title="What SATA is">
+    <div class="head"><div class="kicker">The system</div><div class="idx mono">03 — Architecture</div></div>
+    <h2 class="rise r1" style="margin-bottom:8px">A learned torque policy, wrapped in a <span class="teal">biomechanical layer</span></h2>
+    <p class="lede rise r2" style="margin-bottom:22px">The policy outputs raw joint torque. Three bio-inspired stages reshape it into something a real motor could survive — each independently ablatable.</p>
+    <div class="flow grow">
+      <div class="node rise r2">
+        <div class="tag">stage 01</div><h4>Activation</h4>
+        <p>First-order low-pass on torque sign — models muscle-recruitment delay, kills bang-bang switching.</p>
+      </div>
+      <div class="node rise r3">
+        <div class="tag">stage 02</div><h4>Hill model</h4>
+        <p>Force–velocity law: max torque <em>drops</em> when the joint moves fast in the same direction.</p>
+      </div>
+      <div class="node rise r4">
+        <div class="tag">stage 03</div><h4>Fatigue</h4>
+        <p>Leaky accumulator per joint, fed back into the observation. Small <span class="mono">−0.05</span> reward penalty.</p>
+      </div>
+      <div class="node rise r5">
+        <div class="tag">curriculum</div><h4>Growth</h4>
+        <p>Gompertz ramp: front-leg torque ceiling <span class="mono">0.3→1.0</span>, control rate <span class="mono">100→200 Hz</span>.</p>
+      </div>
+    </div>
+    <div class="foot">Source: <b>go2_torque.py</b> L221–248 (pipeline) · <b>go2_torque_config.py</b> L102–108 (toggles) · pinned commit 8fc422af</div>
+  </section>
+
+  <!-- ============ 4 · COMPLIANCE GALLERY ============ -->
+  <section class="slide" data-title="Compliance">
+    <div class="head"><div class="kicker">What compliance looks like</div><div class="idx mono">04 — Disturbance gallery</div></div>
+    <div class="gal4">
+      <div class="card tick rise r1"><img class="gif" src="../results/phase3-bio-claims-and-robustness/videos/ev_push.gif" alt="external push"><div class="figcap"><b>Lateral push</b> — staggers, stays up, recovers.</div></div>
+      <div class="card tick rise r2"><img class="gif" src="../results/phase3-bio-claims-and-robustness/videos/ev_leg_pull.gif" alt="leg pull"><div class="figcap"><b>Leg pulled</b> (recoloured red) — resists an external tug.</div></div>
+      <div class="card tick rise r3"><img class="gif" src="../results/phase3-bio-claims-and-robustness/videos/ev_vertical.gif" alt="vertical impact"><div class="figcap"><b>Vertical impact</b> — absorbed compliantly, then recovers.</div></div>
+      <div class="card tick rise r4"><img class="gif" src="../results/phase3-bio-claims-and-robustness/videos/ev_stairs.gif" alt="stairs"><div class="figcap"><b>Stairs</b> — stair-trained <span class="mono">hard_terrain</span> policy.</div></div>
+    </div>
+    <div class="foot">Disturbances are <b>real sim changes</b> (forces / friction / leg recolour); arrows · rings · labels are <b>post-hoc overlays</b> on the rendered frame, so an external force reads as external — not the robot thrashing.</div>
+  </section>
+
+  <!-- ============ 5 · PHASE 1 REPRODUCE ============ -->
+  <section class="slide" data-title="Phase 1">
+    <div class="head"><div class="kicker">Phase 1 · Reproduce</div><div class="idx mono">05 — Does it run?</div></div>
+    <div class="two wide-r">
+      <div class="stack">
+        <h2 class="rise r1">First, earn the<br>right to critique.</h2>
+        <p class="lede rise r2">Eight reference seeds trained to 3000 iterations on the lab's A6000s. The pipeline reproduces — and the wider sample tells an honest story the first 3 seeds hid.</p>
+        <div class="stats rise r3">
+          <div class="stat"><div class="n">104<span style="font-size:.5em">±16</span></div><div class="l">mean reward · 8 seeds</div></div>
+          <div class="stat"><div class="n teal">8</div><div class="l">reference seeds</div></div>
+          <div class="stat"><div class="n">3000</div><div class="l">PPO iterations</div></div>
+        </div>
+        <div class="callout teal rise r4">
+          The first 3 seeds gave <span class="mono">114 ± 6</span>. Extending to 8
+          revealed <strong>genuinely larger seed variance</strong> — including one
+          late-training PPO collapse. We report the harder number.
+        </div>
+      </div>
+      <div class="card tick rise r3">
+        <div class="plotwrap"><img class="plot" src="../results/phase2-ablation/plots/reward_curves_overlay.png" alt="reward curves across conditions"></div>
+        <div class="figcap"><b>Reward curves</b> — reference vs every ablation, 8 seeds each. Bands = ±1 std across seeds.</div>
+      </div>
+    </div>
+    <div class="foot">Reference hardware in paper: RTX 4090 · reproduced on 4× RTX A6000 (lab K8s pod) · <b>results/phase1-reference/</b></div>
+  </section>
+
+  <!-- ============ 6 · PHASE 2 PARADOX ============ -->
+  <section class="slide" data-title="Phase 2">
+    <div class="head"><div class="kicker">Phase 2 · Ablation</div><div class="idx mono">06 — A counter-intuitive result</div></div>
+    <div class="two">
+      <div class="stack">
+        <h2 class="rise r1">Removing the bio<br>constraints <em>raises</em><br>reward.</h2>
+        <p class="lede rise r2">On training-distribution reward, dropping fatigue or activation makes the policy score <strong>higher</strong>. Taken alone, that looks like the bio layer is dead weight.</p>
+        <div class="callout rise r3">
+          This is the <strong>expected sign of a working sim-to-real constraint</strong>:
+          a bound that protects hardware costs a little reward in a clean simulator.
+          Whether the cost is worth paying can't be settled here — only
+          out-of-distribution, in Phase 3.
+        </div>
+      </div>
+      <div class="stack rise r2">
+        <table>
+          <thead><tr><th>Ablation</th><th>Δ reward</th><th>p</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>no_fatigue</td><td class="cost mono">+22</td><td class="sig">0.006</td><td class="cost">▲</td></tr>
+            <tr><td>no_activation</td><td class="cost mono">+24</td><td class="sig">0.003</td><td class="cost">▲</td></tr>
+            <tr><td>no_hill</td><td class="mono">≈0</td><td class="sig">~0.5</td><td style="color:var(--ink-soft)">n.s.</td></tr>
+            <tr><td>no_growth</td><td class="mono">≈0</td><td class="sig">~0.8</td><td style="color:var(--ink-soft)">n.s.</td></tr>
+          </tbody>
+        </table>
+        <div class="callout teal" style="margin-top:16px">
+          <strong>Trap avoided:</strong> "higher reward ⇒ better mechanism" is the
+          wrong inference. Reward in a frictionless sim doesn't price hardware risk.
+        </div>
+      </div>
+    </div>
+    <div class="foot">5 single-knob ablations × 8 seeds · Welch's t-test (unequal variance) · <b>results/phase2-ablation/</b></div>
+  </section>
+
+  <!-- ============ 7 · PHASE 3 — WHAT WE OBSERVED ============ -->
+  <section class="slide" data-title="Phase 3 — finding">
+    <div class="head"><div class="kicker">Phase 3 · What we observed</div><div class="idx mono">07 — How the ablations "win"</div></div>
+    <div class="two wide-r">
+      <div class="stack">
+        <h2 class="rise r1">They win by leaving<br>the <span class="rust">feasible envelope.</span></h2>
+        <p class="lede rise r2">Evaluate all 48 policies under perturbation with actuator-feasibility metrics. The Phase-2 "winners" only score higher by demanding torque a real Go2 can't deliver.</p>
+        <div class="stats rise r3">
+          <div class="stat"><div class="n">42.5<span style="font-size:.4em"> N·m</span></div><div class="l">no_activation peak torque</div></div>
+          <div class="stat"><div class="n teal">45<span style="font-size:.4em"> N·m</span></div><div class="l">real Go2 limit</div></div>
+          <div class="stat"><div class="n">2.5×<span style="font-size:.5em"> / 35×</span></div><div class="l">no_fatigue energy / jerk</div></div>
+        </div>
+        <div class="callout rise r4">
+          The fatigue &amp; activation constraints <strong>cost training reward</strong>
+          but keep the policy <span class="teal">hardware-realisable</span>. That is
+          their job. <span class="mono" style="font-size:.85em">Caveat: simulation only, no thermal model.</span>
+        </div>
+      </div>
+      <div class="card tick rise r3">
+        <div class="plotwrap"><img class="plot" src="../results/phase3-bio-claims-and-robustness/plots/nominal_feasibility.png" alt="nominal feasibility: peak torque, energy, jerk vs hardware lines"></div>
+        <div class="figcap"><b>Nominal feasibility</b> — peak torque / energy / action-jerk per condition, against real-hardware reference lines. All p&lt;0.001.</div>
+      </div>
+    </div>
+    <div class="foot">384 evaluation cells · each policy run in an env matching its <b>training-time bio config</b> · <b>results/phase3-…/</b></div>
+  </section>
+
+  <!-- ============ 8 · PHASE 3 PAYLOAD GIF COMPARE ============ -->
+  <section class="slide" data-title="Phase 3 — payload">
+    <div class="head"><div class="kicker">Phase 3 · The finding, made visible</div><div class="idx mono">08 — 10 kg payload, beyond rated</div></div>
+    <div class="compare">
+      <div class="card tick rise r1">
+        <div class="plotwrap" style="background:#000"><img class="gif" src="../results/phase3-bio-claims-and-robustness/videos/02_reference_payload10.gif" alt="reference under 10kg payload goes down"></div>
+        <div class="verdict down"><span class="ico">↓</span><div><strong>reference (full SATA)</strong> — goes down. Fatigue refuses the sustained torque an over-rated load needs.</div></div>
+      </div>
+      <div class="card tick rise r2">
+        <div class="plotwrap" style="background:#000"><img class="gif" src="../results/phase3-bio-claims-and-robustness/videos/03_no_fatigue_payload10.gif" alt="no_fatigue stays up but thrashes"></div>
+        <div class="verdict up"><span class="ico">↑</span><div><strong>no_fatigue</strong> — stays up, but at <span class="rust">2.5× energy / 35× jerk</span>: motion a real motor couldn't hold.</div></div>
+      </div>
+    </div>
+    <div class="callout rise r3" style="margin-top:18px">
+      Both clips are <strong>true to the data</strong>: the reference reproduces the
+      paper's own §VI-A payload limitation. "Staying up" is not automatically the
+      win — <span class="teal">staying up <em>within the envelope</em></span> is.
+    </div>
+  </section>
+
+  <!-- ============ 9 · PHASE 4 RESIDUAL ============ -->
+  <section class="slide" data-title="Phase 4">
+    <div class="head"><div class="kicker">Phase 4 · Residual compensation</div><div class="idx mono">09 — A classical add-on</div></div>
+    <div class="two wide-l">
+      <div class="stack">
+        <h2 class="rise r1">Can a <span class="teal">classical</span> bolt-on<br>recover what safety<br>trades away?</h2>
+        <p class="lede rise r2">A stance-gated height-PD residual <span class="mono">τ_total = τ_SATA + τ_comp</span>, added onto the <strong>frozen</strong> policy — every bio constraint intact, staying inside the 45 N·m envelope.</p>
+        <table class="rise r3">
+          <thead><tr><th>8 kg payload</th><th>reward</th><th>Δ vs ref</th><th>p</th></tr></thead>
+          <tbody>
+            <tr><td>reference</td><td class="mono">60.5</td><td>—</td><td></td></tr>
+            <tr><td class="win">+ residual</td><td class="mono win">82.7</td><td class="win mono">+37%</td><td class="sig">0.07 n.s.</td></tr>
+            <tr><td style="color:var(--ink-soft)">no_fatigue</td><td class="mono" style="color:var(--ink-soft)">154.6</td><td style="color:var(--ink-soft)" class="mono">(ablation)</td><td></td></tr>
+          </tbody>
+        </table>
+        <div class="callout rise r4">
+          A small <strong>positive trend</strong> (two-sided Welch p≈0.07, not
+          significant) — and only ~¼ of the way to the ablation. The frozen policy
+          <em>treats the residual as a disturbance</em>; that ceiling motivates <span class="teal">co-trained
+          RL + adaptation</span> (RL2AC).
+        </div>
+      </div>
+      <div class="card tick rise r3">
+        <div class="plotwrap"><img class="plot" src="../results/phase4-residual-compensation/plots/residual_payload.png" alt="residual reward vs payload + peak torque panel"></div>
+        <div class="figcap"><b>Residual vs payload</b> — reward recovery (left) stays within the actuator envelope (right): ≤28 N·m vs the 45 N·m limit.</div>
+      </div>
+    </div>
+    <div class="foot">8 seeds · gains hand-tuned on seed 1 at 8 kg, then fixed · preliminary boundary-case probe · <b>results/phase4-…/</b></div>
+  </section>
+
+  <!-- ============ 10 · CONTROL PERSPECTIVE ============ -->
+  <section class="slide" data-title="Synthesis">
+    <div class="head"><div class="kicker">Synthesis · The original framing</div><div class="idx mono">10 — Two philosophies of adaptation</div></div>
+    <h2 class="rise r1" style="margin-bottom:6px">We let adaptive control supply the <em>questions</em>.</h2>
+    <p class="lede rise r2" style="margin-bottom:20px">Not "SATA <span class="rust">is</span> adaptive control" — it has no Lyapunov law, no online parameter estimator. The lens is for contrast, and the data <strong>corrects two tempting analogies</strong>.</p>
+    <div class="qa rise r3">
+      <div class="qh">Adaptation question</div><div class="qh">Classical answer</div><div class="qh">SATA's answer</div>
+      <div class="ql">Unknown dynamics</div><div class="cls">online parameter estimation</div><div class="sat">robust policy learned in sim</div>
+      <div class="ql">Disturbances</div><div class="cls">explicit compensation term</div><div class="sat">internal fatigue-state feedback</div>
+      <div class="ql">Generalization</div><div class="cls">stability proofs / guarantees</div><div class="sat">empirical, across terrains</div>
+      <div class="ql">Control output</div><div class="cls">analytic control law</div><div class="sat">neural torque policy</div>
+    </div>
+    <div class="callout rise r4" style="margin-top:18px">
+      <strong>Corrected by evidence:</strong> the Hill / activation ↔ actuator-feasibility
+      reading <span class="teal">holds</span>; but "fatigue ↔ disturbance compensation"
+      and "growth ↔ gain scheduling" <span class="rust">both fail</span> against the data —
+      growth is a <em>training-time curriculum</em>, not runtime scheduling.
+    </div>
+    <div class="foot">Full mapping: <b>docs/control-perspective.md</b> (Q1–Q5)</div>
+  </section>
+
+  <!-- ============ 11 · TAKEAWAY ============ -->
+  <section class="slide" data-title="Takeaway">
+    <div class="head"><div class="kicker">Takeaway</div><div class="idx mono">11 — What the four phases settle</div></div>
+    <div class="title-wrap">
+      <h1 class="rise r1" style="font-size:clamp(30px,5vw,72px)">Bio mechanisms are a<br><span class="rust">feasibility envelope</span>,<br>not a reward device.</h1>
+      <div class="two" style="margin-top:30px;flex:none">
+        <ul class="bul rise r2">
+          <li><strong>Reproduced</strong> SATA honestly — including the harder 8-seed variance the first 3 seeds hid.</li>
+          <li><strong>Ablations that "win" reward</strong> do so only by leaving the hardware-realisable torque envelope.</li>
+          <li class="t"><strong>A classical residual</strong> recovers some lost payload capability within the envelope — but only modestly.</li>
+        </ul>
+        <ul class="bul rise r3">
+          <li class="t">The ceiling on the bolt-on motivates <strong>co-designed RL + adaptation</strong>.</li>
+          <li><strong>Limits kept in view:</strong> simulation only · no thermal model · residual gains tuned on one seed · the residual's payload gain is a non-significant trend (p≈0.07).</li>
+          <li><strong>Open question:</strong> with all bio mechanisms off, our policy still trained fine — but our ablation degenerates to scaled raw torque (not necessarily the paper's baseline, which it does not release), so we leave the trainability question <em>unresolved</em>, not answered.</li>
+        </ul>
+      </div>
+      <div class="pills rise r4" style="margin-top:26px">
+        <span class="pill">Embodied AI</span>
+        <span class="pill">Adaptive Control</span>
+        <span class="pill">Torque Control</span>
+        <span class="pill">Reinforcement Learning</span>
+        <span class="pill">Sim-to-real feasibility</span>
+      </div>
+      <div class="authorline rise r5" style="margin-top:24px">
+        Reproduction &amp; analysis of Li et al., <em>SATA</em> (RSS 2025) ·
+        code &amp; data: <b>github.com/Stanley-1013/bio-inspired-adaptive-locomotion</b>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 12 · REFERENCES ============ -->
+  <section class="slide" data-title="References">
+    <div class="head"><div class="kicker">References &amp; provenance</div><div class="idx mono">12 — Sources</div></div>
+    <div class="refcols">
+
+      <div class="refgroup rise r1">
+        <h5>Subject &amp; closest prior work</h5>
+        <div class="ref"><span class="num">[1]</span><div class="body"><b>SATA:</b> Safe and Adaptive Torque-Based Locomotion Policies Inspired by Animal Learning. Li et al., <i>RSS 2025</i>. <span class="src">arXiv:2502.12674 · code: github.com/marmotlab/SATA @8fc422af</span></div></div>
+        <div class="ref"><span class="num">[2]</span><div class="body"><b>RL2AC:</b> RL-based Rapid Online Adaptive Control for Legged Robot Robust Locomotion. <i>RSS 2024</i>. <span class="src">roboticsproceedings.org/rss20/p060</span></div></div>
+        <div class="ref"><span class="num">[6]</span><div class="body">Chen et al. Learning Torque Control for Quadrupedal Locomotion. <i>2022</i>. <span class="src">arXiv:2203.05194</span></div></div>
+        <div class="ref"><span class="num">[7]</span><div class="body"><b>DecAP:</b> Decaying Action Priors for Torque-Based Legged Locomotion. <i>IROS 2024</i>. <span class="src">arXiv:2310.05714</span></div></div>
+      </div>
+
+      <div class="refgroup rise r2">
+        <h5>Learning-based locomotion lineage</h5>
+        <div class="ref"><span class="num">[3]</span><div class="body">Hwangbo et al. Learning agile and dynamic motor skills for legged robots. <i>Science Robotics 2019</i>. <span class="src">arXiv:1901.08652</span></div></div>
+        <div class="ref"><span class="num">[4]</span><div class="body">Lee et al. Learning quadrupedal locomotion over challenging terrain. <i>Science Robotics 2020</i>. <span class="src">arXiv:2010.11251</span></div></div>
+        <div class="ref"><span class="num">[5]</span><div class="body">Miki et al. Learning robust perceptive locomotion for quadrupedal robots in the wild. <i>Science Robotics 2022</i>. <span class="src">arXiv:2201.08117</span></div></div>
+        <div class="ref"><span class="num">[10]</span><div class="body">Bellegarda &amp; Ijspeert. CPG-RL: Learning Central Pattern Generators for Quadruped Locomotion. <i>RA-L 2022</i>. <span class="src">arXiv:2211.00458</span></div></div>
+      </div>
+
+      <div class="refgroup rise r3">
+        <h5>Biomechanical foundations</h5>
+        <div class="ref"><span class="num">[8]</span><div class="body">Hill, A. V. The heat of shortening and the dynamic constants of muscle. <i>Proc. R. Soc. B, 1938</i>. <span class="src">doi:10.1098/rspb.1938.0050</span></div></div>
+        <div class="ref"><span class="num">[9]</span><div class="body">Liu, Brown &amp; Yue. A Dynamical Model of Muscle Activation, Fatigue, and Recovery. <i>Biophysical Journal, 2002</i>. <span class="src">PMC1302027</span></div></div>
+      </div>
+
+      <div class="refgroup rise r4">
+        <h5>Reproduction stack &amp; provenance</h5>
+        <div class="ref"><span class="num">⚙</span><div class="body"><b>Simulator:</b> Isaac Gym Preview 4 · <b>RL:</b> PPO via <span class="src">rsl_rl</span> · <b>Env:</b> <span class="src">legged_gym</span>, Unitree Go2 <span class="src">go2_torque</span></div></div>
+        <div class="ref"><span class="num">⚙</span><div class="body"><b>Compute:</b> 4× RTX A6000 (lab K8s pod) · 8 seeds × 6 conditions · 384 eval cells · Welch's t-test (unequal variance)</div></div>
+        <div class="ref"><span class="num">⚙</span><div class="body"><b>This repo:</b> reproduction, analysis, plots &amp; clips. <span class="src">github.com/Stanley-1013/bio-inspired-adaptive-locomotion</span></div></div>
+        <div class="ref"><span class="num">⚙</span><div class="body"><b>Companion docs:</b> <span class="src">docs/sata-overview.md · control-perspective.md · training-internals.md</span></div></div>
+      </div>
+
+    </div>
+    <div class="foot">All quantitative claims trace to <b>results/phase{1–4}/</b> · every clip regenerable via <b>analysis/record_demo.py</b> · numbering matches the repo README's reference list.</div>
+  </section>
+
+</div>
+
+<div class="chrome">
+  <div class="brandmark"><span>τ</span><b>SATA</b><span>· torque-based adaptive locomotion</span></div>
+  <div class="dots" id="dots"></div>
+  <div class="mono" id="counter">01 / 12</div>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+const dots=document.getElementById('dots');
+const pbar=document.getElementById('pbar');
+const counter=document.getElementById('counter');
+let i=0;
+slides.forEach((s,k)=>{
+  const d=document.createElement('div');d.className='dot'+(k===0?' on':'');
+  d.title=s.dataset.title;d.onclick=()=>go(k);dots.appendChild(d);
+});
+const dotEls=[...dots.children];
+function go(n){
+  n=Math.max(0,Math.min(slides.length-1,n));
+  slides[i].classList.remove('active');
+  i=n;
+  slides[i].classList.add('active');
+  dotEls.forEach((d,k)=>d.classList.toggle('on',k===i));
+  pbar.style.width=((i+1)/slides.length*100)+'%';
+  counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+}
+function next(){go(i+1)} function prev(){go(i-1)}
+addEventListener('keydown',e=>{
+  if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();next()}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();prev()}
+  else if(e.key==='Home')go(0)
+  else if(e.key==='End')go(slides.length-1)
+});
+// swipe (touch / trackpad-ish)
+let x0=null;
+addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)dx<0?next():prev();x0=null});
+pbar.style.width=(1/slides.length*100)+'%';
+</script>
+</body>
+</html>

@@ -279,9 +279,13 @@ cross-engine — SATA's 104±16 is a different engine). Eval: `scripts/eval_metr
 each seed (32 envs ×1000 steps, headless) → `results/metrics_sata_s<N>.csv`;
 `scripts/aggregate_envelope.py` → `results/envelope_summary.{csv,png}`.
 
-**Cross-engine feasibility-envelope reproduction (the Tier-2 headline):**
+**Cross-engine feasibility-envelope reproduction — SUPERSEDED (v1, flat terrain).**
+> These peak-torque numbers are from the early v1 flat-terrain run and are **no longer the headline**.
+> They are kept for history. The finalised result is the 8-seed SATA-rough reward reproduction +
+> per-step decomposition in `REPRODUCTION_NOTES.md` (Isaac Lab 76.8 ± 16.2 vs Gym 103.6 ± 16.0). A
+> G=1 peak-torque envelope eval on the rough terrain was not re-run (the deck/report lead on reward).
 
-| metric | Isaac Lab (8-seed full SATA) | SATA Isaac-Gym ref |
+| metric | Isaac Lab (8-seed full SATA, v1 FLAT — superseded) | SATA Isaac-Gym ref |
 |---|---|---|
 | Peak \|torque\| | **23.86 ± 2.45 N·m** | 22.5 ± 0.3 |
 | Energy / step | 1.82 ± 0.37 J | (reference band) |
@@ -461,6 +465,103 @@ state, terrain type/proportions all MATCH. Found 1 real bug + several gaps.
 seeds 1–4 (`go2_sata_fix2_s1-4`, model_2999) kept as the flat comparison point.
 
 PENDING: envelope eval @G=1 (Play, growth_deploy_scale=1.0) on both rough terrains — these are the
-authoritative Tier-2 numbers; ALL prior flat numbers (incl. 22.75 / 23.86) are invalid. Then NATIVE
-Isaac Lab render (RTX blocked by container IOMMU / Vulkan↔CUDA enumeration mismatch — all GPUs go
-"bad state"; retry single-GPU + multiGpu-off when a GPU frees), then the deck.
+authoritative Tier-2 numbers; ALL prior flat numbers (incl. 22.75 / 23.86) are invalid. Then the deck.
+
+## Native Isaac Lab (Isaac Sim 5.1) render — investigated 2026-06-06, BLOCKED by a driver bug
+
+Goal: record a native RTX clip of a trained policy (`scripts/play_go2.py --video`) instead of the
+Isaac-Gym kinematic replay. Worked through several layers (each a real fix, kept here so the next
+person doesn't re-walk them), then hit a hard driver-side wall.
+
+Fixed along the way (these ARE correct and worth keeping):
+1. **Do NOT set `CUDA_VISIBLE_DEVICES`** for Isaac Sim. It desyncs CUDA vs Omniverse device
+   enumeration → "CUDA being in bad state" → all GPUs skipped → early `librtx.scenedb` segfault.
+   Pin the GPU the Isaac-native way instead: `--device cuda:0` (AppLauncher sets `active_gpu`).
+2. **`--kit_args` needs `=` syntax** when the value starts with `--`:
+   `--kit_args="--/renderer/multiGpu/enabled=false"` (disables the IOMMU P2P multi-GPU path).
+3. **Render headless + offscreen camera** (`--headless --enable_cameras`), NOT a GUI window on VNC —
+   the windowed path crashes building the Kit toolbar (`_rebuild_toolbar`), unrelated to the robot.
+4. **Vulkan ICD was missing from the system path** but the NVIDIA Vulkan libs ARE installed
+   (`libGLX_nvidia.so.0`, `libnvoptix`, `libnvidia-rtcore`, …, matching kernel driver 595.58.03).
+   Created `~/.local/share/vulkan/icd.d/nvidia_icd.json` → `libGLX_nvidia.so.0`. Verified working:
+   `VK_ICD_FILENAMES=… vulkaninfo --summary` lists all 4 A6000s, Vulkan 1.4.329, RT extensions
+   present (`VK_KHR_ray_tracing_pipeline`/`acceleration_structure`/`ray_query`), exit 0, on both the
+   conda loader and Isaac's bundled `libvulkan.so.1.3.239`. **So the GPU + Vulkan + ray-tracing API
+   all work.** (`vulkan-tools` installed via conda for this diagnosis.)
+
+THE WALL (not fixable without root): with all of the above, the render gets fully into RTX setup
+(RtxRenderContext, MDL, neuraylib) and then **segfaults in `rtx.scenedb.plugin` at
+`carbOnPluginStartup`** when the Hydra RTX engine is created. This is a **known incompatibility
+between NVIDIA driver 595.x and Isaac Sim's RTX scene-DB plugin** (`TLAS limit: valid true, within:
+false`), reported across Isaac Sim 4.5 / 5.0 / 5.1. Isaac Sim itself logs that driver 595.58 is
+above its tested range (recommended 535.161.07; "latest may work but is not fully tested"). Ruled
+out as causes by direct test: scene size / content (crashes identically at `--num_envs 1` AND with
+an *empty* scene — `scripts/tutorials/00_sim/create_empty.py --enable_cameras` — so it is not our
+robot/terrain), shader cache (cleared `~/.cache/ov` etc., no change), multi-GPU (renderer
+`multiGpu/enabled=false` + `maxGpuCount=1` + `activeGpu=0`; gpu.foundation still runs P2P but P2P
+completes ~20 s before the crash, so not the trigger), and the GUI vs headless path. Training/eval is
+unaffected because it loads `isaaclab.python.headless.kit` (PhysX + CUDA only, no RTX renderer) and
+never touches `librtx.scenedb` — which is why all 8-seed numbers are valid and only on-screen
+rendering is blocked. Upgrading Isaac Sim does NOT
+help (the bug spans 4.5–5.1); the only known fix is a **driver downgrade to ≤591 / 580 /
+535.161.07**, which needs root — out of reach in this no-sudo container.
+Refs: github.com/isaac-sim/IsaacSim issue #537 (595.79 fails, 580 works); NVIDIA forum threads on
+`rtx.scenedb.plugin` crashes with 595.x.
+
+Consequence: deck/README visuals use the Isaac-Gym kinematic replay of the Isaac-Lab-trained
+trajectory (honestly labelled as such). The native clip can be produced later, unchanged-command,
+once an admin downgrades the driver into Isaac Sim 5.1's supported range.
+
+## Rough-terrain kinematic replay (the render we actually ship) — 2026-06-06
+
+Since the native RTX render is blocked (above), the deck/README clean-gait visual is a **kinematic
+replay**: the joint states are the real Isaac-Lab-trained trajectory, but they are *rendered* in
+Isaac Gym (its older GL renderer works on this box; Isaac Lab's RTX does not). This is NOT a native
+Isaac Lab render — we set the recorded base pose + joint angles each frame, no physics, no policy.
+To make it honest about what the policy walks on, we extended two of OUR OWN scripts (not the SATA
+repo) to replay on the ACTUAL rough terrain with a forward command. Output is clip 06 in
+`results/README.md`: `results/deck/06_roughReplay_cleanWalk.{mp4,gif}` + `..._still.png`.
+
+### `scripts/eval_metrics.py` — fixed command + terrain dump
+- **`--cmd_vx/--cmd_vy/--cmd_wz`** lock the velocity command to a fixed value
+  (`scripts/eval_metrics.py:90-92` add the args; `:209-222` fetch the `base_velocity` command term,
+  set `resampling_time_range = (1e9, 1e9)` to disable resampling, clear `is_standing_env`, and pin
+  `vel_command_b`; `:235-236` re-pin it after each step so an episode reset doesn't reseed it).
+  WHY: the Play task otherwise samples a random command (every 5 s; lin_vel_x range (-0.5, 1.5)),
+  which can land near 0 so the robot steps in place. With `--cmd_vx 1.0` the s4 policy walks — we
+  observed net horizontal base displacement ~2.40 m over 500 steps, vs ~0.24 m unlocked.
+- When **`--traj_out`** is set, it also dumps the terrain mesh (world-frame vertices + faces) to a
+  sibling `*_terrain.npz`, read straight from the imported USD terrain prim
+  (`scripts/eval_metrics.py:311-359`). We read from USD because `TerrainImporter.meshes` is
+  deprecated/empty in this Isaac Lab version, AND re-generating the terrain is not reproducible (the
+  SATA rough-slope noise draws from the global NumPy RNG with cfg `seed=None`). Flat envs have no
+  terrain prim, so this is skipped.
+
+### `scripts/render_replay_isaacgym.py` — terrain mesh + cosmetic restyle
+- **`--terrain <npz>`** loads that mesh via `gym.add_triangle_mesh` in the same world frame as the
+  trajectory, so the feet align with the bumps instead of floating over a flat plane
+  (`scripts/render_replay_isaacgym.py:55-57` arg; `:80-93` load-and-add, falling back to a ground
+  plane when no terrain is given).
+- Cosmetic restyle so this Isaac-Lab-reproduction clip is visually distinguishable from the original
+  SATA Isaac-Gym videos (same renderer otherwise): robot tinted teal via `set_rigid_body_color`,
+  cool key light via `set_light_parameters`, closer follow-camera
+  (`scripts/render_replay_isaacgym.py:120-128` colour + light; `:169-173` the closer camera offset).
+  This touches only appearance — joint states and terrain are untouched.
+
+### Pipeline (re-runnable for any seed)
+Eval in the `isaaclab` env headless (dumps trajectory + terrain), then replay in the `sata` env with
+`DISPLAY=:0`:
+```bash
+# 1. eval (isaaclab env, headless): dump trajectory CSV + terrain npz, forward command locked
+CUDA_VISIBLE_DEVICES=0 ./isaaclab.sh -p \
+  ~/workspace/isaaclab-torque-locomotion/scripts/eval_metrics.py \
+  --task Isaac-Velocity-Rough-Go2-Sata-Play-v0 --load_run <run_dir> \
+  --num_envs 1 --steps 500 --headless --cmd_vx 1.0 \
+  --traj_out results/traj_rough_s4.csv
+# 2. replay (sata env, VNC display): render the rough terrain + trajectory
+DISPLAY=:0 python scripts/render_replay_isaacgym.py \
+  --traj results/traj_rough_s4.csv --terrain results/traj_rough_s4_terrain.npz \
+  --out results/deck/06_roughReplay_cleanWalk.mp4 --gpu 0
+```
+Reminder: this is a cross-engine replay (real Isaac-Lab joint states, Isaac-Gym rendering), not a
+native Isaac Lab render — labelled that way wherever the clip appears.
