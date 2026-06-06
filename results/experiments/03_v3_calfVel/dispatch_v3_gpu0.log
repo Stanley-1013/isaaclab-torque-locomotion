@@ -1,0 +1,2 @@
+[gpu0] dispatch_pairs start: [Isaac-Velocity-Rough-Go2-Sata-v0,go2_v3,1] Wed Jun  3 22:10:44 CST 2026
+[gpu0] >>> Isaac-Velocity-Rough-Go2-Sata-v0 seed 1 starting Wed Jun  3 22:10:44 CST 2026 -> /home/han/workspace/isaaclab-torque-locomotion/results/go2_v3_s1.log

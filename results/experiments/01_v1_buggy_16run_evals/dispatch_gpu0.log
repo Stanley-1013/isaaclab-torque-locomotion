@@ -1,0 +1,10 @@
+[gpu0] dispatch_pairs start: [Isaac-Velocity-Rough-Go2-Sata-v0,go2_sr,1 Isaac-Velocity-Rough-Go2-Sata-v0,go2_sr,3 Isaac-Velocity-Rough-Go2-Sata-v0,go2_sr,5 Isaac-Velocity-Rough-Go2-Sata-v0,go2_sr,7] Wed Jun  3 02:28:28 CST 2026
+[gpu0] >>> Isaac-Velocity-Rough-Go2-Sata-v0 seed 1 starting Wed Jun  3 02:28:28 CST 2026 -> /home/han/workspace/isaaclab-torque-locomotion/results/go2_sr_s1.log
+[gpu0] <<< go2_sr seed 1 exit=0 Wed Jun  3 05:15:06 CST 2026
+[gpu0] >>> Isaac-Velocity-Rough-Go2-Sata-v0 seed 3 starting Wed Jun  3 05:15:06 CST 2026 -> /home/han/workspace/isaaclab-torque-locomotion/results/go2_sr_s3.log
+[gpu0] <<< go2_sr seed 3 exit=0 Wed Jun  3 07:58:26 CST 2026
+[gpu0] >>> Isaac-Velocity-Rough-Go2-Sata-v0 seed 5 starting Wed Jun  3 07:58:26 CST 2026 -> /home/han/workspace/isaaclab-torque-locomotion/results/go2_sr_s5.log
+[gpu0] <<< go2_sr seed 5 exit=0 Wed Jun  3 10:55:40 CST 2026
+[gpu0] >>> Isaac-Velocity-Rough-Go2-Sata-v0 seed 7 starting Wed Jun  3 10:55:40 CST 2026 -> /home/han/workspace/isaaclab-torque-locomotion/results/go2_sr_s7.log
+[gpu0] <<< go2_sr seed 7 exit=0 Wed Jun  3 13:37:09 CST 2026
+[gpu0] ALL DONE: [Isaac-Velocity-Rough-Go2-Sata-v0,go2_sr,1 Isaac-Velocity-Rough-Go2-Sata-v0,go2_sr,3 Isaac-Velocity-Rough-Go2-Sata-v0,go2_sr,5 Isaac-Velocity-Rough-Go2-Sata-v0,go2_sr,7] Wed Jun  3 13:37:09 CST 2026
