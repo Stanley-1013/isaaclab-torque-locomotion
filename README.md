@@ -19,8 +19,9 @@ and research use.
 compared, term by term, against the Isaac Gym reference. Headline: under matched
 config the policy **matches SATA's per-step task-reward terms** (the positive
 reward terms match the Gym reference to within ~0.002/step), and the remaining
-reward-number gap is dominated by a single penalty term with a documented
-cross-engine definitional difference. We do **not** claim the two engines are
+reward-number gap is concentrated in one penalty term whose cross-engine
+definition differs; whether that fully explains it is an open question (see
+below). We do **not** claim the two engines are
 equivalent. Start here:
 [`docs/REPRODUCTION_NOTES.md`](./docs/REPRODUCTION_NOTES.md) (validated settings
 + the result + the gap decomposition) ·

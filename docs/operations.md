@@ -182,7 +182,7 @@ SATA's real `go2_torque` (`SATA/legged_gym/.../go2/go2_torque/go2_torque.py`):
 Phase-3 headline (reproduction `results/phase3-bio-claims.../README.md`), what Tier-2
 must reproduce qualitatively: reference peak τ 22.5±0.3; **no_activation → 42.5±4.4**
 (jerk rises sharply); **no_fatigue → energy 1.69 (2.5×), jerk 26,998 (35×)**. Phase-1
-reference reward **104±16 (8 seeds)** / 114±6 (3 seeds). (The prior repo read the
+reference reward **103.6±16.0 (the SATA repo's rounded headline 104±16, recomputed here from tfevents) (8 seeds)** / 114±6 (3 seeds). (The prior repo read the
 bio layers as feasibility constraints rather than reward devices — its own
 interpretation, not load-bearing here; this repo is about cross-engine fidelity.
 See [[feedback-research-rigor]].)
@@ -296,8 +296,9 @@ each seed (32 envs ×1000 steps, headless) → `results/metrics_sata_s<N>.csv`;
 All 8 seeds keep peak joint torque **inside the 45 N·m hardware envelope** (max 28.3),
 matching SATA's ~22.5 reference. Wider spread than SATA's ±0.3 traces to two less-converged
 seeds (s2 28.3, s3 26.1); the other six cluster ~22.75 ± 1.4. **→ the v1 flat-terrain peak-torque
-numbers were consistent with the prior repo's peak-torque observation (this framing was later
-dropped; see the rough-terrain reward result).** Anti-over-claim: sim-only;
+numbers were consistent with the prior repo's peak-torque observation (envelope framing is the
+prior repo's own interpretation, not load-bearing here; and our OWN envelope reproduction was
+superseded by the reward result as THIS repo's headline; see the rough-terrain reward result).** Anti-over-claim: sim-only;
 "within envelope" = within the rated torque number, not hardware-validated; reward magnitudes
 are not cross-engine-comparable (envelope metrics are).
 

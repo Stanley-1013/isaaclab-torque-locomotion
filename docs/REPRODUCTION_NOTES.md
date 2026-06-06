@@ -114,8 +114,9 @@ SATA's `_reward_dof_acc` is a finite difference `((last_dof_vel − dof_vel)/dt)
 PhysX5's instantaneous `data.joint_acc^2` (`src/torque_loco/sata_mdp.py:144-150`). We tried matching
 the finite-difference form (it trained markedly worse — see that comment — and was reverted).
 PhysX5's instantaneous acceleration captures contact-impact spikes the finite difference smooths
-over, so the same motion is penalised more under our term. This suggests the residual per-step gap
-is dominated by how this one term is measured, not by worse locomotion.
+over, so the same motion is penalised more under our term. This points to the measurement
+difference as a plausible contributor to the residual per-step gap; whether it fully explains the
+gap (vs. a genuinely jerkier Lab gait) is an open question (see below).
 
 ### Open questions (honest)
 - We have **not** separated "the penalty measures acceleration differently" from "the Lab gait is

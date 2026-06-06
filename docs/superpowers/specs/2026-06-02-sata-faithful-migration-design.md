@@ -200,7 +200,7 @@ From the reproduction repo's Phase-1/3 (`results/phase1-reference`, `phase3-bio-
 - **Reference peak torque ≈ 22.5 N·m** — inside the 23.5 sim clip / well under the 45 N·m real limit.
 - Energy/jerk in the reference's nominal range (the no_fatigue blow-ups — 2.5× energy, 35× jerk — are
   NOT reproduced here since we don't train no-bio; they remain the prior project's result we cite).
-- Reward magnitude sane and stable across seeds (SATA ref 114±6 / 104±16 — **not** directly comparable
+- Reward magnitude sane and stable across seeds (SATA ref 114±6 / 103.6±16.0 (the SATA repo's rounded headline 104±16, recomputed here from tfevents) — **not** directly comparable
   cross-engine; used only as an order-of-magnitude sanity check).
 
 ---
