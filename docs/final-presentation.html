@@ -594,22 +594,21 @@ td .mono{font-weight:500}
         </ul>
         <div class="stats rise r4">
           <div class="stat"><div class="n teal">76.8<span style="font-size:.5em">±16.2</span></div><div class="l">Isaac Lab · 8 seeds</div></div>
-          <div class="stat"><div class="n">103.6<span style="font-size:.5em">±16.0</span></div><div class="l">Isaac Gym reference</div></div>
+          <div class="stat"><div class="n">103.6<span style="font-size:.5em">±16.0</span></div><div class="l">Isaac Gym ref · ≈104±16 (tfevents)</div></div>
         </div>
-        <p class="lede rise r4" style="font-size:clamp(12px,1.15vw,15px)">103.6 ± 16.0 is the <strong>same 8-seed Gym run</strong> the Stage-1 deck rounds to 104 ± 16 — recomputed here from tfevents.</p>
       </div>
       <div class="compare" style="grid-template-rows:1fr 1fr;grid-template-columns:1fr">
         <div class="card tick rise r2">
-          <div class="plotwrap" style="background:#000"><img class="gif" src="../results/deck/01_flat_rewardBug_crawl.gif" alt="early reward-bug belly crawl in Isaac Lab"></div>
+          <div class="plotwrap" style="background:#000;text-align:center"><img class="gif" style="max-height:29vh;width:auto;margin:0 auto;object-fit:contain" src="../results/deck/01_flat_rewardBug_crawl.gif" alt="early reward-bug belly crawl in Isaac Lab"></div>
           <div class="verdict down"><span class="ico">↓</span><div><strong>early reward bug</strong> — belly-crawl: the reward was summed over substeps, ~2× too large during growth.</div></div>
         </div>
         <div class="card tick rise r3">
-          <div class="plotwrap" style="background:#000"><img class="gif" src="../results/deck/06_roughReplay_cleanWalk.gif" alt="clean gait on SATA-rough terrain in Isaac Lab"></div>
+          <div class="plotwrap" style="background:#000;text-align:center"><img class="gif" style="max-height:29vh;width:auto;margin:0 auto;object-fit:contain" src="../results/deck/06_roughReplay_cleanWalk.gif" alt="clean gait on SATA-rough terrain in Isaac Lab"></div>
           <div class="verdict up"><span class="ico">↑</span><div><strong>after the fixes</strong> — clean gait on the actual SATA-rough terrain. Teal robot / cool light mark the Isaac-Lab clips.</div></div>
         </div>
       </div>
     </div>
-    <div class="foot">Reward = rsl_rl mean episodic return · mean ± sample std (ddof=1) · both engines show 7 seeds clustering + <b>1 late PPO collapse</b> (ours s5, Gym s7) — reported honestly · <b>docs/REPRODUCTION_NOTES.md</b></div>
+    <div class="foot">Both engines: 7 seeds cluster + <b>1 late PPO collapse</b> (ours s5 / Gym s7), reported honestly · mean ± sample std (ddof=1) · <b>docs/REPRODUCTION_NOTES.md</b></div>
   </section>
 
   <!-- ============ 13 · STAGE 2c — WHERE THE GAP IS ============ -->
